@@ -79,10 +79,10 @@ Nhóm so sánh Incremental DBSCAN với việc chạy lại DBSCAN đầy đủ 
 
 | Họ và tên | Vai trò |
 |---|---|
-| Lý Huỳnh Phương Anh | _cập nhật sau khi vote_ |
-| Nguyễn Hoàng Anh | _cập nhật sau khi vote_ |
-| Hồ Ngọc Bảo | _cập nhật sau khi vote_ |
-| Nguyễn Phạm Gia Bảo | _cập nhật sau khi vote_ |
-| Từ Thiên Gia Bảo | _cập nhật sau khi vote_ |
+| Lý Huỳnh Phương Anh | _Leader / DBSCAN / tích hợp_ |
+| Nguyễn Hoàng Anh | _Incremental theory + INSERT_ |
+| Hồ Ngọc Bảo | _Evaluation + comparison + QA_ |
+| Nguyễn Phạm Gia Bảo | _Data + experiment + visualization_ |
+| Từ Thiên Gia Bảo | _OOP + DBSCAN + DELETE_ |
 
-Môn học: _[điền tên môn]_ · Giảng viên: _[điền tên giảng viên]_ · Trường: _[điền tên trường]_
+Môn học: _Máy học_ · Giảng viên: _Nguyễn An Tế_ · Trường: _Đại học Kinh tế TPHCM_
