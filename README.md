@@ -1,6 +1,6 @@
 # Incremental DBSCAN
 
-Bài tập nhóm: tự cài đặt **DBSCAN** và **Incremental DBSCAN** bằng Python theo hướng đối tượng, không dùng thư viện cho phần thuật toán. Khi có điểm mới được thêm vào hoặc xóa đi, mô hình chỉ cập nhật vùng bị ảnh hưởng thay vì chạy lại toàn bộ.
+Tự cài đặt **DBSCAN** và **Incremental DBSCAN** bằng Python theo hướng đối tượng, không dùng thư viện cho phần thuật toán. Khi có điểm mới được thêm vào hoặc xóa đi, mô hình chỉ cập nhật vùng bị ảnh hưởng thay vì chạy lại toàn bộ.
 
 ## Ý tưởng chính
 
