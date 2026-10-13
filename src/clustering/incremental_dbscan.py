@@ -12,7 +12,7 @@ class IncrementalDBSCAN(DBSCAN):
 
     def insert_point(self, coords: np.ndarray) -> int:
         """
-        [Do TV2 / Nguyễn Hoàng Anh cài đặt]
+        [Do TV2 / Phương Anh cài đặt]
         Thêm một điểm mới vào mô hình và cập nhật cụm.
         """
         raise NotImplementedError("Phương thức insert_point sẽ được tích hợp bởi TV2.")
