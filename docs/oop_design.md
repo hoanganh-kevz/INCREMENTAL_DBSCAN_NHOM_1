@@ -11,6 +11,13 @@ classDiagram
         +PointType point_type
         +int neighbor_count
     }
+    class PointType {
+        <<enumeration>>
+        UNCLASSIFIED
+        NOISE
+        BORDER
+        CORE
+    }
     class DistanceMetric {
         +euclidean(first, second) float
     }
@@ -46,6 +53,7 @@ classDiagram
 
     IncrementalDBSCAN --|> DBSCAN
     DBSCAN "1" o-- "0..*" DataPoint : quản lý các điểm đã fit
+    DataPoint --> PointType : trạng thái điểm
     DBSCAN --> DistanceMetric : tính khoảng cách
     ClusterEvaluator --> DistanceMetric : đánh giá khoảng cách
     ExperimentRunner --> IncrementalDBSCAN : chạy kịch bản cập nhật
@@ -60,6 +68,7 @@ classDiagram
 | Lớp | Trách nhiệm | Giao diện chính |
 |---|---|---|
 | `DataPoint` | Lưu vector n-D, ID, nhãn cụm, loại điểm và số láng giềng. | `id`, `coords`, `cluster_id`, `point_type`, `neighbor_count` |
+| `PointType` | Liệt kê trạng thái chưa phân loại, nhiễu, biên và lõi của điểm. | `UNCLASSIFIED`, `NOISE`, `BORDER`, `CORE` |
 | `DistanceMetric` | Tính khoảng cách, độc lập với dữ liệu điểm và thuật toán gom cụm. | `euclidean(first, second)` |
 | `ManualScaler` | Ước lượng tham số co giãn và biến đổi đặc trưng trước khi gom cụm. | `fit`, `transform`, `fit_transform`, `inverse_transform` |
 | `DBSCAN` | Giữ tham số và thực hiện DBSCAN theo lô: tìm vùng lân cận, mở rộng cụm, gán nhãn. | `fit`, `get_labels` |
@@ -76,16 +85,9 @@ thuật toán.
 
 ## Đối chiếu với mã nguồn hiện tại
 
-Sơ đồ trên mô tả thiết kế mục tiêu của C02; mã nguồn hiện tại chưa có đủ các
-lớp và chưa thống nhất toàn bộ tên lớp:
-
-| Mã nguồn hiện tại | Lớp trong thiết kế C02 | Ghi chú |
-|---|---|---|
-| `Point` | `DataPoint` và `DistanceMetric` | `Point` hiện lưu dữ liệu điểm và tự tính khoảng cách; thiết kế tách hai trách nhiệm này. |
-| `CustomDBSCAN` | `DBSCAN` | Cùng vai trò DBSCAN theo lô, khác tên lớp. |
-| `IncrementalDBSCAN` | `IncrementalDBSCAN` | Đã có; hiện kế thừa `CustomDBSCAN`, còn sơ đồ chốt lớp cơ sở là `DBSCAN`. |
-| Chưa có | `ManualScaler`, `ClusterEvaluator`, `ClusterVisualizer`, `ExperimentRunner` | Các lớp này mới được xác định trong thiết kế C02, chưa xuất hiện trong mã nguồn hiện tại. |
-
-Vì vậy, không nên xem sơ đồ là mô tả chính xác các lớp đang có trong code.
-Việc đổi tên hoặc tách lớp trong mã nguồn cần được thực hiện ở các task cài đặt
-tương ứng; C02 chỉ chốt thiết kế và trách nhiệm lớp.
+`src/incremental_dbscan.py` hiện triển khai `DataPoint`, `PointType`,
+`DistanceMetric`, `DBSCAN` và `IncrementalDBSCAN` theo các trách nhiệm cốt lõi
+trong sơ đồ. Tên `Point` và `CustomDBSCAN` vẫn được giữ làm bí danh tương thích
+với code cũ. `ManualScaler`, `ClusterEvaluator`, `ClusterVisualizer` và
+`ExperimentRunner` chưa được cài đặt trong file thuật toán này; C02 chỉ chốt
+thiết kế của chúng.
