@@ -73,3 +73,19 @@ classDiagram
 có một trách nhiệm chính và chỉ phụ thuộc vào những giao diện cần thiết. Đây
 là thiết kế cho C02; các nhiệm vụ sau chịu trách nhiệm cài đặt từng lớp và
 thuật toán.
+
+## Đối chiếu với mã nguồn hiện tại
+
+Sơ đồ trên mô tả thiết kế mục tiêu của C02; mã nguồn hiện tại chưa có đủ các
+lớp và chưa thống nhất toàn bộ tên lớp:
+
+| Mã nguồn hiện tại | Lớp trong thiết kế C02 | Ghi chú |
+|---|---|---|
+| `Point` | `DataPoint` và `DistanceMetric` | `Point` hiện lưu dữ liệu điểm và tự tính khoảng cách; thiết kế tách hai trách nhiệm này. |
+| `CustomDBSCAN` | `DBSCAN` | Cùng vai trò DBSCAN theo lô, khác tên lớp. |
+| `IncrementalDBSCAN` | `IncrementalDBSCAN` | Đã có; hiện kế thừa `CustomDBSCAN`, còn sơ đồ chốt lớp cơ sở là `DBSCAN`. |
+| Chưa có | `ManualScaler`, `ClusterEvaluator`, `ClusterVisualizer`, `ExperimentRunner` | Các lớp này mới được xác định trong thiết kế C02, chưa xuất hiện trong mã nguồn hiện tại. |
+
+Vì vậy, không nên xem sơ đồ là mô tả chính xác các lớp đang có trong code.
+Việc đổi tên hoặc tách lớp trong mã nguồn cần được thực hiện ở các task cài đặt
+tương ứng; C02 chỉ chốt thiết kế và trách nhiệm lớp.
