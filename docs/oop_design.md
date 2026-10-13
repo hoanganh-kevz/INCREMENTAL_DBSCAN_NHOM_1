@@ -85,8 +85,9 @@ thuật toán.
 
 ## Đối chiếu với mã nguồn hiện tại
 
-`src/incremental_dbscan.py` hiện triển khai `DataPoint`, `PointType`,
-`DistanceMetric`, `DBSCAN` và `IncrementalDBSCAN` theo các trách nhiệm cốt lõi
-trong sơ đồ, dùng thống nhất các tên lớp theo C02. `ManualScaler`,
-`ClusterEvaluator`, `ClusterVisualizer` và `ExperimentRunner` chưa được cài
-đặt trong file thuật toán này; C02 chỉ chốt thiết kế của chúng.
+`DataPoint` và `PointType` nằm trong `src/core/data_point.py`; `DistanceMetric`
+nằm trong `src/core/distance_metric.py`. `DBSCAN` và `IncrementalDBSCAN` nằm
+trong `src/clustering/`. File `src/incremental_dbscan.py` chỉ xuất lại các lớp
+này để giữ một điểm import tiện dụng, không chứa phần cài đặt. `ManualScaler`,
+`ClusterEvaluator`, `ClusterVisualizer` và `ExperimentRunner` vẫn chỉ được
+xác định trong thiết kế C02; phần code của chúng thuộc các task tương ứng.
