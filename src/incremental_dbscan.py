@@ -234,8 +234,3 @@ class IncrementalDBSCAN(DBSCAN):
                             queue.append(n_idx)
             else:
                 self.points[curr_idx].point_type = PointType.BORDER
-
-
-# Tương thích với các import cũ trong khi thống nhất tên class theo thiết kế C02.
-Point = DataPoint
-CustomDBSCAN = DBSCAN
