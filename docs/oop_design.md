@@ -4,13 +4,16 @@
 
 ```mermaid
 classDiagram
+    direction TB
+
     class DataPoint {
-        +int id
-        +ndarray coords
-        +Optional[int] cluster_id
-        +PointType point_type
-        +int neighbor_count
+        +id: int
+        +coords: ndarray
+        +cluster_id: Optional[int]
+        +point_type: PointType
+        +neighbor_count: int
     }
+
     class PointType {
         <<enumeration>>
         UNCLASSIFIED
@@ -18,48 +21,55 @@ classDiagram
         BORDER
         CORE
     }
+
     class DistanceMetric {
-        +euclidean(first, second) float
+        +euclidean(first: ndarray, second: ndarray): float
     }
+
     class ManualScaler {
-        +fit(data) ManualScaler
-        +transform(data) ndarray
-        +fit_transform(data) ndarray
-        +inverse_transform(data) ndarray
+        +fit(data: ndarray): ManualScaler
+        +transform(data: ndarray): ndarray
+        +fit_transform(data: ndarray): ndarray
+        +inverse_transform(data: ndarray): ndarray
     }
+
     class DBSCAN {
-        -float eps
-        -int min_pts
-        +fit(data) DBSCAN
-        +get_labels() list
-        -region_query(point) list~DataPoint~
-        -expand_cluster(seed, cluster_id) None
+        -eps: float
+        -min_pts: int
+        -points: list~DataPoint~
+        +fit(data: ndarray): DBSCAN
+        +get_labels(): list~int~
+        -region_query(point: DataPoint): list~DataPoint~
+        -expand_cluster(seed: DataPoint, cluster_id: int): None
     }
+
     class IncrementalDBSCAN {
-        +fit(data) IncrementalDBSCAN
-        +insert_point(coords) int
-        +delete_point(point_id) None
+        +insert(point: DataPoint): int
+        +delete(point_id: int): None
     }
+
     class ClusterEvaluator {
-        +evaluate(data, labels) dict
+        +evaluate(data: ndarray, labels: list~int~): dict
     }
+
     class ClusterVisualizer {
-        +plot_2d(data, labels)
+        +plot_2d(data: ndarray, labels: list~int~)
         +plot_before_after(before, after)
     }
+
     class ExperimentRunner {
-        +run(initial_data, updates) list
+        +run(initial_data: ndarray, updates: list): list
     }
 
     IncrementalDBSCAN --|> DBSCAN
     DBSCAN "1" o-- "0..*" DataPoint : quản lý các điểm đã fit
-    DataPoint --> PointType : trạng thái điểm
-    DBSCAN --> DistanceMetric : tính khoảng cách
-    ClusterEvaluator --> DistanceMetric : đánh giá khoảng cách
-    ExperimentRunner --> IncrementalDBSCAN : chạy kịch bản cập nhật
-    ExperimentRunner --> ClusterEvaluator : thu thập chỉ số
-    ExperimentRunner --> ClusterVisualizer : yêu cầu vẽ
-    ManualScaler ..> DBSCAN : chuẩn bị dữ liệu đầu vào
+    DataPoint --> PointType : point_type
+    DBSCAN ..> DistanceMetric : tính khoảng cách
+    ClusterEvaluator ..> DistanceMetric : tính khoảng cách đánh giá
+    ExperimentRunner ..> ManualScaler : tiền xử lý dữ liệu
+    ExperimentRunner ..> IncrementalDBSCAN : chạy cập nhật
+    ExperimentRunner ..> ClusterEvaluator : đánh giá kết quả
+    ExperimentRunner ..> ClusterVisualizer : trực quan hóa kết quả
     ClusterVisualizer ..> DataPoint : hiển thị điểm và nhãn
 ```
 
@@ -72,7 +82,7 @@ classDiagram
 | `DistanceMetric` | Tính khoảng cách, độc lập với dữ liệu điểm và thuật toán gom cụm. | `euclidean(first, second)` |
 | `ManualScaler` | Ước lượng tham số co giãn và biến đổi đặc trưng trước khi gom cụm. | `fit`, `transform`, `fit_transform`, `inverse_transform` |
 | `DBSCAN` | Giữ tham số và thực hiện DBSCAN theo lô: tìm vùng lân cận, mở rộng cụm, gán nhãn. | `fit`, `get_labels` |
-| `IncrementalDBSCAN` | Mở rộng DBSCAN với thao tác cập nhật điểm. | Kế thừa `fit`/`get_labels`; thêm `insert_point`/`delete_point` |
+| `IncrementalDBSCAN` | Mở rộng DBSCAN với thao tác cập nhật điểm. | Kế thừa `fit`/`get_labels`; thêm `insert(point)`/`delete(point_id)` |
 | `ClusterEvaluator` | Tính các chỉ số đánh giá từ dữ liệu và nhãn cụm. | `evaluate(data, labels)` |
 | `ClusterVisualizer` | Vẽ dữ liệu 2D, nhãn cụm và trạng thái điểm. | `plot_2d`, `plot_before_after` |
 | `ExperimentRunner` | Điều phối kịch bản chạy và thu thập kết quả. | `run(initial_data, updates)` |
