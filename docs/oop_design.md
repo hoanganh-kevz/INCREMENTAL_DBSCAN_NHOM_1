@@ -83,11 +83,7 @@ có một trách nhiệm chính và chỉ phụ thuộc vào những giao diện
 là thiết kế cho C02; các nhiệm vụ sau chịu trách nhiệm cài đặt từng lớp và
 thuật toán.
 
-## Đối chiếu với mã nguồn hiện tại
+## Phạm vi C02
 
-`DataPoint` và `PointType` nằm trong `src/core/data_point.py`; `DistanceMetric`
-nằm trong `src/core/distance_metric.py`. `DBSCAN` và `IncrementalDBSCAN` nằm
-trong `src/clustering/`. Import qua package `src.core` và `src.clustering`;
-không giữ file facade trùng ở thư mục `src`. `ManualScaler`, `ClusterEvaluator`,
-`ClusterVisualizer` và `ExperimentRunner` vẫn chỉ được xác định trong thiết kế
-C02; phần code của chúng thuộc các task tương ứng.
+Tài liệu này chỉ chốt sơ đồ lớp, trách nhiệm và giao diện dự kiến. Việc cài đặt
+các lớp và thuật toán được thực hiện ở những task code riêng sau C02.
