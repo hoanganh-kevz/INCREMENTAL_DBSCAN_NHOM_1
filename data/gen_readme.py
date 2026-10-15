@@ -7,7 +7,30 @@ from pathlib import Path
 DATA = Path(__file__).resolve().parent
 RAW = DATA / "raw"
 
+# Thư mục sinh lại được, nằm trong data/.gitignore, không nằm trong bản đồ file và giới hạn dung lượng.
+REGENERABLE = {"bench", "baseline_bench", "baseline", "preview"}
 SUPPORT_VI = {"insert": "TV2 (chèn)", "delete": "TV3 (xóa)", "equivalence": "TV5 (tương đương với re-fit)"}
+TITLE_VI = {
+    "e01_insert_at_eps_inclusive": "Chèn cách lõi đúng một khoảng Eps (biên bao hàm)",
+    "e02_insert_just_outside_eps": "Chèn ngay ngoài Eps (xa hơn 1/16)",
+    "e03_insert_tie_makes_core": "Chèn cách một điểm nhiễu đúng Eps làm nó thành lõi",
+    "e04_insert_duplicate_coordinate": "Chèn trùng tọa độ một điểm sẵn có",
+    "e05_insert_border_to_core_cascade": "Chèn nâng một điểm biên và ba điểm nhiễu thành lõi (lan chuyền)",
+    "e06_insert_bridges_three_clusters": "Một điểm chèn hợp nhất ba cụm",
+    "e07_insert_merge_absorbs_noise": "Hợp nhất hai cụm và hút một điểm nhiễu",
+    "e08_insert_creation_exactly_minpts": "Cụm chỉ được tạo khi đã đủ MinPts điểm",
+    "e09_insert_noise_near_border": "Chèn nhiễu cạnh điểm biên nhưng ngoài Eps của mọi lõi",
+    "e10_insert_border_of_two_clusters": "Điểm chèn là biên của hai cụm (mơ hồ)",
+    "e11_delete_border_point": "Xóa một điểm biên (không lõi nào đổi trạng thái)",
+    "e12_delete_noise_point": "Xóa một điểm nhiễu",
+    "e13_delete_splits_into_three": "Xóa lõi trung tâm: một cụm tách thành ba",
+    "e14_delete_nonsplit_long_detour": "Xóa cầu nối nhưng còn đường vòng dài (BFS sâu hơn 2): không tách",
+    "e15_delete_shared_border_to_noise": "Xóa một lõi: điểm biên dùng chung thành nhiễu",
+    "e16_delete_bridge_leaves_ambiguous_border": "Xóa lõi cầu nối: còn điểm biên chia sẻ giữa hai cụm",
+    "e17_delete_then_reinsert_round_trip": "Xóa một cầu nối rồi chèn lại đúng tọa độ cũ (id mới)",
+    "e18_insert_4d_merge": "Chèn hợp nhất hai cụm trong không gian 4 chiều",
+    "e19_minpts2_chain": "MinPts = 2: mọi điểm không nhiễu là lõi, chuỗi nối từng bước",
+}
 EDGE_TASK = {"e18_insert_4d_merge": "C12; chứng minh khoảng cách không viết cứng 2D", "e19_minpts2_chain": "C12; MinPts nhỏ nhất, không có điểm biên",
              "e17_delete_then_reinsert_round_trip": "C12; kiểm tra id mới và trạng thái nội bộ sau Split"}
 
@@ -28,7 +51,7 @@ def filemap():
     out = ["| File | Dòng | Dung lượng |", "|---|---|---|"]
     for base in (RAW, DATA / "truth", DATA / "processed"):
         for p in sorted(base.rglob("*")):
-            if not p.is_file() or p.name == ".gitkeep" or {"bench", "baseline_bench"} & set(p.parts) or "toy" in p.parts[-3:-1] or "toy_edge" in p.parts[-3:-1]:
+            if not p.is_file() or p.name == ".gitkeep" or REGENERABLE & set(p.parts) or "toy" in p.parts[-3:-1] or "toy_edge" in p.parts[-3:-1]:
                 continue
             rel = p.relative_to(DATA).as_posix()
             n = rows_of(p) if p.suffix == ".csv" else ""
@@ -39,7 +62,7 @@ def filemap():
         sz = sum(p.stat().st_size for p in d.rglob("*") if p.is_file())
         out.append(f"| `raw/{name}/<scenario>/` ({k} thư mục x 3 file) | | {sz / 1024:.1f} KB |")
     total = sum(p.stat().st_size for p in DATA.rglob("*")
-                if p.is_file() and "__pycache__" not in p.parts and not {"bench", "baseline_bench"} & set(p.parts))
+                if p.is_file() and "__pycache__" not in p.parts and not REGENERABLE & set(p.parts))
     out.append(f"| **Toàn bộ `data/`** | | **{total / 2 ** 20:.2f} MB** |")
     return "\n".join(out)
 
@@ -80,15 +103,11 @@ def edge():
         extra = []
         if e["ambiguous_to_ignore"]:
             extra.append("có điểm biên mơ hồ: " + ",".join(e["ambiguous_to_ignore"]))
-        if e["ties_at_exactly_eps"]:
-            extra.append("khoảng cách đúng bằng Eps")
-        if e["dims"] > 2:
-            extra.append(f"{e['dims']} chiều")
         hops = [s.get("max_core_hops_between_seeds") for s in e["steps"] if s.get("max_core_hops_between_seeds")]
         if hops:
             extra.append(f"độ sâu BFS giữa các hạt giống = {max(hops)}")
         out.append(f"| `{d.name}` | {' → '.join(s['case'] for s in e['steps'])} | {e['eps']:g} / {e['minpts']} | {who} | "
-                   f"{EDGE_TASK.get(d.name, 'C12')} | {e['title']}" + (f" ({'; '.join(extra)})" if extra else "") + " |")
+                   f"{EDGE_TASK.get(d.name, 'C12')} | {TITLE_VI.get(d.name, e['title'])}" + (f" ({'; '.join(extra)})" if extra else "") + " |")
     return "\n".join(out)
 
 

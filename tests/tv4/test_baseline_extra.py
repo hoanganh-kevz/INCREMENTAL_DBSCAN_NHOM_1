@@ -15,7 +15,7 @@ ATM = RAW / "bank_geo" / "atm_stream"
 CARD = RAW / "bank_card" / "card_stream"
 
 
-# ---------------------------------------------------------------- M20 và compare_partitions
+# ---------------------------------------------------------------- partition_equal và compare_partitions
 def test_partition_equal_requires_same_noise_set():
     """ARI = 1 nhưng điểm nhiễu của bên này là một cụm của bên kia: KHÔNG được coi là cùng phân hoạch."""
     a = [0, 0, 1, 1, -1, -1]
@@ -58,7 +58,7 @@ def test_idmap_is_explicit_two_way_and_rejects_double_binding():
         m.stream_id(0)
 
 
-# ---------------------------------------------------------------- M39: id stream khác id engine
+# ---------------------------------------------------------------- id stream khác id engine
 def _offset_stream(src, dst, offset):
     dst.mkdir(parents=True)
     d0 = pd.read_csv(src / "d0.csv", dtype={"district_id": str})
@@ -148,4 +148,4 @@ def test_benchmark_entry_point_small(tmp_path, monkeypatch):
     res = bl.run_benchmark([500], out_dir=tmp_path, repeats=2)
     assert set(res["op"]) == {"fit", "insert", "delete"} and set(res["family"]) == {"atm", "card"}
     assert (res["median_ms"] > 0).all() and (tmp_path / "bench_timing.csv").exists() and (tmp_path / "README.txt").exists()
-    assert "PHỤ THUỘC MÁY" in (tmp_path / "README.txt").read_text(encoding="utf-8")
+    assert "Phụ thuộc máy" in (tmp_path / "README.txt").read_text(encoding="utf-8")

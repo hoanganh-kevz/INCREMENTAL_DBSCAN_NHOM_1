@@ -1,6 +1,6 @@
-# Quy ước chung của nhóm (đề xuất từ phần dữ liệu và baseline)
+# Quy ước chung cho code của nhóm (phần dữ liệu và baseline)
 
-File này nằm ngoài `README.md` và `docs/oop_design.md` vì hai file đó đang được Git theo dõi; trưởng nhóm có thể chép các mục cần thiết sang đó.
+Các quy ước dưới đây có thể chép sang `README.md` hoặc `docs/oop_design.md` khi nhóm thống nhất.
 
 ## 1. Lân cận Eps tính cả chính điểm đó
 
@@ -37,10 +37,10 @@ File này nằm ngoài `README.md` và `docs/oop_design.md` vì hai file đó đ
 
 ## 5. Đo thời gian
 
-- `run_stream` đo mỗi update 5 lần trên bản sao sâu (`copy.deepcopy`) của engine, ghi **trung vị** vào `update_seconds`, kèm `n_repeats` và `n` (số điểm engine xử lý) trong `timing.csv`. Engine thật chỉ chịu một lần áp dụng không tính giờ, nên phần xác định (nhãn, số cụm) không đổi theo số lần đo. Engine của nhóm phải `deepcopy` được; nếu không, đặt `repeats=1`.
-- `python -m baseline.sklearn_dbscan --bench` chạy RefitDBSCAN trên các bảng `--n 500 1000 2000 4000` (tự sinh `data/raw/bench/` bằng `generate_data.write_bench` nếu chưa có) và ghi `data/processed/baseline_bench/`. **File thời gian phụ thuộc máy (CPU, hệ điều hành, phiên bản sklearn), không commit.** `README.txt` trong thư mục đó ghi cấu hình máy lúc đo.
+- `run_stream` đo mỗi update 5 lần trên bản sao sâu (`copy.deepcopy`) của engine, ghi **trung vị** vào `update_seconds`, kèm `n_repeats` và `n` (số điểm engine xử lý) trong `timing.csv`. Update chính thức chỉ áp dụng một lần và không tính giờ, nên nhãn và số cụm không phụ thuộc số lần đo. Engine của nhóm phải `deepcopy` được; nếu không, đặt `repeats=1`.
+- `python -m baseline.sklearn_dbscan --bench` chạy RefitDBSCAN trên các bảng `--n 500 1000 2000 4000` (tự sinh `data/raw/bench/` bằng `generate_data.write_bench` nếu chưa có) và ghi `data/processed/baseline_bench/`. **File thời gian phụ thuộc máy (CPU, hệ điều hành, phiên bản sklearn), không đưa lên git (có trong `data/.gitignore`).** `README.txt` trong thư mục đó ghi cấu hình máy lúc đo.
 
 ## 6. Tệp văn bản và Windows
 
 - Mọi lệnh đọc/ghi file văn bản trong repo ghi rõ `encoding="utf-8"` (JSON và README có tiếng Việt; Windows mặc định cp1252 hoặc cp1258). `tests/test_encoding.py` quét AST để không ai thêm lệnh thiếu encoding. Ghi file dùng `newline="\n"` (hoặc `newline=""` với csv) để kết quả giống từng byte trên mọi máy.
-- Đề xuất `.gitattributes` ở `data/GITATTRIBUTES_PROPOSED.txt`; để checkout CRLF không làm `check_data.py` thất bại (đã thử đổi file sang CRLF: bước kiểm bất biến báo `file bytes changed` cho các params.json và expected.json, vì chúng được băm và so từng byte).
+- Gợi ý `.gitattributes` ở `data/GITATTRIBUTES_PROPOSED.txt`: nếu Windows checkout đổi LF thành CRLF, `check_data.py` báo `file bytes changed` ở các `params.json` và `expected.json`, vì chúng được băm và so từng byte.

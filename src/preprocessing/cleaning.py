@@ -3,7 +3,7 @@
 QUAN TRỌNG, KHÔNG LOẠI NGOẠI LAI BẰNG IQR: với DBSCAN, điểm ngoại lai chính là tín hiệu
 nhiễu (noise, nhãn -1) mà thuật toán phải tự tìm ra. Bảng thẻ cố tình có 15 giao dịch
 bất thường (xa nhà, giá trị rất lớn); xóa chúng bằng quy tắc IQR sẽ làm mất đúng thứ cần
-phát hiện (bài mẫu K47 xóa 33% dòng theo IQR). Ở đây chỉ SỬA lỗi dữ liệu (thiếu ô, trùng
+phát hiện. Ở đây chỉ SỬA lỗi dữ liệu (thiếu ô, trùng
 dòng, sai chính tả, định dạng giờ) và GẮN CỜ, không xóa dòng nào ngoài bản sao y hệt.
 
 Quy tắc: tham số học từ dữ liệu (trung vị) chỉ học trên D0; các hàm ở đây không đọc

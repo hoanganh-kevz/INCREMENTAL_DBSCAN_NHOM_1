@@ -1,7 +1,7 @@
 """Tính toàn vẹn của dữ liệu và chống rò rỉ đáp án, chạy cùng `pytest tests/`.
 
-1. test_check_data_script_passes: chạy nguyên data/check_data.py (khoảng 30 giây). Trước đây pytest không bắt được dữ liệu bị sửa
-   (nhãn, thứ tự update, một ô trong bảng thẻ...) vì chỉ check_data.py kiểm; giờ cả hai đi chung một lệnh.
+1. test_check_data_script_passes: chạy nguyên data/check_data.py (khoảng 30 giây), để `pytest tests/` cũng bắt được dữ liệu bị sửa
+   (nhãn, thứ tự update, một ô trong bảng thẻ...).
 2. test_cleaning_output_ignores_truth_directory: thay data/truth bằng rác trong một bản sao rồi chạy làm sạch; kết quả phải
    giống từng byte (kiểm bằng hành vi, không chỉ quét AST như test_cleaning_module_never_reads_files_or_truth).
 """

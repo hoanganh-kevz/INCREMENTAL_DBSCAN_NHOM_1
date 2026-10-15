@@ -1023,7 +1023,7 @@ def check_hygiene():
     for base in (root, *[t for t in own_tools if t.exists()]):
         for p in ([base] if base.is_file() else base.rglob("*")):
             if p.is_file() and "__pycache__" not in p.parts:
-                regenerable = {"bench", "baseline_bench"} & set(p.parts)      # bench sinh lại được, không commit
+                regenerable = {"bench", "baseline_bench", "baseline", "preview"} & set(p.parts)      # sinh lại được, nằm trong data/.gitignore
                 total += p.stat().st_size if base == root and not regenerable else 0
                 if p.suffix in (".py", ".md", ".csv", ".json", ".txt"):
                     t = p.read_text(encoding="utf-8", errors="ignore")

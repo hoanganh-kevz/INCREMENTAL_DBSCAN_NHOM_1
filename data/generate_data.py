@@ -161,7 +161,7 @@ def write_nd():
 
 
 # =====================================================================================
-# Fictional digital-bank suite (all SIMULATED, seed 42, no real bank / Timo data).
+# Fictional digital-bank suite (all SIMULATED, seed 42, no real bank or customer data).
 #   B  bank_geo/atm_txn_2d.csv      ATM transactions on a fictional city map (2D, km)
 #   C  bank_card/card_txn_5d.csv    card transactions, 5 unscaled features + dirty cells
 #   D  bank_geo/atm_stream/, bank_card/card_stream/   update streams with verified cases

@@ -15,9 +15,7 @@ RULE = {"Creation": lambda d: d == 1, "Removal": lambda d: d == -1,
         "Merge": lambda d: d <= -1, "PotentialSplit_Split": lambda d: d >= 1}
 ZERO = lambda d: d == 0     # Noise, Absorption, DeleteNoise, Reduction, PotentialSplit_NonSplit
 
-# Bản cũ của card_stream_hard có 10 step (34, 46, 60, 77, 118, 124, 168, 218, 224, 238) mà verified_case mâu thuẫn với
-# số cụm đúng (re-fit brute force và sklearn đồng ý nhau). Generator đã được sửa và dữ liệu hiện tại không còn
-# mâu thuẫn nào, nên danh sách ngoại lệ đã gỡ về rỗng. Nếu dữ liệu bị sinh lại với lỗi cũ, test này sẽ báo ngay.
+# Step được phép có số cụm đổi không khớp verified_case. Hiện rỗng: mọi step phải khớp (xem RULE ở trên).
 KNOWN_HARD_MISMATCH = set()
 
 
@@ -114,9 +112,9 @@ def test_frozen_scaling_not_refitted():
                        z[:, 0] * params["frozen_scaling"]["std"][0])
 
 
-# ---------------------------------------------------------------- M3: bản chuyển sang src/ giống bản cũ trong baseline/
+# ---------------------------------------------------------------- stream_coordinates (src/) giống logic gốc trong baseline/
 def _old_coords(frame, params, feats):
-    """Bản sao NGUYÊN VĂN logic cũ của baseline/sklearn_dbscan.py (_stream_scaler + _to_coords) để so từng byte."""
+    """Bản sao nguyên văn logic tính tọa độ stream ban đầu của baseline/sklearn_dbscan.py (_stream_scaler + _to_coords), để so từng byte."""
     from src.preprocessing.scaler import ManualScaler
     fs = params.get("frozen_scaling")
     scaler = None

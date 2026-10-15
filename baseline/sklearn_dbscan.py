@@ -384,7 +384,7 @@ def run_benchmark(ns=BENCH_NS, out_dir=None, repeats=REPEATS, root=None):
     """Đo thời gian re-fit của RefitDBSCAN theo n (bảng bench 2D ATM và 5D thẻ) và ghi data/processed/baseline_bench/.
 
     Mỗi dòng bench_timing.csv: family, n, op (fit, insert, delete), eps, minpts, n_updates, repeats, median_ms, min_ms, max_ms.
-    File THỜI GIAN PHỤ THUỘC MÁY (CPU, hệ điều hành, phiên bản sklearn) nên không commit; README.txt trong thư mục ghi cấu hình máy.
+    File thời gian phụ thuộc máy (CPU, hệ điều hành, phiên bản sklearn) nên không đưa lên git (xem data/.gitignore); README.txt trong thư mục ghi cấu hình máy.
     """
     import platform
     import sklearn
@@ -409,7 +409,7 @@ def run_benchmark(ns=BENCH_NS, out_dir=None, repeats=REPEATS, root=None):
     out.mkdir(parents=True, exist_ok=True)
     res.to_csv(out / "bench_timing.csv", index=False, encoding="utf-8", lineterminator="\n")
     (out / "README.txt").write_text(
-        "Thời gian re-fit của baseline (sklearn) theo n. PHỤ THUỘC MÁY, KHÔNG COMMIT (xem GITIGNORE_PROPOSED.txt).\n"
+        "Thời gian re-fit của baseline (sklearn) theo n. Phụ thuộc máy, không đưa lên git (xem data/.gitignore).\n"
         f"Máy: {platform.platform()}, Python {platform.python_version()}, scikit-learn {sklearn.__version__}, numpy {np.__version__}.\n"
         f"Mỗi update đo {repeats} lần trên bản sao sâu, lấy trung vị; {BENCH_UPDATES} update mỗi (family, n); op fit là lần fit đầu trên D0.\n"
         "Chạy lại: python -m baseline.sklearn_dbscan --bench\n", encoding="utf-8", newline="\n")

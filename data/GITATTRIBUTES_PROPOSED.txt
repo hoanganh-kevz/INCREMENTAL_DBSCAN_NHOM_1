@@ -1,5 +1,6 @@
-# ĐỀ XUẤT nội dung cho file .gitattributes ở thư mục gốc repo (phiên này KHÔNG tạo file đó vì nó đổi cách checkout của cả nhóm; trưởng nhóm tự thêm nếu đồng ý).
-# Giải thích: Git trên Windows có thể đổi LF thành CRLF khi checkout, mà check_data.py so từng byte file CSV và JSON (đã thử: CRLF làm nó báo "file bytes changed"); dòng eol=lf giữ mọi file văn bản ở LF trên mọi máy.
+# Gợi ý .gitattributes cho thư mục gốc repo (thêm nếu cả nhóm đồng ý).
+# Trên Windows, Git có thể đổi LF thành CRLF khi checkout; check_data.py so từng byte các file CSV và JSON
+# nên sẽ báo "file bytes changed". eol=lf giữ nguyên LF trên mọi máy.
 
 *.csv   text eol=lf
 *.json  text eol=lf

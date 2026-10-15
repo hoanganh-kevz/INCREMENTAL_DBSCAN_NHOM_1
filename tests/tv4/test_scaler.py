@@ -103,7 +103,7 @@ def test_json_round_trip():
 def test_no_sklearn_or_scipy_imported_under_src():
     import ast
     from .tv4_paths import ROOT
-    # chỉ các gói của TV4; src/clustering (quy tắc của leader) và src/evaluation do đồng đội phụ trách
+    # chỉ các gói của TV4; src/clustering và src/evaluation do đồng đội phụ trách
     files = [f for d in ("preprocessing", "visualization") for f in (ROOT / "src" / d).rglob("*.py")]
     assert files
     for f in files:

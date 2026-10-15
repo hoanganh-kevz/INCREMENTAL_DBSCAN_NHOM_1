@@ -233,7 +233,7 @@ def test_scaler_reproduces_frozen_scaling_from_truth(name):
     assert np.abs(sc.center_ - fs["mean"]).max() < 1e-6 and np.abs(sc.scale_ - fs["std"]).max() < 1e-6
 
 
-# ---------------------------------------------------------------- khoảng trống mà review độc lập chỉ ra
+# ---------------------------------------------------------------- các nhánh dễ bỏ sót
 def test_normalise_channel_removes_inner_spaces():
     """Docstring hứa 'bỏ khoảng trắng': khoảng trắng GIỮA chữ cũng phải bị bỏ (dữ liệu hiện tại không có, nên cần test riêng)."""
     out = cl.normalise_channel(pd.Series(["Contact less", " on line ", "P O S", "A TM"]))
@@ -287,8 +287,8 @@ def _precision(note):
 
 
 def test_scorecard_metrics_are_computed_on_the_right_rows(card):
-    """Tính độc lập từ bảng thô, đáp án và bảng sạch; thủ phạm trước đây: độ chính xác kênh tính trên mọi dòng thay vì dòng bẩn,
-    precision của cờ khách lạ không dùng cờ thật. Cố ý làm hỏng bảng sạch để hai thước đo khác nhau."""
+    """Tính độc lập từ bảng thô, đáp án và bảng sạch: độ chính xác kênh chỉ tính trên các dòng bẩn, precision của cờ khách lạ dùng cờ thật.
+    Cố ý làm hỏng bảng sạch để hai thước đo khác nhau."""
     raw, tb, td = card["raw"], card["tb"], card["td"]
     clean = card["clean"].copy()
     ids = clean["txn_id"].to_numpy()
