@@ -1,0 +1,221 @@
+{
+ "csv_base_columns": {
+  "bank_card/card_stream/d0.csv": {
+   "columns": [
+    "point_id",
+    "amount_vnd",
+    "hour_of_day",
+    "distance_from_home_km",
+    "txns_last_7d",
+    "merchant_risk_score",
+    "ref_label"
+   ],
+   "n_rows": 500,
+   "sha256": "f756105c136eb7225f1c0c3e2873668df8f23afc390706cbe836486d38c2907f"
+  },
+  "bank_card/card_stream/updates.csv": {
+   "columns": [
+    "step",
+    "timestamp",
+    "op",
+    "point_id",
+    "amount_vnd",
+    "hour_of_day",
+    "distance_from_home_km",
+    "txns_last_7d",
+    "merchant_risk_score",
+    "planted_case",
+    "verified_case",
+    "ambiguous_border_ids"
+   ],
+   "n_rows": 300,
+   "sha256": "5f3c9d7ea8497c47f73ba5bce73b437ebd0ea71d17c6f75a8b185731391a70ac"
+  },
+  "bank_card/card_txn_5d.csv": {
+   "columns": [
+    "txn_id",
+    "amount_vnd",
+    "hour_of_day",
+    "distance_from_home_km",
+    "txns_last_7d",
+    "merchant_risk_score",
+    "segment_id"
+   ],
+   "n_rows": 1500,
+   "sha256": "42ec047242ce5871d9b46126196812c00c641e50f2b6a52c3ae49a5f74d05df6"
+  },
+  "bank_geo/atm_stream/d0.csv": {
+   "columns": [
+    "point_id",
+    "x_km",
+    "y_km",
+    "ref_label"
+   ],
+   "n_rows": 529,
+   "sha256": "ae4e0ccb23f85e9a8baf3ab8d9b5a38335b78a5ce0e93836adcbe9ff0570a82a"
+  },
+  "bank_geo/atm_stream/updates.csv": {
+   "columns": [
+    "step",
+    "timestamp",
+    "op",
+    "point_id",
+    "x_km",
+    "y_km",
+    "planted_case",
+    "verified_case",
+    "ambiguous_border_ids"
+   ],
+   "n_rows": 119,
+   "sha256": "48725718fc2e5f1a615efead52732690a588c45d6c2b25af66ee0caeab8dd85a"
+  },
+  "bank_geo/atm_txn_2d.csv": {
+   "columns": [
+    "txn_id",
+    "x_km",
+    "y_km",
+    "hotspot_id"
+   ],
+   "n_rows": 1200,
+   "sha256": "f640f9019d2ae9b3c307dd456edb2ca585c35067aa52996f2363b7e1ab8713e8"
+  }
+ },
+ "json_keys": {
+  "bank_card/card_stream/params.json": {
+   "ambiguous_note": "7d19794e906e24bf1f22b71b04d92146a46f128c91c7dbe359845a7b462823a8",
+   "case_definitions": "0bf15e0c51647facb278348a6fbf44f0d9f48dd1a156c95b62e4727025b03250",
+   "d0_ambiguous_border_ids": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "d0_reference_clusters": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+   "drift": "93e3dc0d8b07c9d88d507059db840fd3387f6f8b4a115f3f52c842781cd33ea3",
+   "eps": "f3e360d89952f40d3b79d0b07dd0b94f1cbf9017cba5d2a5f8128e4146d6e3c1",
+   "frozen_scaling": "d4be49e94e2c54d4b80cadb66961a2a282f4a390df5d27cfb616f689c70be3d5",
+   "id_note": "e5d7d8eea5c456d23d8e2b30f1f23684ff5857464fd9e219e7cf0c2a02900eb0",
+   "metric": "fd6efa56889d308eebc35047294f0c6ee352ad9e5c58ba8fc4cd192efa71c546",
+   "minpts": "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+   "n_d0": "0604cd3138feed202ef293e062da2f4720f77a05d25ee036a7a01c9cfcdd1f0a",
+   "n_steps": "983bd614bb5afece5ab3b6023f71147cd7b6bc2314f9d27af7422541c6558389",
+   "neighbourhood_includes_self": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+   "seed": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+   "simulated": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+   "timestamp": "3bce437eb7b16c6336ed03ecbf744b6c5afb21a25768c26df2b9e67f42291fb9",
+   "verified_case_counts": "fbeaabb933f694c0441eeb811a6fc869823f4c4bc9b9949c3ee1a0b2b8595282"
+  },
+  "bank_geo/atm_stream/params.json": {
+   "ambiguous_note": "ea5801e285a77bbb7a73d30c76d9a20fddca61fb65e9019e633278940ad1ce01",
+   "case_definitions": "0bf15e0c51647facb278348a6fbf44f0d9f48dd1a156c95b62e4727025b03250",
+   "d0_ambiguous_border_ids": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "d0_reference_clusters": "71ee45a3c0db9a9865f7313dd3372cf60dca6479d46261f3542eb9346e4a04d6",
+   "eps_km": "d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84",
+   "id_note": "3cbe13175b0323178b9902c9129d6ca8017bca6e1f934739ac9950da1733ab8e",
+   "metric": "85d11ded76a3388b5bacc3d490af9524685d8d6972233d5320ae8fbca09fb29f",
+   "minpts": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+   "n_d0": "8920a14a7f6469b955b114111564cb9736440238d220fc9fd525efdb9a056d3e",
+   "n_steps": "3038bfb575bee6a0e61945eff8784835bb2c720634e42734678c083994b7f018",
+   "neighbourhood_includes_self": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+   "seed": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+   "simulated": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+   "timestamp": "463975d559aac9b4b40672c7ac5da140a1149f0832348a598795e688723ccfe2",
+   "units": "bbbf842958717f43a816e7c0449a34e4f7c800dfb73f21ace78feb0d89a86237",
+   "verified_case_counts": "f7e04f1ab9cb7df57d3c8d5f7435aa44798b72c9c77bea1492d799ecde168e42"
+  }
+ },
+ "note": "sha256 of base columns (csv re-serialised with \\x1f) or whole files; step 0 invariants",
+ "whole_files": {
+  "bank_card/params.json": {
+   "sha256": "a88ac3cd6990fb8d31e16bf5ad639e6bc49743c2ad5b3482a6d50c02847b0de0"
+  },
+  "bank_card/segments.csv": {
+   "sha256": "5aebba4ad1610bca70cda0c9f8c92afcdab7b85fbe0eb31f1acda2998217b318"
+  },
+  "bank_geo/hotspots.csv": {
+   "sha256": "4c4ada30af36197b985dda5ef172d96e7a517fd11cd84a4858d5b3bb1591c334"
+  },
+  "bank_geo/params.json": {
+   "sha256": "107d32c1daabaed25e99d81766c3edb2ddc830d7433d533e3f37fc1d0fb8c54c"
+  },
+  "nd/blobs5d_n860.csv": {
+   "sha256": "276506ffa28cb9988e2514e640f3fda41e486237f375059feee62988b2b62d5c"
+  },
+  "synthetic/blobs_noise_n500.csv": {
+   "sha256": "8a39189e1bf5d87dc98d0702a2f99434beb1434e09c54028aa1314fff35f7024"
+  },
+  "synthetic/moons_n500.csv": {
+   "sha256": "523d8b34ecd1759bf983424cc0a93ef358834dee419362a828bc3f03bbf446a1"
+  },
+  "synthetic/rings_n500.csv": {
+   "sha256": "09851f6ced923801ee67701157d6ca40782cc6319a6127695a7e7504e0cd42b4"
+  },
+  "toy/r02_1_noise/expected.json": {
+   "sha256": "2194fbc92373a4378fe9c979fab87a7de4ad4733172e8c302580476789b15a9f"
+  },
+  "toy/r02_1_noise/points.csv": {
+   "sha256": "ca4070c0b61534a31da8c3519c36fcdf74736bb8ed38bfc82f863391120b5381"
+  },
+  "toy/r02_1_noise/update.csv": {
+   "sha256": "6acbeae51b796489b87522a97f39ce0be861b85c92f2f663341c9ac635378950"
+  },
+  "toy/r02_2_creation/expected.json": {
+   "sha256": "5b8852fc0e01453d4f0e8e161aad3b2f02feb73357afe6dcb4ee4e5d92094597"
+  },
+  "toy/r02_2_creation/points.csv": {
+   "sha256": "3e388392df9a356de507d98f9596170530d0d7601e68d0314fe6eb5161977e2c"
+  },
+  "toy/r02_2_creation/update.csv": {
+   "sha256": "44997bed70e1fec4c73f4b10fb9c97b8c265f28d0f4f13c658a9bd69473703a9"
+  },
+  "toy/r02_3_absorption/expected.json": {
+   "sha256": "68a4af2dd37ef89f7f6a1ddc944c6054ef3a704a0fe4010fdfa3798c6a9db1fa"
+  },
+  "toy/r02_3_absorption/points.csv": {
+   "sha256": "16f234acadc169a40018f3cd363aa13ab515ce3756617f78205a66b0203d259e"
+  },
+  "toy/r02_3_absorption/update.csv": {
+   "sha256": "c4bc67d8b32898bf41afcfe240182695e47c0b7eb32f96e88228ae3d5598638a"
+  },
+  "toy/r02_4_merge/expected.json": {
+   "sha256": "e5330baad017b27bf4c8f4fc323adb223ff15db263fb0b4939177b659d22a6df"
+  },
+  "toy/r02_4_merge/points.csv": {
+   "sha256": "dfa1174cf2065b65e3cbd9070ecf1d9a4567af385c8c1b4f96ca76df6d05447a"
+  },
+  "toy/r02_4_merge/update.csv": {
+   "sha256": "6ba4866f24acc29569b957bc8b8a613b73a1ecf9b0cf0b385c3d359f5f7e1100"
+  },
+  "toy/r03_1_removal/expected.json": {
+   "sha256": "6e0b5fa050cd4586e15c2b63b0be3d6bd3930735da023eede685e56cbbe55de5"
+  },
+  "toy/r03_1_removal/points.csv": {
+   "sha256": "755908aeadef1155d643b636473a4f3b800b9b13075a2f090901388d6c49050f"
+  },
+  "toy/r03_1_removal/update.csv": {
+   "sha256": "861a7ce58d67ee9c0790a7608767eeb9a205f550012b34e5748a209e10286afc"
+  },
+  "toy/r03_2_reduction/expected.json": {
+   "sha256": "1b44429dab709bc914c5f185e13e5056949c588198fd35a46be666f91a2d48af"
+  },
+  "toy/r03_2_reduction/points.csv": {
+   "sha256": "227629848537761e0b685e238fde5df41b203980d8ab5fc9f2b037ca832671b9"
+  },
+  "toy/r03_2_reduction/update.csv": {
+   "sha256": "861a7ce58d67ee9c0790a7608767eeb9a205f550012b34e5748a209e10286afc"
+  },
+  "toy/r03_3a_split/expected.json": {
+   "sha256": "4960ba800be94844ab517cd2d128a6dcec35b3450b2b6a6216e9aa8d064fbd48"
+  },
+  "toy/r03_3a_split/points.csv": {
+   "sha256": "b9f24053769fe4e06ff99a1186b88638853927824ec716d7e3296fdb42de4be7"
+  },
+  "toy/r03_3a_split/update.csv": {
+   "sha256": "861a7ce58d67ee9c0790a7608767eeb9a205f550012b34e5748a209e10286afc"
+  },
+  "toy/r03_3b_nonsplit/expected.json": {
+   "sha256": "ae3427dff90b0c05a207d96869415f58b7066542a3abd808e1885d68b54fe44b"
+  },
+  "toy/r03_3b_nonsplit/points.csv": {
+   "sha256": "388b0847e0331b124b77c1a54521ba4e92d8456afc693c0e6f7f0896e906f513"
+  },
+  "toy/r03_3b_nonsplit/update.csv": {
+   "sha256": "861a7ce58d67ee9c0790a7608767eeb9a205f550012b34e5748a209e10286afc"
+  }
+ }
+}

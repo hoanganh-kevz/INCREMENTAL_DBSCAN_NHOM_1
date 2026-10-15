@@ -1,0 +1,169 @@
+{
+  "title": "Delete a bridge then re-insert the same coordinates (new id)",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 2,
+  "labels_before": {
+    "A1": 1,
+    "A2": 1,
+    "A3": 1,
+    "A4": 1,
+    "A5": 1,
+    "B1": 1,
+    "B2": 1,
+    "B3": 1,
+    "B4": 1,
+    "B5": 1,
+    "p": 1
+  },
+  "labels_after": {
+    "A1": 1,
+    "A2": 1,
+    "A3": 1,
+    "A4": 1,
+    "A5": 1,
+    "B1": 1,
+    "B2": 1,
+    "B3": 1,
+    "B4": 1,
+    "B5": 1,
+    "q": 1
+  },
+  "core_before": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "p"
+  ],
+  "core_after": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "q"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "delete",
+      "point_id": "p",
+      "case": "PotentialSplit_Split",
+      "labels_after": {
+        "A1": 1,
+        "A2": 1,
+        "A3": 1,
+        "A4": 1,
+        "A5": 1,
+        "B1": 2,
+        "B2": 2,
+        "B3": 2,
+        "B4": 2,
+        "B5": 2
+      },
+      "core_after": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5"
+      ],
+      "updseed": [
+        "A2",
+        "A5",
+        "B1",
+        "B5"
+      ],
+      "ambiguous_border_ids": [],
+      "max_core_hops_between_seeds": null
+    },
+    {
+      "step": 2,
+      "op": "insert",
+      "point_id": "q",
+      "case": "Merge",
+      "labels_after": {
+        "A1": 1,
+        "A2": 1,
+        "A3": 1,
+        "A4": 1,
+        "A5": 1,
+        "B1": 1,
+        "B2": 1,
+        "B3": 1,
+        "B4": 1,
+        "B5": 1,
+        "q": 1
+      },
+      "core_after": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "q"
+      ],
+      "updseed": [
+        "A2",
+        "A5",
+        "B1",
+        "B5",
+        "q"
+      ],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": true,
+    "delete": true,
+    "equivalence": true
+  },
+  "why_vi": "Bước 1: xóa p, cụm tách đôi. Bước 2: chèn lại cùng toạ độ nhưng id mới q, cụm gộp lại. Phân hoạch cuối giống phân hoạch đầu (q thay p). Kiểm tra id không bị dùng lại và trạng thái nội bộ sạch sau Split.",
+  "updseed_by_step": [
+    [
+      "A2",
+      "A5",
+      "B1",
+      "B5"
+    ],
+    [
+      "A2",
+      "A5",
+      "B1",
+      "B5",
+      "q"
+    ]
+  ]
+}

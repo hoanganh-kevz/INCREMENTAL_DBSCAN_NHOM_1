@@ -1,0 +1,40 @@
+{
+  "doc_section": "R03 Case 2 Reduction",
+  "eps": 1.1,
+  "minpts": 4,
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify partition",
+  "labels_before": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "p": 1
+  },
+  "labels_after": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1
+  },
+  "updseed": [
+    "B",
+    "D"
+  ],
+  "core_before": [
+    "B",
+    "D",
+    "E",
+    "F"
+  ],
+  "core_after": [
+    "B",
+    "D"
+  ],
+  "note": "E, F lose core status; B and D directly reachable, no split"
+}

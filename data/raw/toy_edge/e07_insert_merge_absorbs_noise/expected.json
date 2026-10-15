@@ -1,0 +1,115 @@
+{
+  "title": "Merge that also absorbs a noise point (and leaves another noise)",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 1,
+  "labels_before": {
+    "A1": 1,
+    "A2": 1,
+    "A3": 1,
+    "A4": 1,
+    "B1": 2,
+    "B2": 2,
+    "B3": 2,
+    "B4": 2,
+    "n1": -1,
+    "n2": -1
+  },
+  "labels_after": {
+    "A1": 1,
+    "A2": 1,
+    "A3": 1,
+    "A4": 1,
+    "B1": 1,
+    "B2": 1,
+    "B3": 1,
+    "B4": 1,
+    "n1": 1,
+    "n2": -1,
+    "p": 1
+  },
+  "core_before": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3",
+    "B4"
+  ],
+  "core_after": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "p"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "insert",
+      "point_id": "p",
+      "case": "Merge",
+      "labels_after": {
+        "A1": 1,
+        "A2": 1,
+        "A3": 1,
+        "A4": 1,
+        "B1": 1,
+        "B2": 1,
+        "B3": 1,
+        "B4": 1,
+        "n1": 1,
+        "n2": -1,
+        "p": 1
+      },
+      "core_after": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "p"
+      ],
+      "updseed": [
+        "A2",
+        "A4",
+        "B1",
+        "B3",
+        "p"
+      ],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": true,
+    "delete": false,
+    "equivalence": true
+  },
+  "why_vi": "p nối cụm A và B (Merge). Điểm n1 cách p 0.95 nên từ nhiễu thành điểm biên của cụm gộp; n2 cách p 1.15 nên vẫn là nhiễu. Một update vừa Merge vừa đổi nhãn nhiễu.",
+  "updseed": [
+    "A2",
+    "A4",
+    "B1",
+    "B3",
+    "p"
+  ]
+}

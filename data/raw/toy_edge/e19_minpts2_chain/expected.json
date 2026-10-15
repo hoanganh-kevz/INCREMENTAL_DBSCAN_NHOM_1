@@ -1,0 +1,136 @@
+{
+  "title": "MinPts = 2: every non-noise point is core, chains link by single steps",
+  "eps": 1.0,
+  "minpts": 2,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 2,
+  "labels_before": {
+    "a1": 1,
+    "a2": 1,
+    "a3": 1,
+    "c1": 2,
+    "c2": 2,
+    "c3": 2,
+    "z": -1
+  },
+  "labels_after": {
+    "a1": 1,
+    "a2": 1,
+    "a3": 1,
+    "c1": 1,
+    "c2": 1,
+    "c3": 1,
+    "p": 1,
+    "q": 1,
+    "z": -1
+  },
+  "core_before": [
+    "a1",
+    "a2",
+    "a3",
+    "c1",
+    "c2",
+    "c3"
+  ],
+  "core_after": [
+    "a1",
+    "a2",
+    "a3",
+    "c1",
+    "c2",
+    "c3",
+    "p",
+    "q"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "insert",
+      "point_id": "p",
+      "case": "Merge",
+      "labels_after": {
+        "a1": 1,
+        "a2": 1,
+        "a3": 1,
+        "c1": 1,
+        "c2": 1,
+        "c3": 1,
+        "p": 1,
+        "z": -1
+      },
+      "core_after": [
+        "a1",
+        "a2",
+        "a3",
+        "c1",
+        "c2",
+        "c3",
+        "p"
+      ],
+      "updseed": [
+        "a3",
+        "c1",
+        "p"
+      ],
+      "ambiguous_border_ids": []
+    },
+    {
+      "step": 2,
+      "op": "insert",
+      "point_id": "q",
+      "case": "Absorption",
+      "labels_after": {
+        "a1": 1,
+        "a2": 1,
+        "a3": 1,
+        "c1": 1,
+        "c2": 1,
+        "c3": 1,
+        "p": 1,
+        "q": 1,
+        "z": -1
+      },
+      "core_after": [
+        "a1",
+        "a2",
+        "a3",
+        "c1",
+        "c2",
+        "c3",
+        "p",
+        "q"
+      ],
+      "updseed": [
+        "c3",
+        "q"
+      ],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": true,
+    "delete": false,
+    "equivalence": true
+  },
+  "why_vi": "MinPts = 2 nên mọi điểm có ít nhất một láng giềng đều là lõi (không có điểm biên) và Eps-reachability thành liên kết đơn. p nối hai chuỗi (Merge), q nối dài thêm đầu chuỗi (Absorption); z cô lập vẫn là nhiễu.",
+  "updseed_by_step": [
+    [
+      "a3",
+      "c1",
+      "p"
+    ],
+    [
+      "c3",
+      "q"
+    ]
+  ]
+}

@@ -1,0 +1,9 @@
+district_id,name_vi,name_en,area_type,centroid_x_km,centroid_y_km,area_km2
+D01,Trung Tâm,Central,CBD,8.0,16.0,129.92
+D02,Đại Học,University,university,26.0,18.0,113.28
+D03,Chợ Đông,East Market,market,22.0,7.0,94.03
+D04,Ven Sông,Riverside,riverside,11.0,5.0,146.64
+D05,Quốc Lộ,Highway,highway,20.0,16.5,93.73
+D06,Dân Cư Hòa Bình,Hoa Binh Residential,residential,15.0,11.0,61.57
+D07,Ngoại Ô Đông Nam,South-East Suburb,suburb,29.0,4.0,73.73
+D08,Ngoại Ô Tây Bắc,North-West Suburb,suburb,3.0,22.0,55.10

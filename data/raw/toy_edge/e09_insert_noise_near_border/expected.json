@@ -1,0 +1,74 @@
+{
+  "title": "Noise inserted next to a border point but outside every core Eps",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 1,
+  "labels_before": {
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "K4": 1,
+    "b": 1
+  },
+  "labels_after": {
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "K4": 1,
+    "b": 1,
+    "p": -1
+  },
+  "core_before": [
+    "K1",
+    "K2",
+    "K3",
+    "K4"
+  ],
+  "core_after": [
+    "K1",
+    "K2",
+    "K3",
+    "K4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "insert",
+      "point_id": "p",
+      "case": "Noise",
+      "labels_after": {
+        "K1": 1,
+        "K2": 1,
+        "K3": 1,
+        "K4": 1,
+        "b": 1,
+        "p": -1
+      },
+      "core_after": [
+        "K1",
+        "K2",
+        "K3",
+        "K4"
+      ],
+      "updseed": [],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": true,
+    "delete": false,
+    "equivalence": true
+  },
+  "why_vi": "b là điểm biên của cụm K (cách 2 lõi dưới Eps). p cách b 0.85 nhưng cách mọi lõi hơn Eps; điểm biên không mở rộng cụm, nên p vẫn là nhiễu và không thay đổi gì.",
+  "updseed": []
+}

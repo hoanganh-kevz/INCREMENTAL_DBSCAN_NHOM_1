@@ -1,0 +1,28 @@
+{
+  "source": "data/raw/synthetic/blobs_noise_n500.csv",
+  "n_rows": 500,
+  "feature_columns": [
+    "x",
+    "y"
+  ],
+  "id_column": "point_id",
+  "label_column": "label (chỉ để đánh giá, không dùng để gom cụm)",
+  "scaler": {
+    "method": "standard",
+    "center": [
+      0.28062619999999994,
+      -0.21894998999999996
+    ],
+    "scale": [
+      3.8554559923411715,
+      3.2243232670362545
+    ],
+    "feature_names": [
+      "x",
+      "y"
+    ],
+    "n_samples": 500
+  },
+  "fit_on": "toàn bộ file (bảng tĩnh, không có D0)",
+  "note": "label -1 là nhiễu cài sẵn"
+}

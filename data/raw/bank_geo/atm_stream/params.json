@@ -1,0 +1,37 @@
+{
+  "simulated": true,
+  "seed": 42,
+  "eps_km": 0.5,
+  "minpts": 4,
+  "metric": "euclidean",
+  "units": "km",
+  "neighbourhood_includes_self": true,
+  "n_d0": 529,
+  "n_steps": 119,
+  "timestamp": "1 step = 1 day from 2025-03-01",
+  "d0_reference_clusters": 44,
+  "d0_ambiguous_border_ids": [],
+  "verified_case_counts": {
+    "Absorption": 32,
+    "Creation": 13,
+    "Merge": 12,
+    "Noise": 12,
+    "PotentialSplit_NonSplit": 7,
+    "PotentialSplit_Split": 12,
+    "Reduction": 25,
+    "Removal": 6
+  },
+  "case_definitions": {
+    "Noise": "insert; p stays noise, all old labels unchanged",
+    "Creation": "insert; a new cluster appears made only of p and former noise points",
+    "Absorption": "insert; p joins exactly one existing cluster (former noise may join too), no merge",
+    "Merge": "insert; one new cluster contains >= 2 old clusters",
+    "Removal": "delete; an old cluster loses all its remaining members to noise (cluster vanishes)",
+    "Reduction": "delete; cluster shrinks or loses cores, but the UpdSeed cores are already directly eps-linked (no connectivity search)",
+    "PotentialSplit_NonSplit": "delete; UpdSeed cores of an old cluster are not directly linked (search needed) but stay connected",
+    "PotentialSplit_Split": "delete; an old cluster falls apart into >= 2 clusters",
+    "DeleteNoise": "delete of a point that was noise (natural streams only)"
+  },
+  "id_note": "point_id is never reused; a re-inserted point gets a new id. Delete rows carry the deleted point's coordinates for convenience.",
+  "ambiguous_note": "ambiguous_border_ids lists, AFTER the step, border points within eps of cores of >= 2 clusters; planted events never fall on such points; exclude them when comparing labels (ARI) with a full re-fit."
+}

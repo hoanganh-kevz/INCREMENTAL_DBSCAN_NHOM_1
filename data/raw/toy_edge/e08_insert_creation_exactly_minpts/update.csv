@@ -1,0 +1,4 @@
+op,point_id,x,y
+insert,q1,0.5,0
+insert,q2,0,0.5
+insert,q3,0.5,0.5

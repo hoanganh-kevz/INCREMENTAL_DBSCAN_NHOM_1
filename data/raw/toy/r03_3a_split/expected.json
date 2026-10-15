@@ -1,0 +1,49 @@
+{
+  "doc_section": "R03 Case 3A Potential Split -> Split",
+  "eps": 1.1,
+  "minpts": 4,
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify partition",
+  "labels_before": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "G": 1,
+    "H": 1,
+    "I": 1,
+    "p": 1
+  },
+  "labels_after": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 2,
+    "F": 2,
+    "G": 2,
+    "H": 2,
+    "I": -1
+  },
+  "updseed": [
+    "A",
+    "E"
+  ],
+  "core_before": [
+    "A",
+    "B",
+    "E",
+    "F",
+    "p"
+  ],
+  "core_after": [
+    "A",
+    "B",
+    "E",
+    "F"
+  ],
+  "note": "p was the only bridge; cluster splits in two, I becomes noise"
+}

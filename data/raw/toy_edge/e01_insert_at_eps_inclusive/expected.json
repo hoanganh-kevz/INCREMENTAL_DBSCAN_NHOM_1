@@ -1,0 +1,76 @@
+{
+  "title": "Insert at exactly Eps from a core (inclusive boundary)",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 1,
+  "labels_before": {
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "K4": 1
+  },
+  "labels_after": {
+    "K1": 1,
+    "K2": 1,
+    "K3": 1,
+    "K4": 1,
+    "p": 1
+  },
+  "core_before": [
+    "K1",
+    "K2",
+    "K3",
+    "K4"
+  ],
+  "core_after": [
+    "K1",
+    "K2",
+    "K3",
+    "K4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "insert",
+      "point_id": "p",
+      "case": "Absorption",
+      "labels_after": {
+        "K1": 1,
+        "K2": 1,
+        "K3": 1,
+        "K4": 1,
+        "p": 1
+      },
+      "core_after": [
+        "K1",
+        "K2",
+        "K3",
+        "K4"
+      ],
+      "updseed": [],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [
+    [
+      "K2",
+      "p"
+    ]
+  ],
+  "tests": {
+    "insert": true,
+    "delete": false,
+    "equivalence": true
+  },
+  "why_vi": "p cách điểm lõi K2 đúng bằng Eps (=1). Biên Eps là bao hàm (<=), nên p nằm trong lân cận của K2: p là điểm biên của cụm, không phải nhiễu. Cài đặt dùng < sẽ sai.",
+  "updseed": []
+}
