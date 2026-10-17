@@ -42,5 +42,12 @@ Các quy ước dưới đây có thể chép sang `README.md` hoặc `docs/oop_
 
 ## 6. Tệp văn bản và Windows
 
-- Mọi lệnh đọc/ghi file văn bản trong repo ghi rõ `encoding="utf-8"` (JSON và README có tiếng Việt; Windows mặc định cp1252 hoặc cp1258). `tests/test_encoding.py` quét AST để không ai thêm lệnh thiếu encoding. Ghi file dùng `newline="\n"` (hoặc `newline=""` với csv) để kết quả giống từng byte trên mọi máy.
+- Mọi lệnh đọc/ghi file văn bản trong repo ghi rõ `encoding="utf-8"` (JSON và README có tiếng Việt; Windows mặc định cp1252 hoặc cp1258). `tests/tv4/test_encoding.py` quét AST để không ai thêm lệnh thiếu encoding. Ghi file dùng `newline="\n"` (hoặc `newline=""` với csv) để kết quả giống từng byte trên mọi máy.
 - Gợi ý `.gitattributes` ở `data/GITATTRIBUTES_PROPOSED.txt`: nếu Windows checkout đổi LF thành CRLF, `check_data.py` báo `file bytes changed` ở các `params.json` và `expected.json`, vì chúng được băm và so từng byte.
+
+## 7. Kiểm tương đương DBSCAN của nhóm (D08)
+
+- `baseline/static_equivalence.py` so kết quả `fit` của một engine với sklearn trên 62 trường hợp: đầu và cuối của 27 kịch bản `toy`, `toy_edge` (có một kịch bản 4 chiều), bốn bảng ATM 2D và thẻ 5D (dễ, khó), bộ blobs 5 chiều của D01 và D0 của ba stream.
+- Tương đương nghĩa là mọi điểm có cùng loại (lõi, biên, nhiễu) và các điểm lõi được chia cụm giống nhau. Điểm biên chỉ được khác cụm khi nó mơ hồ: trong Eps có lõi của từ hai cụm trở lên, và cụm được gán là một trong số đó.
+- `tests/tv4/test_real_dbscan_equivalence.py` chạy phần so sánh này cho `src.clustering.dbscan.DBSCAN`, kiểm thêm lân cận Eps ở 2, 5 và 8 chiều, và có ba engine cố ý sai để chắc bộ so sánh bắt được lỗi. Test tự bỏ qua nếu chưa có file DBSCAN. Engine khác (ví dụ `IncrementalDBSCAN`) chỉ cần `fit(data)`, `get_labels()` và `points` hoặc `snapshot()`.
+- `notebooks/D08_kiem_tra_dbscan_n_chieu.ipynb`: ví dụ từng bước trên bộ 5 chiều và bảng đủ 62 trường hợp. Insert và delete (D05, D06) kiểm sau, khi có `IncrementalDBSCAN`.

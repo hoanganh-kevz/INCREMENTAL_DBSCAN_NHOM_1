@@ -28,7 +28,7 @@ REPEATS = 5     # số lần đo mỗi update (trên bản sao sâu của engine
 
 
 class PointType(IntEnum):
-    """Bản sao nhỏ của PointType trong docs/oop_design.md (src/core còn trống, chưa import được)."""
+    """Bản sao PointType của src/core/data_point.py để baseline không phụ thuộc src/core (so với enum của nhóm theo tên)."""
     UNCLASSIFIED = 0
     NOISE = 1
     BORDER = 2
