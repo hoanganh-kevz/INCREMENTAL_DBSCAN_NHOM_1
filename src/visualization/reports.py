@@ -10,7 +10,7 @@ plot_scaling_effect         trước và sau chuẩn hóa
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, NullFormatter
 
 from .plotter import ClusterVisualizer, INK, NOISE_COLOR, PALETTE, align_labels, make_snapshot, report_style
 
@@ -19,9 +19,11 @@ _PLAIN = FuncFormatter(lambda v, _: f"{v:g}")
 
 
 def _plain_log_ticks(axis):
-    """Nhãn trục log dạng số thường (0,9; 1; 1,3) thay vì 10^k, cả tick phụ."""
+    """Nhãn trục log dạng số thường (0,9; 1; 10) thay vì 10^k. Nhãn tick phụ chỉ hiện khi trục trải chưa tới 10 lần, để khỏi
+    chồng chữ. Gọi sau khi đã vẽ dữ liệu."""
     axis.set_major_formatter(_PLAIN)
-    axis.set_minor_formatter(_PLAIN)
+    lo, hi = sorted(abs(v) for v in axis.get_view_interval())
+    axis.set_minor_formatter(_PLAIN if lo > 0 and hi / lo < 10 else NullFormatter())
 
 
 def find_dips(results, tol=1e-9):
@@ -63,10 +65,12 @@ def plot_equivalence_timeline(results, tol=1e-9, title=None, ax=None):
     return fig
 
 
-def plot_runtime_comparison(timing_incremental, timing_refit, labels=("Incremental DBSCAN", "Re-fit toàn bộ (sklearn)"), logy=True):
+def plot_runtime_comparison(timing_incremental, timing_refit, labels=("Incremental DBSCAN", "Re-fit toàn bộ (sklearn)"), logy=True,
+                            ratio_label="re-fit / incremental"):
     """Hai bảng thời gian dạng baseline (cột step, op, update_seconds, tùy chọn n_points). Bỏ step 0 (lần fit đầu).
 
-    Trái: thời gian mỗi update theo step (mili giây). Phải: trung vị theo loại update (insert, delete), kèm hệ số tăng tốc. Trả Figure."""
+    Trái: thời gian mỗi update theo step (mili giây). Phải: trung vị theo loại update (insert, delete) và tỉ số trung vị bảng thứ
+    hai / bảng thứ nhất, đặt tên bằng ratio_label. Trả Figure."""
     series = [(labels[0], timing_incremental, BLUE), (labels[1], timing_refit, ORANGE)]
     clean = [(n, t[t["step"] >= 1].copy(), c) for n, t, c in series]
     with report_style():
@@ -91,7 +95,8 @@ def plot_runtime_comparison(timing_incremental, timing_refit, labels=("Increment
         a2.set_xticklabels(ops)
         a2.set_ylabel("Trung vị (ms)")
         speed = clean[1][1]["update_seconds"].median() / max(clean[0][1]["update_seconds"].median(), 1e-12)
-        a2.set_title(f"Trung vị theo loại (re-fit / incremental = {speed:.2f} lần)", loc="left", fontsize=7.5)
+        a2.set_title(f"Trung vị theo loại ({ratio_label} = {speed:.2f} lần)" if speed < 10 else
+                     f"Trung vị theo loại ({ratio_label} = {speed:.0f} lần)", loc="left", fontsize=7.5)
         fig.tight_layout()
     return fig
 
