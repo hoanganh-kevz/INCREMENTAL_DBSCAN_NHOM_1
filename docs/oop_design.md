@@ -11,6 +11,7 @@ classDiagram
         +coords: ndarray
         +cluster_id: Optional[int]
         +point_type: PointType
+        +neighbor_ids: set~int~
         +neighbor_count: int
     }
 
@@ -23,7 +24,7 @@ classDiagram
     }
 
     class DistanceMetric {
-        +euclidean(first: ndarray, second: ndarray): float
+        +euclidean(first_coords: ndarray, second_coords: ndarray): float
     }
 
     class ManualScaler {
@@ -36,11 +37,11 @@ classDiagram
     class DBSCAN {
         -eps: float
         -min_pts: int
-        -points: list~DataPoint~
+        -points: dict~int,DataPoint~
         +fit(data: ndarray): DBSCAN
         +get_labels(): list~int~
-        -region_query(point: DataPoint): list~DataPoint~
-        -expand_cluster(seed: DataPoint, cluster_id: int): None
+        #_region_query(point_id: int): set~int~
+        #_expand_cluster(seed_id: int, neighbor_ids: set~int~, cluster_id: int): None
     }
 
     class IncrementalDBSCAN {
@@ -62,7 +63,7 @@ classDiagram
     }
 
     IncrementalDBSCAN --|> DBSCAN
-    DBSCAN "1" o-- "0..*" DataPoint : quản lý các điểm đã fit
+    DBSCAN "1" o-- "0..*" DataPoint : quản lý theo ID ổn định
     DataPoint --> PointType : point_type
     DBSCAN ..> DistanceMetric : tính khoảng cách
     ClusterEvaluator ..> DistanceMetric : tính khoảng cách đánh giá
@@ -77,9 +78,9 @@ classDiagram
 
 | Lớp | Trách nhiệm | Giao diện chính |
 |---|---|---|
-| `DataPoint` | Lưu vector n-D, ID, nhãn cụm, loại điểm và số láng giềng. | `id`, `coords`, `cluster_id`, `point_type`, `neighbor_count` |
+| `DataPoint` | Lưu vector n-D, ID ổn định, nhãn cụm, loại điểm và cache ID láng giềng. | `id`, `coords`, `cluster_id`, `point_type`, `neighbor_ids`, `neighbor_count` |
 | `PointType` | Liệt kê trạng thái chưa phân loại, nhiễu, biên và lõi của điểm. | `UNCLASSIFIED`, `NOISE`, `BORDER`, `CORE` |
-| `DistanceMetric` | Tính khoảng cách, độc lập với dữ liệu điểm và thuật toán gom cụm. | `euclidean(first, second)` |
+| `DistanceMetric` | Tính khoảng cách giữa hai vector, độc lập với `DataPoint` và thuật toán gom cụm. | `euclidean(first_coords, second_coords)` |
 | `ManualScaler` | Ước lượng tham số co giãn và biến đổi đặc trưng trước khi gom cụm. | `fit`, `transform`, `fit_transform`, `inverse_transform` |
 | `DBSCAN` | Giữ tham số và thực hiện DBSCAN theo lô: tìm vùng lân cận, mở rộng cụm, gán nhãn. | `fit`, `get_labels` |
 | `IncrementalDBSCAN` | Mở rộng DBSCAN với thao tác cập nhật điểm. | Kế thừa `fit`/`get_labels`; thêm `insert(point)`/`delete(point_id)` |
@@ -92,6 +93,11 @@ classDiagram
 có một trách nhiệm chính và chỉ phụ thuộc vào những giao diện cần thiết. Đây
 là thiết kế cho C02; các nhiệm vụ sau chịu trách nhiệm cài đặt từng lớp và
 thuật toán.
+
+`DBSCAN` lưu điểm theo ID ổn định. Mỗi `DataPoint` giữ tập ID láng giềng;
+`neighbor_count` được suy ra từ tập này để không bị lệch khi cache thay đổi.
+Các phương thức cập nhật sau cần duy trì cache bằng ID, không bằng vị trí trong
+danh sách.
 
 ## Phạm vi C02
 
