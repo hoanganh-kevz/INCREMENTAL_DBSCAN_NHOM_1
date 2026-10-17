@@ -29,14 +29,15 @@ def _check(engine, id_to_name, exp_labels, exp_cores, ignore, where):
     assert cores == set(exp_cores), f"{where}: lõi {sorted(cores ^ set(exp_cores))}"
 
 
-def _run(kind, name):
+def _run(kind, name, engine=RefitDBSCAN):
+    """Chạy một kịch bản trên engine, kiểm trạng thái trước, sau từng update và sau cùng."""
     base = RAW / kind / name
     exp = json.loads((base / "expected.json").read_text(encoding="utf-8"))
     pts = pd.read_csv(base / "points.csv", dtype={"point_id": str})
     upd = pd.read_csv(base / "update.csv", dtype={"point_id": str})
     cols = [c for c in pts.columns if c != "point_id"]
     eps, minpts = exp["eps"], exp["minpts"]
-    eng = RefitDBSCAN(eps, minpts).fit(pts[cols].to_numpy(dtype=float))
+    eng = engine(eps, minpts).fit(pts[cols].to_numpy(dtype=float))
     id_to_name = dict(enumerate(pts["point_id"]))
     name_to_id = {v: k for k, v in id_to_name.items()}
     global_amb = set(exp.get("ambiguous_to_ignore", []))

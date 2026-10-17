@@ -51,3 +51,8 @@ Các quy ước dưới đây có thể chép sang `README.md` hoặc `docs/oop_
 - Tương đương nghĩa là mọi điểm có cùng loại (lõi, biên, nhiễu) và các điểm lõi được chia cụm giống nhau. Điểm biên chỉ được khác cụm khi nó mơ hồ: trong Eps có lõi của từ hai cụm trở lên, và cụm được gán là một trong số đó.
 - `tests/tv4/test_real_dbscan_equivalence.py` chạy phần so sánh này cho `src.clustering.dbscan.DBSCAN`, kiểm thêm lân cận Eps ở 2, 5 và 8 chiều, và có ba engine cố ý sai để chắc bộ so sánh bắt được lỗi. Test tự bỏ qua nếu chưa có file DBSCAN. Engine khác (ví dụ `IncrementalDBSCAN`) chỉ cần `fit(data)`, `get_labels()` và `points` hoặc `snapshot()`.
 - `notebooks/D08_kiem_tra_dbscan_n_chieu.ipynb`: ví dụ từng bước trên bộ 5 chiều và bảng đủ 62 trường hợp. Insert và delete (D05, D06) kiểm sau, khi có `IncrementalDBSCAN`.
+
+## 8. Fit lại bằng DBSCAN của nhóm (`OwnRefitDBSCAN`)
+
+- `baseline/own_refit.py`: giống `RefitDBSCAN` nhưng mỗi lần insert hoặc delete thì fit lại bằng DBSCAN của nhóm, không dùng sklearn. Dùng để vẽ hình khi chưa có bản tăng dần, và làm mốc so tốc độ ở D09 (so bản tăng dần với chính DBSCAN của nhóm fit lại).
+- `tests/tv4/test_own_refit.py` kiểm nó trên 27 kịch bản `toy`, `toy_edge` và 20 step đầu của ba stream.

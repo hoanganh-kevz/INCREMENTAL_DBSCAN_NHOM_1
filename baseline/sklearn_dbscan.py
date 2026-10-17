@@ -249,6 +249,15 @@ def read_stream(stream_dir):
     return d0, upd, params, feature_columns(d0)
 
 
+def ambiguous_by_step(params, upd):
+    """Điểm biên mơ hồ theo từng step, dạng {step: [point_id]}. Step 0 lấy từ params.json, các step sau từ cột
+    ambiguous_border_ids của updates.csv."""
+    amb = {0: [int(v) for v in params.get("d0_ambiguous_border_ids", [])]}
+    for step, ids in zip(upd["step"], upd["ambiguous_border_ids"]):
+        amb[int(step)] = [int(v) for v in str(ids).split(";") if v and v != "nan"]
+    return amb
+
+
 def _timed(engine, apply_fn, repeats):
     """Áp dụng apply_fn(engine) THẬT một lần và trả (kết quả, giây, số lần đo).
 
