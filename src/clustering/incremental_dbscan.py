@@ -1,8 +1,10 @@
 from collections import deque #cho BFS
-from typing import Set, Union # Union ho phép khai báo tham số có thể nhận nhiều kiểu dữ liệu
+from typing import Dict, List, Set, Tuple, Union
 import numpy as np
 from src.clustering.dbscan import DBSCAN
-from src.core.data_point import DataPoint, PointType #D, tọa độ, loại điểm, nhãn cụm và tập lân cận
+from src.core.data_point import DataPoint, PointType 
+
+GraphNode = Tuple[str, int]
 
 class IncrementalDBSCAN(DBSCAN):
     """Mở rộng DBSCAN để hỗ trợ cập nhật cụm khi thay đổi dữ liệu"""
@@ -33,7 +35,7 @@ class IncrementalDBSCAN(DBSCAN):
         if not update_seeds_ids:
             self._assign_border_or_noise(new_id)
         else:
-            self._expand_new_connections(update_seeds_ids)
+            self._expand_new_connections(new_core_ids, update_seeds_ids)
 
         return new_id
 
@@ -99,51 +101,99 @@ class IncrementalDBSCAN(DBSCAN):
             new_point.cluster_id = -1
             new_point.point_type = PointType.NOISE
 
-    def _expand_new_connections(self, update_seed_ids: Set[int]) -> None:
-        """Cập nhật các cụm dựa trên quan hệ khả đạt theo mật độ sau phép chèn."""
+    def _build_insert_graph(self, new_core_ids: Set[int], update_seed_ids: Set[int]) -> Dict[GraphNode, Set[GraphNode]]:
+        """Biểu diễn Core mới và các cụm cũ liên quan trong đồ thị thu gọn."""
 
-        visited_core_ids: Set[int] = set()
-        for seed_id in sorted(update_seed_ids):
-            if seed_id in visited_core_ids:
-                continue
-            core_ids: Set[int] = set()
-            border_ids: Set[int] = set()
-            old_cluster_ids: Set[int] = set()
-            queue = deque([seed_id])
-            #duyệt qua các lõi liên kết với nhau trong lân cận Eps
-            while queue:
-                core_id = queue.popleft()
-                if core_id in visited_core_ids:
+        graph: Dict[GraphNode, Set[GraphNode]] = {("new", core_id): set() for core_id in new_core_ids}
+        for core_id in sorted(new_core_ids):
+            core_node = ("new", core_id)
+            for neighbor_id in sorted(self.points[core_id].neighbor_ids):
+                if neighbor_id not in update_seed_ids:
                     continue
-                visited_core_ids.add(core_id)
-                core_ids.add(core_id)
-                core = self.points[core_id]
-                #Lưu cụm cũ từ các điểm lõi cũ
-                if core.point_type == PointType.CORE and core.cluster_id is not None:
-                    old_cluster_ids.add(core.cluster_id)
-                for neighbor_id in sorted(core.neighbor_ids - {core_id}):
-                    neighbor = self.points[neighbor_id]
-                    if neighbor.neighbor_count >= self.min_pts:
-                        if neighbor_id not in visited_core_ids:
-                            queue.append(neighbor_id)
-                    else:
-                        border_ids.add(neighbor_id)
-            #Chọn id cụm sau khi cập nhật
-            if old_cluster_ids:
-                target_cluster_id = min(old_cluster_ids)
+                if neighbor_id in new_core_ids:
+                    neighbor_node = ("new", neighbor_id)
+                else:
+                    old_core = self.points[neighbor_id]
+                    if old_core.point_type != PointType.CORE:
+                        raise RuntimeError("UpdSeedIns chứa điểm cũ không phải Core.")
+                    if old_core.cluster_id is None or old_core.cluster_id < 0:
+                        raise RuntimeError("Core cũ không có nhãn cụm hợp lệ.")
+                    neighbor_node = ("cluster", old_core.cluster_id)
+                if core_node != neighbor_node:
+                    graph[core_node].add(neighbor_node)
+                    graph.setdefault(neighbor_node, set()).add(core_node)
+
+        return graph
+    def _get_connected_insert_groups(self, graph: Dict[GraphNode, Set[GraphNode]]) -> List[Set[GraphNode]]:
+        """Tìm các nhóm đỉnh kết nối trong đồ thị thu gọn bằng BFS."""
+
+        groups: List[Set[GraphNode]] = []
+        visited: Set[GraphNode] = set()
+        for start_node in sorted(graph):
+            if start_node in visited:
+                continue
+            group: Set[GraphNode] = set()
+            queue = deque([start_node])
+            visited.add(start_node)
+            while queue:
+                node = queue.popleft()
+                group.add(node)
+                for neighbor_node in sorted(graph[node]):
+                    if neighbor_node not in visited:
+                        visited.add(neighbor_node)
+                        queue.append(neighbor_node)
+            groups.append(group)
+        return groups
+
+    def _expand_new_connections(self, new_core_ids: Set[int], update_seed_ids: Set[int]) -> None:
+        """Xử lý Creation, Absorption và Merge bằng đồ thị thu gọn."""
+
+        graph = self._build_insert_graph(new_core_ids, update_seed_ids)
+        groups = self._get_connected_insert_groups(graph)
+        relabel: Dict[int, int] = {}
+        new_core_labels: Dict[int, int] = {}
+        for group in groups:
+            old_clusters = sorted(node_id for kind, node_id in group if kind == "cluster")
+            # Chọn nhãn cụm cho từng nhóm kết nối
+            if old_clusters:
+                target_cluster = old_clusters[0]
+                for cluster_id in old_clusters[1:]:
+                    relabel[cluster_id] = target_cluster
             else:
-                target_cluster_id = self._next_cluster_id
+                target_cluster = self._next_cluster_id
                 self._next_cluster_id += 1
-            # Cập nhật nhãn cụm và tính chất lõi của các đối tượng Core tìm được
-            for core_id in core_ids:
-                core = self.points[core_id]
-                core.cluster_id = target_cluster_id
-                core.point_type = PointType.CORE
-            #Cập nhật các điểm border
-            for border_id in border_ids:
-                border = self.points[border_id]
-                border.point_type = PointType.BORDER
-                if border.cluster_id is None or border.cluster_id == -1:
-                    border.cluster_id = target_cluster_id
-                elif border.cluster_id in old_cluster_ids:
-                    border.cluster_id = target_cluster_id
+            # Lưu nhãn cần gán cho các Core mới
+            for kind, node_id in group:
+                if kind == "new":
+                    new_core_labels[node_id] = target_cluster
+        # Chỉ đổi nhãn của cụm cũ nếu thực sự xảy ra Merge
+        if relabel:
+            for point in self.points.values():
+                if point.cluster_id in relabel:
+                    point.cluster_id = relabel[point.cluster_id]
+        # Cập nhật nhãn và trạng thái của các Core mới
+        for core_id, cluster_id in new_core_labels.items():
+            core = self.points[core_id]
+            core.cluster_id = cluster_id
+            core.point_type = PointType.CORE
+        # Xác định các Border trong lân cận của Core mới
+        affected_border_ids: Set[int] = set()
+        for core_id in new_core_ids:
+            for neighbor_id in self.points[core_id].neighbor_ids:
+                if self.points[neighbor_id].neighbor_count < self.min_pts:
+                    affected_border_ids.add(neighbor_id)
+        # Gán nhãn cho Border mới hoặc Noise chuyển thành Border
+        for border_id in sorted(affected_border_ids):
+            border = self.points[border_id]
+            if border.cluster_id is None or border.cluster_id == -1:
+                adjacent_clusters: Set[int] = set()
+                for neighbor_id in border.neighbor_ids:
+                    neighbor = self.points[neighbor_id]
+                    if (neighbor.point_type == PointType.CORE
+                        and neighbor.cluster_id is not None
+                        and neighbor.cluster_id >= 0):
+                        adjacent_clusters.add(neighbor.cluster_id)
+                if not adjacent_clusters:
+                    raise RuntimeError("Border không nằm trong lân cận của Core nào.")
+                border.cluster_id = min(adjacent_clusters)
+            border.point_type = PointType.BORDER

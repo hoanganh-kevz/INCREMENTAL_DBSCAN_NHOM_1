@@ -254,3 +254,21 @@ def test_insert_merge_three_clusters() -> None:
                for point in model.points.values())
 
     _check_against_refit(model, np.vstack((data, [0,0])))
+
+
+def test_insert_two_creations_shared_border() -> None:
+    """Hai Core mới không kết nối không được hợp nhất qua một Border chung."""
+
+    data = np.asarray([
+        [-1.4], [-1.3], [-0.9],
+        [0.9], [1.3], [1.4]], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4)
+    model.fit(data)
+    # Ban đầu chưa có cụm
+    assert len(_get_core_groups(model)) == 0
+    # Chèn điểm tạo ra hai Core mới nhưng không kết nối 
+    new_id = model.insert(np.asarray([0.0], dtype=float))
+    assert model.points[new_id].point_type == PointType.BORDER
+    assert len(_get_core_groups(model)) == 2
+    _check_against_refit(model, np.vstack((data, [0.0])))
+
