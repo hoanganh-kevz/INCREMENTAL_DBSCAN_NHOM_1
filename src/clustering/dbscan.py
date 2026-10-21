@@ -84,3 +84,6 @@ class DBSCAN:
     def get_labels(self) -> List[int]:
         """Trả về danh sách nhãn cụm tương ứng với các điểm dữ liệu (-1 đại diện cho Noise)."""
         return [pt.cluster_id if pt.cluster_id is not None else -1 for pt in self.points]
+
+
+    
