@@ -1,0 +1,99 @@
+{
+  "title": "Inserted point is a border of two clusters (ambiguous)",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 1,
+  "labels_before": {
+    "A1": 1,
+    "A2": 1,
+    "A3": 1,
+    "A4": 1,
+    "B1": 2,
+    "B2": 2,
+    "B3": 2,
+    "B4": 2
+  },
+  "labels_after": {
+    "A1": 1,
+    "A2": 1,
+    "A3": 1,
+    "A4": 1,
+    "B1": 2,
+    "B2": 2,
+    "B3": 2,
+    "B4": 2,
+    "p": 1
+  },
+  "core_before": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3",
+    "B4"
+  ],
+  "core_after": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3",
+    "B4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "insert",
+      "point_id": "p",
+      "case": "Absorption",
+      "labels_after": {
+        "A1": 1,
+        "A2": 1,
+        "A3": 1,
+        "A4": 1,
+        "B1": 2,
+        "B2": 2,
+        "B3": 2,
+        "B4": 2,
+        "p": 1
+      },
+      "core_after": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "B1",
+        "B2",
+        "B3",
+        "B4"
+      ],
+      "updseed": [],
+      "ambiguous_border_ids": [
+        "p"
+      ]
+    }
+  ],
+  "ambiguous_to_ignore": [
+    "p"
+  ],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": true,
+    "delete": false,
+    "equivalence": true
+  },
+  "why_vi": "p cách đúng một lõi của A (0.95) và một lõi của B (0.95), tổng lân cận 3 < MinPts nên p không phải lõi, hai cụm không gộp. p là điểm biên của cả hai cụm: nhãn hợp lệ là A hoặc B. Hãy bỏ p khi so với re-fit.",
+  "updseed": []
+}

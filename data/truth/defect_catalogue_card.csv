@@ -1,0 +1,25 @@
+scope,table,defect_type,column,n_rows
+base,card_txn_5d,missing_value,amount_vnd,23
+base,card_txn_5d,missing_value,hour_of_day,22
+base,card_txn_5d,missing_value,distance_from_home_km,18
+base,card_txn_5d,missing_value,txns_last_7d,31
+base,card_txn_5d,missing_value,merchant_risk_score,18
+base,card_txn_5d,duplicate_row_exact_copy,(whole row),8
+descriptive,card_txn_5d,inconsistent_spelling_or_case,channel,104
+descriptive,card_txn_5d,unknown_customer_id,customer_id,18
+descriptive,card_txn_5d,missing_value,merchant_category,18
+descriptive,card_txn_5d,mixed_timestamp_format_dd_mm_yyyy,timestamp,30
+descriptive,card_txn_5d,impossible_timestamp,timestamp,6
+descriptive,card_txn_5d,invalid_district_id,txn_district_id,5
+base,card_txn_5d_hard,missing_value,amount_vnd,26
+base,card_txn_5d_hard,missing_value,hour_of_day,28
+base,card_txn_5d_hard,missing_value,distance_from_home_km,16
+base,card_txn_5d_hard,missing_value,txns_last_7d,27
+base,card_txn_5d_hard,missing_value,merchant_risk_score,22
+base,card_txn_5d_hard,duplicate_row_exact_copy,(whole row),8
+descriptive,card_txn_5d_hard,inconsistent_spelling_or_case,channel,113
+descriptive,card_txn_5d_hard,unknown_customer_id,customer_id,19
+descriptive,card_txn_5d_hard,missing_value,merchant_category,19
+descriptive,card_txn_5d_hard,mixed_timestamp_format_dd_mm_yyyy,timestamp,32
+descriptive,card_txn_5d_hard,impossible_timestamp,timestamp,6
+descriptive,card_txn_5d_hard,invalid_district_id,txn_district_id,5

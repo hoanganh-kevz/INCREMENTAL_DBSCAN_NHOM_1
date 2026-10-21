@@ -1,0 +1,28 @@
+{
+  "source": "data/raw/synthetic/moons_n500.csv",
+  "n_rows": 500,
+  "feature_columns": [
+    "x",
+    "y"
+  ],
+  "id_column": "point_id",
+  "label_column": "label (chỉ để đánh giá, không dùng để gom cụm)",
+  "scaler": {
+    "method": "standard",
+    "center": [
+      0.507258018,
+      0.25214664
+    ],
+    "scale": [
+      0.8719485562881939,
+      0.503416588577864
+    ],
+    "feature_names": [
+      "x",
+      "y"
+    ],
+    "n_samples": 500
+  },
+  "fit_on": "toàn bộ file (bảng tĩnh, không có D0)",
+  "note": ""
+}

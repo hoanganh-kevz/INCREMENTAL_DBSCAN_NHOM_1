@@ -1,0 +1,169 @@
+{
+ "atm": {
+  "easy": {
+   "n": 1200,
+   "k_true": 6,
+   "noise_share": 0.115,
+   "results": {
+    "DBSCAN": [
+     0.9968,
+     "eps=500.0, MinPts=3"
+    ],
+    "KMeans (true k)": [
+     0.5834,
+     "k=6"
+    ],
+    "Ward HAC (true k)": [
+     0.5437,
+     "k=6"
+    ],
+    "OPTICS": [
+     0.5889,
+     "min_samples=10, xi=0.08"
+    ],
+    "HDBSCAN": [
+     0.962,
+     "min_cluster_size=15, min_samples=12, selection=eom"
+    ]
+   }
+  },
+  "medium": {
+   "n": 2000,
+   "k_true": 6,
+   "noise_share": 0.17,
+   "results": {
+    "DBSCAN": [
+     0.7366,
+     "eps=600.0, MinPts=10"
+    ],
+    "KMeans (true k)": [
+     0.419,
+     "k=6"
+    ],
+    "Ward HAC (true k)": [
+     0.436,
+     "k=6"
+    ],
+    "OPTICS": [
+     0.254,
+     "min_samples=5, xi=0.08"
+    ],
+    "HDBSCAN": [
+     0.763,
+     "min_cluster_size=30, min_samples=12, selection=eom"
+    ]
+   }
+  },
+  "hard": {
+   "n": 2000,
+   "k_true": 6,
+   "noise_share": 0.2,
+   "results": {
+    "DBSCAN": [
+     0.509,
+     "eps=400.0, MinPts=4"
+    ],
+    "KMeans (true k)": [
+     0.4038,
+     "k=6"
+    ],
+    "Ward HAC (true k)": [
+     0.4118,
+     "k=6"
+    ],
+    "OPTICS": [
+     0.1367,
+     "min_samples=5, xi=0.08"
+    ],
+    "HDBSCAN": [
+     0.6894,
+     "min_cluster_size=30, min_samples=6, selection=eom"
+    ]
+   }
+  }
+ },
+ "card": {
+  "easy": {
+   "n": 1383,
+   "k_true": 4,
+   "noise_share": 0.011,
+   "results": {
+    "DBSCAN": [
+     1.0,
+     "eps=0.45, MinPts=4"
+    ],
+    "KMeans (true k)": [
+     0.8,
+     "k=4"
+    ],
+    "Ward HAC (true k)": [
+     0.8006,
+     "k=4"
+    ],
+    "OPTICS": [
+     1.0,
+     "min_samples=10, xi=0.08"
+    ],
+    "HDBSCAN": [
+     1.0,
+     "min_cluster_size=15, min_samples=3, selection=eom"
+    ]
+   }
+  },
+  "medium": {
+   "n": 1476,
+   "k_true": 4,
+   "noise_share": 0.017,
+   "results": {
+    "DBSCAN": [
+     0.894,
+     "eps=0.35, MinPts=12"
+    ],
+    "KMeans (true k)": [
+     0.785,
+     "k=4"
+    ],
+    "Ward HAC (true k)": [
+     0.7887,
+     "k=4"
+    ],
+    "OPTICS": [
+     0.2943,
+     "min_samples=10, xi=0.08"
+    ],
+    "HDBSCAN": [
+     0.7745,
+     "min_cluster_size=60, min_samples=12, selection=leaf"
+    ]
+   }
+  },
+  "hard": {
+   "n": 1475,
+   "k_true": 4,
+   "noise_share": 0.022,
+   "results": {
+    "DBSCAN": [
+     0.6463,
+     "eps=0.3, MinPts=15"
+    ],
+    "KMeans (true k)": [
+     0.5461,
+     "k=4"
+    ],
+    "Ward HAC (true k)": [
+     0.5477,
+     "k=4"
+    ],
+    "OPTICS": [
+     0.2499,
+     "min_samples=10, xi=0.08"
+    ],
+    "HDBSCAN": [
+     0.5279,
+     "min_cluster_size=60, min_samples=12, selection=leaf"
+    ]
+   }
+  }
+ },
+ "note": "Best ARI over a parameter grid chosen WITH the ground truth (oracle), so every number is optimistic. ATM: coordinates in metres, DBSCAN eps grid 200..1300 m, MinPts 3..12. Card: log10(amount) + z-score after dropping rows with missing cells and duplicates, eps grid 0.2..1.5, MinPts 4..15. KMeans and Ward use the true k (ATM 6, card 4); noise points (-1) are their own class in the ARI. OPTICS: min_samples 5/10, xi 0.03/0.08, min_cluster_size 20. HDBSCAN (sklearn): min_cluster_size 15/30/60, min_samples 3/6/12."
+}

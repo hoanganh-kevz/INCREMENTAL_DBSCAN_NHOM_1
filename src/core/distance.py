@@ -1,16 +1,25 @@
+from math import sqrt
+from typing import Iterable
+
 import numpy as np
-from src.core.data_point import DataPoint
 
 
 class DistanceMetric:
-    """Lớp tính khoảng cách Euclidean giữa các điểm dữ liệu trong không gian n chiều."""
-    def calculate(self, p1: DataPoint, p2: DataPoint) -> float:
-        """
-        Tính khoảng cách Euclidean giữa hai DataPoint:
-        d(p1, p2) = sqrt(sum((p1_i - p2_i)^2))
-        """
-        if p1.dimension != p2.dimension:
-            raise ValueError(f"Kích thước vector không khớp: {p1.dimension}D vs {p2.dimension}D")
+    """Tính khoảng cách Euclidean độc lập với lớp DataPoint."""
 
-        diff = p1.coords - p2.coords
-        return float(np.sqrt(np.sum(diff ** 2)))
+    @staticmethod
+    def euclidean(first: Iterable[float], second: Iterable[float]) -> float:
+        """Tự tính khoảng cách Euclidean giữa hai vector cùng số chiều."""
+        first_coords = np.asarray(first, dtype=float).reshape(-1)
+        second_coords = np.asarray(second, dtype=float).reshape(-1)
+        if first_coords.size != second_coords.size:
+            raise ValueError(
+                "Hai vector phải có cùng số chiều: "
+                f"{first_coords.size}D và {second_coords.size}D."
+            )
+
+        squared_distance = sum(
+            (float(first_value) - float(second_value)) ** 2
+            for first_value, second_value in zip(first_coords, second_coords)
+        )
+        return sqrt(squared_distance)

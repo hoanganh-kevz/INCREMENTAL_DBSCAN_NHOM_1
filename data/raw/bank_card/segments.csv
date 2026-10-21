@@ -1,0 +1,6 @@
+segment_id,code,name_en,name_vi,meaning_vi,suggested_action_vi
+0,daily_retail,Daily retail spending,Chi tiêu bán lẻ hằng ngày,"Giao dịch nhỏ quanh 200 nghìn đồng, giữa ngày, gần nhà, rủi ro thấp, khoảng 9 giao dịch mỗi tuần.","Khách cốt lõi: thưởng hoàn tiền theo tần suất, đề xuất thẻ tín dụng hạn mức nhỏ."
+1,online_shopping,Night online shopping,Mua sắm online buổi tối,"Giao dịch khoảng 800 nghìn đồng vào buổi tối, ngay tại nhà, rủi ro trung bình thấp.",Ưu đãi thanh toán trả góp và ví điện tử vào khung 20 đến 22 giờ.
+2,travel_big_ticket,Far-from-home big ticket travel,Chi tiêu lớn khi đi xa,"Giao dịch khoảng 10 triệu đồng, cách nhà khoảng 60 km, ít giao dịch, rủi ro trung bình.","Cung cấp bảo hiểm du lịch, nâng hạn mức tạm thời; theo dõi xác thực thêm khi đi xa."
+3,night_cash_out,Night cash out,Rút tiền mặt ban đêm,"Giao dịch nhỏ khoảng 40 nghìn đồng lúc rạng sáng, rất nhiều lần mỗi tuần, rủi ro cao.","Theo dõi sát: giới hạn số lần rút ban đêm, gửi cảnh báo và hỏi xác nhận khi bất thường."
+-1,suspicious_far_high_value,Suspicious far-from-home high-value,Giao dịch nghi ngờ giá trị lớn ở xa nhà,"Số tiền cực lớn hoặc cực nhỏ, rất xa nhà, rủi ro merchant rất cao: giao dịch cô lập hoặc bất thường.","Chặn tạm thời hoặc gọi xác nhận khách hàng, chuyển bộ phận chống gian lận."

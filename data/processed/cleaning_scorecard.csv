@@ -1,0 +1,39 @@
+table,defect,column,n,metric,value,global_median_error,gain_x,note
+card_txn_5d,duplicate_row_exact_copy,(whole row),8,share_removed,1.0,,,"còn 1492 dòng, đáp án có 1492; txn_id duy nhất: True"
+card_txn_5d,missing_value,amount_vnd,23,median_abs_error,62000.0,202000.0,3.2580645161290325,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,amount_vnd,23,mean_abs_error,107130.43478260869,1077043.4782608696,10.05357142857143,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,hour_of_day,22,median_abs_error,0.0,2.6899999999999995,,"sửa từ timestamp; cột chung = điền trung vị, không dùng timestamp"
+card_txn_5d,missing_value,hour_of_day,22,mean_abs_error,0.0,3.6468181818181815,,"sửa từ timestamp; cột chung = điền trung vị, không dùng timestamp"
+card_txn_5d,missing_value,distance_from_home_km,18,median_abs_error,1.1049999999999998,1.9800000000000006,1.7918552036199105,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,distance_from_home_km,18,mean_abs_error,1.763611111111111,5.021666666666667,2.847377539770043,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,txns_last_7d,31,median_abs_error,1.0,4.0,4.0,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,txns_last_7d,31,mean_abs_error,1.3709677419354838,4.129032258064516,3.011764705882353,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,merchant_risk_score,18,median_abs_error,0.03450000000000002,0.20099999999999996,5.826086956521735,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,merchant_risk_score,18,mean_abs_error,0.11097222222222222,0.17738888888888893,1.598498122653317,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d,missing_value,hour_of_day (từ timestamp),22,max_abs_error,0.0,,,"22 ô sửa từ timestamp, 0 ô phải điền trung vị"
+card_txn_5d,inconsistent_spelling_or_case,channel,104,accuracy_on_dirty_rows,1.0,,,độ chính xác trên mọi dòng 1.0000; để nguyên bản thô thì đúng 0 trên các dòng này
+card_txn_5d,mixed_timestamp_format_dd_mm_yyyy,timestamp,30,share_recovered_exactly,1.0,,,so khớp đúng từng giây với đáp án
+card_txn_5d,impossible_timestamp,timestamp,6,flag_recall,1.0,,,"precision 1.0000; ngày giờ đúng không khôi phục được, để NaT"
+card_txn_5d,valid_timestamp_untouched,timestamp,1456,share_exact,1.0,,,timestamp ISO hợp lệ phải giữ nguyên
+card_txn_5d,unknown_customer_id,customer_id,18,flag_recall,1.0,,,"precision 1.0000; không sửa, chỉ gắn cờ"
+card_txn_5d,invalid_district_id,txn_district_id,5,flag_recall,1.0,,,"precision 1.0000; không sửa, chỉ gắn cờ"
+card_txn_5d,missing_value,merchant_category,18,flag_recall,1.0,,,"không suy ra được, điền UNKNOWN và gắn cờ; độ chính xác khôi phục: không áp dụng"
+card_txn_5d_hard,duplicate_row_exact_copy,(whole row),8,share_removed,1.0,,,"còn 1592 dòng, đáp án có 1592; txn_id duy nhất: True"
+card_txn_5d_hard,missing_value,amount_vnd,26,median_abs_error,183250.0,288000.0,1.5716234652114598,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,amount_vnd,26,mean_abs_error,1263942.3076923077,2498884.6153846155,1.9770559147965006,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,hour_of_day,28,median_abs_error,0.0,3.799999999999998,,"sửa từ timestamp; cột chung = điền trung vị, không dùng timestamp"
+card_txn_5d_hard,missing_value,hour_of_day,28,mean_abs_error,0.0,4.6139285714285725,,"sửa từ timestamp; cột chung = điền trung vị, không dùng timestamp"
+card_txn_5d_hard,missing_value,distance_from_home_km,16,median_abs_error,1.7274999999999994,3.715,2.1505065123010136,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,distance_from_home_km,16,mean_abs_error,5.384375,10.034375,1.8636099825885084,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,txns_last_7d,27,median_abs_error,1.0,3.0,3.0,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,txns_last_7d,27,mean_abs_error,1.5,2.7777777777777777,1.8518518518518519,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,merchant_risk_score,22,median_abs_error,0.017999999999999988,0.0915,5.083333333333337,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,merchant_risk_score,22,mean_abs_error,0.056909090909090916,0.15063636363636365,2.646964856230032,"trung vị theo (kênh x nhóm hàng) -> kênh -> chung, học trên D0"
+card_txn_5d_hard,missing_value,hour_of_day (từ timestamp),28,max_abs_error,0.0,,,"28 ô sửa từ timestamp, 0 ô phải điền trung vị"
+card_txn_5d_hard,inconsistent_spelling_or_case,channel,111,accuracy_on_dirty_rows,1.0,,,độ chính xác trên mọi dòng 1.0000; để nguyên bản thô thì đúng 0 trên các dòng này
+card_txn_5d_hard,mixed_timestamp_format_dd_mm_yyyy,timestamp,32,share_recovered_exactly,1.0,,,so khớp đúng từng giây với đáp án
+card_txn_5d_hard,impossible_timestamp,timestamp,6,flag_recall,1.0,,,"precision 1.0000; ngày giờ đúng không khôi phục được, để NaT"
+card_txn_5d_hard,valid_timestamp_untouched,timestamp,1554,share_exact,1.0,,,timestamp ISO hợp lệ phải giữ nguyên
+card_txn_5d_hard,unknown_customer_id,customer_id,19,flag_recall,1.0,,,"precision 1.0000; không sửa, chỉ gắn cờ"
+card_txn_5d_hard,invalid_district_id,txn_district_id,5,flag_recall,1.0,,,"precision 1.0000; không sửa, chỉ gắn cờ"
+card_txn_5d_hard,missing_value,merchant_category,19,flag_recall,1.0,,,"không suy ra được, điền UNKNOWN và gắn cờ; độ chính xác khôi phục: không áp dụng"

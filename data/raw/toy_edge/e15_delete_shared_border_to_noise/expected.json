@@ -1,0 +1,55 @@
+{
+  "title": "Delete a core; a border shared by two cores becomes noise",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 1,
+  "labels_before": {
+    "b": 1,
+    "c1": 1,
+    "c2": 1,
+    "c3": 1
+  },
+  "labels_after": {
+    "b": -1,
+    "c2": -1,
+    "c3": -1
+  },
+  "core_before": [
+    "c1",
+    "c2"
+  ],
+  "core_after": [],
+  "steps": [
+    {
+      "step": 1,
+      "op": "delete",
+      "point_id": "c1",
+      "case": "Removal",
+      "labels_after": {
+        "b": -1,
+        "c2": -1,
+        "c3": -1
+      },
+      "core_after": [],
+      "updseed": [],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": false,
+    "delete": true,
+    "equivalence": true
+  },
+  "why_vi": "c1 và c2 là lõi duy nhất; c3 và b là điểm biên chung của cả hai. Xóa c1 làm N_Eps(c2) còn 3 nên c2 mất tính lõi, cả cụm biến mất và b (điểm biên chung) thành nhiễu (Removal).",
+  "updseed": []
+}

@@ -1,0 +1,42 @@
+{
+  "doc_section": "R02 Case 3 Absorption",
+  "eps": 1.1,
+  "minpts": 4,
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify partition",
+  "labels_before": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1
+  },
+  "labels_after": {
+    "A": 1,
+    "B": 1,
+    "C": 1,
+    "D": 1,
+    "E": 1,
+    "F": 1,
+    "p": 1
+  },
+  "updseed": [
+    "B",
+    "D",
+    "E",
+    "F"
+  ],
+  "core_before": [
+    "B",
+    "D"
+  ],
+  "core_after": [
+    "B",
+    "D",
+    "E",
+    "F"
+  ],
+  "note": "p joins the existing cluster; E, F become core"
+}

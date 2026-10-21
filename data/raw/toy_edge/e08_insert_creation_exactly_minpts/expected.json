@@ -1,0 +1,107 @@
+{
+  "title": "Cluster is created exactly when MinPts points have accumulated",
+  "eps": 1.0,
+  "minpts": 4,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 3,
+  "labels_before": {
+    "n0": -1,
+    "z": -1
+  },
+  "labels_after": {
+    "n0": 1,
+    "q1": 1,
+    "q2": 1,
+    "q3": 1,
+    "z": -1
+  },
+  "core_before": [],
+  "core_after": [
+    "n0",
+    "q1",
+    "q2",
+    "q3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "insert",
+      "point_id": "q1",
+      "case": "Noise",
+      "labels_after": {
+        "n0": -1,
+        "q1": -1,
+        "z": -1
+      },
+      "core_after": [],
+      "updseed": [],
+      "ambiguous_border_ids": []
+    },
+    {
+      "step": 2,
+      "op": "insert",
+      "point_id": "q2",
+      "case": "Noise",
+      "labels_after": {
+        "n0": -1,
+        "q1": -1,
+        "q2": -1,
+        "z": -1
+      },
+      "core_after": [],
+      "updseed": [],
+      "ambiguous_border_ids": []
+    },
+    {
+      "step": 3,
+      "op": "insert",
+      "point_id": "q3",
+      "case": "Creation",
+      "labels_after": {
+        "n0": 1,
+        "q1": 1,
+        "q2": 1,
+        "q3": 1,
+        "z": -1
+      },
+      "core_after": [
+        "n0",
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "updseed": [
+        "n0",
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "ambiguous_border_ids": []
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": true,
+    "delete": false,
+    "equivalence": true
+  },
+  "why_vi": "Ba lần chèn đầu cho 2, 3 điểm gần nhau vẫn là nhiễu; lần thứ ba đủ MinPts = 4 điểm đôi một trong Eps nên cả bốn thành lõi cùng lúc (Creation). z ở xa là nhiễu suốt kịch bản.",
+  "updseed_by_step": [
+    [],
+    [],
+    [
+      "n0",
+      "q1",
+      "q2",
+      "q3"
+    ]
+  ]
+}

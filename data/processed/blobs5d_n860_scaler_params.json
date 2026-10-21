@@ -1,0 +1,40 @@
+{
+  "source": "data/raw/nd/blobs5d_n860.csv",
+  "n_rows": 860,
+  "feature_columns": [
+    "x1",
+    "x2",
+    "x3",
+    "x4",
+    "x5"
+  ],
+  "id_column": "point_id",
+  "label_column": "label (chỉ để đánh giá, không dùng để gom cụm)",
+  "scaler": {
+    "method": "standard",
+    "center": [
+      -5.071357470930233,
+      1.0913071476744185,
+      3.7812421744186047,
+      -0.6529293558139536,
+      -2.5245896476744187
+    ],
+    "scale": [
+      2.448330064760621,
+      6.415524952584585,
+      2.4927498122692593,
+      3.009687520634837,
+      3.8143933315340908
+    ],
+    "feature_names": [
+      "x1",
+      "x2",
+      "x3",
+      "x4",
+      "x5"
+    ],
+    "n_samples": 860
+  },
+  "fit_on": "toàn bộ file (bảng tĩnh, không có D0)",
+  "note": "5 chiều cùng thang nên z-score ít đổi hình học; label -1 là nhiễu cài sẵn"
+}

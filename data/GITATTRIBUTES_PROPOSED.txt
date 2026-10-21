@@ -1,0 +1,11 @@
+# Gợi ý .gitattributes cho thư mục gốc repo (thêm nếu cả nhóm đồng ý).
+# Trên Windows, Git có thể đổi LF thành CRLF khi checkout; check_data.py so từng byte các file CSV và JSON
+# nên sẽ báo "file bytes changed". eol=lf giữ nguyên LF trên mọi máy.
+
+*.csv   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.py    text eol=lf
+*.ipynb text eol=lf
+*.txt   text eol=lf
+*.png   binary

@@ -1,0 +1,15 @@
+category_code,name_en,name_vi,base_risk_level
+GRO,grocery,Tạp hóa và siêu thị,low
+DIN,dining,Ăn uống,low
+FUE,fuel,Xăng dầu,low
+UTL,utilities,Điện nước và viễn thông,low
+HLT,health,Y tế và nhà thuốc,low
+EDU,education,Giáo dục,low
+TRN,ride_hailing_transport,Di chuyển và gọi xe,low
+ENT,entertainment,Giải trí,medium
+ECO,ecommerce,Thương mại điện tử,medium
+FSH,fashion_retail,Thời trang và bán lẻ,medium
+TRV,travel_lodging,Du lịch và lưu trú,medium
+GAM,gaming_digital_goods,Game và hàng hóa số,high
+ATM,cash_atm,Rút tiền mặt tại ATM,high
+LUX,jewelry_luxury,Trang sức và hàng xa xỉ,high

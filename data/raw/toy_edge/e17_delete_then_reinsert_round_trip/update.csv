@@ -1,0 +1,3 @@
+op,point_id,x,y
+delete,p,,
+insert,q,1.25,-0.35
