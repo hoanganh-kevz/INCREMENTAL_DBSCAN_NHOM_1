@@ -28,7 +28,7 @@ def test_apply_frozen_scaling_is_pure_and_matches_manual_scaler():
     before = f.copy()
     z = apply_frozen_scaling(PARAMS, f)
     pd.testing.assert_frame_equal(f, before)                                  # không sửa DataFrame đầu vào
-    x = f[["amount_vnd", "hour_of_day", "distance_from_home_km"]].to_numpy(float)
+    x = f[["amount_vnd", "hour_of_day", "distance_from_home_km"]].to_numpy(dtype=float, copy=True)
     x[:, 0] = np.log10(x[:, 0])
     ref = ManualScaler.from_dict({"center": [4.0, 12.0, 10.0], "scale": [1.0, 4.0, 5.0]}).transform(x)
     assert z.tobytes() == ref.tobytes()

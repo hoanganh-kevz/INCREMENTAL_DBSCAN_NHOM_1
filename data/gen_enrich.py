@@ -50,8 +50,15 @@ def district_ids(x, y):
 
 
 def district_rows():
-    g = np.stack(np.meshgrid(np.arange(0.05, CITY_W, 0.1), np.arange(0.05, CITY_H, 0.1)), -1).reshape(-1, 2)
-    idx = district_index(g[:, 0], g[:, 1])
+    # The lattice is exactly 0.05 + 0.1*k km. Represent coordinates in
+    # 0.05 km units so points on Voronoi boundaries are handled consistently
+    # across NumPy/platform versions; argmin assigns exact ties to the first ID.
+    gx = np.arange(1, int(CITY_W * 20), 2, dtype=np.int64)
+    gy = np.arange(1, int(CITY_H * 20), 2, dtype=np.int64)
+    grid = np.stack(np.meshgrid(gx, gy), -1).reshape(-1, 2)
+    centers = np.array([[round(d[4] * 20), round(d[5] * 20)] for d in DISTRICTS], dtype=np.int64)
+    distances = ((grid[:, None, :] - centers[None, :, :]) ** 2).sum(axis=-1)
+    idx = distances.argmin(axis=1)
     rows = []
     for k, d in enumerate(DISTRICTS):
         rows.append([d[0], d[1], d[2], d[3], f"{d[4]:.1f}", f"{d[5]:.1f}", f"{(idx == k).sum() * 0.01:.2f}"])
