@@ -1,0 +1,2 @@
+fixture,noise_policy,n_clusters,n_noise,custom_silhouette,sklearn_silhouette,absolute_difference,adjusted_rand_index,adjusted_mutual_information
+toy_2d_two_groups_with_noise,exclude_noise_for_silhouette_keep_for_ari_ami,2,2,0.9694943397510215,0.96949433975102,1.5543122344752192e-15,0.631578947368421,0.6253833517337347
