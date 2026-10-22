@@ -1,20 +1,23 @@
-from collections import deque #cho BFS
+from collections import deque
 from typing import Dict, List, Set, Tuple, Union
+
 import numpy as np
+
 from src.clustering.dbscan import DBSCAN
-from src.core.data_point import DataPoint, PointType 
+from src.clustering.utils import ClusterUtils
+from src.core.data_point import DataPoint, PointType
 
 GraphNode = Tuple[str, int]
 
 class IncrementalDBSCAN(DBSCAN):
     """Mở rộng DBSCAN để hỗ trợ cập nhật cụm khi thay đổi dữ liệu"""
 
-    def insert(self, point: Union[DataPoint, np.ndarray]) -> int: #trả về ID của điểm thêm thành công
+    def insert(self, point: Union[DataPoint, np.ndarray]) -> int:
         """Chèn một điểm mới và cập nhật kết quả phân cụm."""
-        
-        #Lấy tọa độ của điểm được chèn 
+
+        # Lấy tọa độ của điểm được chèn.
         coords = point.coords if isinstance(point, DataPoint) else point
-        coords = np.array(coords, dtype = float).reshape(-1)
+        coords = np.array(coords, dtype=float).reshape(-1)
         #Kiểm tra tọa độ
         if coords.size == 0 or not np.all(np.isfinite(coords)):
             raise ValueError("Tọa độ phải khác rỗng và chứa các giá trị hữu hạn.")
@@ -38,6 +41,10 @@ class IncrementalDBSCAN(DBSCAN):
             self._expand_new_connections(new_core_ids, update_seeds_ids)
 
         return new_id
+
+    def insert_point(self, point: Union[DataPoint, np.ndarray]) -> int:
+        """Tên tương thích với các caller cũ; cùng xử lý như ``insert``."""
+        return self.insert(point)
 
     def _update_neighborhood_after_insert(self, new_point_id: int) -> Set[int]:
         """Tính lân cận của điểm mới và cập nhật neighbor_ids 2 chiều"""
@@ -94,10 +101,10 @@ class IncrementalDBSCAN(DBSCAN):
             if self.points[neighbor_id].point_type == PointType.CORE}
         if core_cluster_ids:
             #Điểm mới thuộc lân cận của ít nhất 1 core, gán thành border
-            new_point.cluster_id = min(core_cluster_ids) 
+            new_point.cluster_id = min(core_cluster_ids)
             new_point.point_type = PointType.BORDER
         else:
-            #Điểm mới ko ở trong cụm 
+            # Điểm mới không thuộc cụm nào.
             new_point.cluster_id = -1
             new_point.point_type = PointType.NOISE
 
@@ -168,9 +175,8 @@ class IncrementalDBSCAN(DBSCAN):
                     new_core_labels[node_id] = target_cluster
         # Chỉ đổi nhãn của cụm cũ nếu thực sự xảy ra Merge
         if relabel:
-            for point in self.points.values():
-                if point.cluster_id in relabel:
-                    point.cluster_id = relabel[point.cluster_id]
+            for source_id, target_id in relabel.items():
+                ClusterUtils.merge_clusters(self.points, source_id, target_id)
         # Cập nhật nhãn và trạng thái của các Core mới
         for core_id, cluster_id in new_core_labels.items():
             core = self.points[core_id]
@@ -197,3 +203,110 @@ class IncrementalDBSCAN(DBSCAN):
                     raise RuntimeError("Border không nằm trong lân cận của Core nào.")
                 border.cluster_id = min(adjacent_clusters)
             border.point_type = PointType.BORDER
+
+    def delete_point(self, point_id: int) -> None:
+        """Xóa một điểm và phân cụm lại các cụm có thể bị ảnh hưởng.
+
+        Bộ nhớ lân cận lưu ID ổn định, vì vậy việc xóa không làm thay đổi ID
+        hay cần đánh lại chỉ số cho những điểm còn lại.
+        """
+        if point_id not in self.points:
+            raise ValueError(f"Không tìm thấy DataPoint có ID = {point_id}")
+
+        deleted_point = self.points.pop(point_id)
+        affected_cluster_ids = {
+            self.points[neighbor_id].cluster_id
+            for neighbor_id in deleted_point.neighbor_ids
+            if neighbor_id != point_id
+            and neighbor_id in self.points
+            and self.points[neighbor_id].cluster_id is not None
+            and self.points[neighbor_id].cluster_id >= 0
+        }
+        if deleted_point.cluster_id is not None and deleted_point.cluster_id >= 0:
+            affected_cluster_ids.add(deleted_point.cluster_id)
+
+        for neighbor_id in deleted_point.neighbor_ids:
+            neighbor = self.points.get(neighbor_id)
+            if neighbor is not None:
+                neighbor.neighbor_ids.discard(point_id)
+
+        if not affected_cluster_ids:
+            return
+
+        affected_ids = {
+            candidate_id
+            for candidate_id, point in self.points.items()
+            if point.cluster_id in affected_cluster_ids
+        }
+        old_cluster_by_id = {
+            candidate_id: self.points[candidate_id].cluster_id
+            for candidate_id in affected_ids
+        }
+
+        # Xóa nhãn cũ trong vùng ảnh hưởng và xác định lại Core sau khi
+        # neighbor_ids đã được cập nhật.
+        for candidate_id in affected_ids:
+            point = self.points[candidate_id]
+            point.cluster_id = None
+            point.point_type = (
+                PointType.CORE
+                if point.neighbor_count >= self.min_pts
+                else PointType.BORDER
+            )
+
+        core_ids = {
+            candidate_id
+            for candidate_id in affected_ids
+            if self.points[candidate_id].is_core
+        }
+        components: List[Set[int]] = []
+        visited: Set[int] = set()
+        for start_id in sorted(core_ids):
+            if start_id in visited:
+                continue
+            component: Set[int] = set()
+            queue = deque([start_id])
+            visited.add(start_id)
+            while queue:
+                current_id = queue.popleft()
+                component.add(current_id)
+                for neighbor_id in sorted(self.points[current_id].neighbor_ids & core_ids):
+                    if neighbor_id not in visited:
+                        visited.add(neighbor_id)
+                        queue.append(neighbor_id)
+            components.append(component)
+
+        # Giữ lại ID cũ cho một thành phần của mỗi cụm. Những thành phần mới
+        # hình thành do split nhận ID tăng dần, không tái sử dụng ID đã cấp.
+        used_cluster_ids: Set[int] = set()
+        for component in components:
+            previous_ids = sorted({
+                old_cluster_by_id[candidate_id]
+                for candidate_id in component
+                if old_cluster_by_id[candidate_id] is not None
+                and old_cluster_by_id[candidate_id] >= 0
+            })
+            cluster_id = next(
+                (old_id for old_id in previous_ids if old_id not in used_cluster_ids),
+                None,
+            )
+            if cluster_id is None:
+                cluster_id = self._next_cluster_id
+                self._next_cluster_id += 1
+            used_cluster_ids.add(cluster_id)
+            for candidate_id in component:
+                self.points[candidate_id].cluster_id = cluster_id
+
+        ClusterUtils.relabel_unreachable_points(
+            self.points, affected_ids, self._region_query
+        )
+        active_cluster_ids = {
+            point.cluster_id
+            for point in self.points.values()
+            if point.is_core and point.cluster_id is not None and point.cluster_id >= 0
+        }
+        ClusterUtils.clean_stale_cluster_ids(self.points, active_cluster_ids)
+
+    def delete(self, point_id: int) -> None:
+        """Tên tương thích với giao diện tài liệu; cùng xử lý như ``delete_point``."""
+        self.delete_point(point_id)
