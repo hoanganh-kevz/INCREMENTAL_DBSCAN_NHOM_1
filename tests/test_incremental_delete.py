@@ -58,6 +58,26 @@ def test_delete_noise_preserves_cluster_and_neighbor_cache():
     assert 4 not in model.points
 
 
+def test_delete_border_removal_preserves_cluster_structure():
+    data = np.asarray(
+        [[0.0, 0.0], [0.4, 0.0], [0.0, 0.4], [0.4, 0.4], [0.9, 0.4]],
+        dtype=float,
+    )
+    model = IncrementalDBSCAN(eps=0.7, min_pts=4).fit(data)
+    border_id = 4
+
+    assert model.points[border_id].point_type == PointType.BORDER
+    assert model.points[border_id].cluster_id >= 0
+    core_groups_before = _core_groups(model)
+    assert len(core_groups_before) == 1
+
+    model.delete_point(border_id)
+
+    _assert_matches_refit(model)
+    assert border_id not in model.points
+    assert _core_groups(model) == core_groups_before
+
+
 def test_delete_reduction_without_split():
     data = np.asarray([[0.0], [0.9], [1.8], [2.7]])
     model = IncrementalDBSCAN(eps=1.0, min_pts=3).fit(data)
