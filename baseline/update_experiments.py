@@ -12,7 +12,7 @@ Bốn phần:
   case_summary     gộp stream_table theo (op, case).
 
 Chạy từ gốc repo: python -m baseline.update_experiments [--repeats 5] [--no-own-refit-cards]
-Ghi bảng vào data/processed/experiments/d05_d06/ và hình vào report/figures/. Thời gian phụ thuộc máy nên thư mục bảng không đưa lên git.
+Ghi bảng vào data/processed/experiments/d05_d06/ và hình vào report/figures/. Cột thời gian phụ thuộc máy.
 """
 import copy
 import json

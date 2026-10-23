@@ -11,7 +11,7 @@ Hai thí nghiệm:
   theo m   n = 2000, m = 1 đến 500 update: tổng thời gian xử lý m update bằng gia tăng, bằng fit lại sau mỗi update, và bằng một lần fit lại cuối.
 
 Chạy từ gốc repo: python -m baseline.benchmark_incremental [--n 500 1000 2000 4000] [--repeats 5] [--m-n 2000]
-Ghi data/processed/experiments/d09/ (phụ thuộc máy, không đưa lên git) và report/figures/d09_*.png.
+Ghi data/processed/experiments/d09/ (thời gian phụ thuộc máy) và report/figures/d09_*.png.
 """
 import copy
 import json
@@ -278,7 +278,7 @@ def main(argv=None):
     vis.save(plot_by_m(sweep), FIG / "d09_cumulative_by_m.png")
     vis.save(plot_memory(memory), FIG / "d09_memory_by_n.png")
     (OUT / "README.txt").write_text(
-        "Benchmark D09 (python -m baseline.benchmark_incremental). Phụ thuộc máy, không đưa lên git.\n"
+        "Benchmark D09 (python -m baseline.benchmark_incremental). Cột thời gian phụ thuộc máy.\n"
         f"Máy: {platform.platform()}, {platform.processor() or platform.machine()}, Python {platform.python_version()}, "
         f"scikit-learn {sklearn.__version__}, numpy {np.__version__}.\n"
         f"Theo n: 20 update mỗi (family, n); incremental và sklearn_refit đo mỗi update {a.repeats} lần trên bản sao sâu (trung vị), "
