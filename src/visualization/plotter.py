@@ -19,6 +19,7 @@ from contextlib import contextmanager
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import patheffects
 from matplotlib.collections import PatchCollection
 from matplotlib.lines import Line2D
 from matplotlib.patches import Circle, Polygon
@@ -30,6 +31,7 @@ _TYPE_BY_NAME = {"UNCLASSIFIED": UNCLASSIFIED, "NOISE": NOISE, "BORDER": BORDER,
 # Okabe-Ito (an toàn cho người mù màu) thêm hai màu của Paul Tol; quá 9 cụm thì màu lặp lại (chấp nhận được khi các cụm cách xa nhau).
 PALETTE = ["#0072B2", "#E69F00", "#009E73", "#D55E00", "#56B4E9", "#CC79A7", "#882255", "#332288", "#999933"]
 NOISE_COLOR = "#8C8C8C"
+_HALO = [patheffects.withStroke(linewidth=2.2, foreground="white")]        # viền trắng quanh chữ để đọc được khi nằm trên đường kẻ
 INK = "#1A1A1A"
 
 # Giao diện cho báo cáo A4 (Word hoặc PDF): phông DejaVu Sans có sẵn trong matplotlib và đủ dấu tiếng Việt.
@@ -227,7 +229,7 @@ class ClusterVisualizer:
     project_2d = staticmethod(project_2d)
 
     @staticmethod
-    def _limits(arrays, extra=None, pad=0.12, min_aspect=0.5):
+    def _limits(arrays, extra=None, pad=0.12, min_aspect=0.6):
         pts = np.vstack([a for a in arrays if len(a)] or [np.zeros((1, 2))])
         lo, hi = pts.min(axis=0), pts.max(axis=0)
         if extra is not None and len(extra):
@@ -314,6 +316,7 @@ class ClusterVisualizer:
                 ax.scatter(xy[hl, 0], xy[hl, 1], s=s * 3.8, facecolors="none", edgecolors=INK, linewidths=1.4, zorder=5).set_gid("highlight")
                 circle_centres += [xy[k] for k in hl]
                 shown["highlight"] = True
+        pending = []                                    # nhãn điểm cập nhật, ghi sau khi biết khung trục
         for m in marks or []:
             ghost = m.get("ghost", False)
             star = m["kind"] == "insert"
@@ -323,14 +326,10 @@ class ClusterVisualizer:
             if not ghost:
                 circle_centres.append(np.asarray(m["xy"], float))
                 shown[m["kind"]] = True
-            if m.get("label") is not None:
-                ax.annotate(str(m["label"]), m["xy"], xytext=(3.5, 3.5), textcoords="offset points",
-                            fontsize=6.5 if compact else 8, fontweight="bold", color=INK, zorder=7)
-        if eps_ok:
-            for c in circle_centres:
-                ax.add_patch(Circle(c, eps, fill=False, linestyle=(0, (3, 2)), edgecolor=INK, linewidth=0.8, zorder=5))
+            pending.append((None if m.get("label") is None else str(m["label"]), np.asarray(m["xy"], float), not ghost))
+        rings = [c for c in circle_centres if not any(np.array_equal(c, q[1]) for q in pending)]      # vòng của điểm nhấn mạnh
         for i in annotate_ids or []:
-            ax.annotate(str(i), xy[idx[i]], xytext=(3, 3), textcoords="offset points", fontsize=6.5, color=INK, zorder=7)
+            ax.annotate(str(i), xy[idx[i]], xytext=(3, 3), textcoords="offset points", fontsize=6.5, color=INK, zorder=7, path_effects=_HALO)
 
         extra = None
         if eps_ok and circle_centres:
@@ -339,6 +338,29 @@ class ClusterVisualizer:
         xl, yl = limits if limits is not None else self._limits([xy], extra)
         ax.set_xlim(*xl)
         ax.set_ylim(*yl)
+        # các điểm cập nhật nằm sát nhau (nối chuỗi, mỗi bước dưới 9% khung trục) thành một nhóm: một nhãn chung đặt ở điểm trên cùng
+        # bên phải, và chỉ điểm cập nhật sau cùng của nhóm có vòng Eps, để nhiều bước liền nhau không chồng chữ và chồng vòng
+        span = max(xl[1] - xl[0], yl[1] - yl[0])
+        groups = []
+        for item in pending:
+            near = [g for g in groups if any(np.linalg.norm(o[1] - item[1]) < 0.09 * span for o in g)]
+            merged = [item] + [o for g in near for o in g]
+            groups = [g for g in groups if all(g is not h for h in near)] + [merged]
+        order = {id(it): k for k, it in enumerate(pending)}
+        offsets = [(3.5, 3.5), (3.5, -9.0), (-11.0, 3.5), (-11.0, -9.0)]
+        for k, g in enumerate(groups):
+            g = sorted(g, key=lambda it: order[id(it)])
+            texts = [it[0] for it in g if it[0] is not None]
+            if texts:
+                top = max(g, key=lambda it: (it[1][1], it[1][0]))[1]
+                ax.annotate(", ".join(dict.fromkeys(texts)), top, xytext=offsets[k % len(offsets)], textcoords="offset points",
+                            fontsize=6.5 if compact else 8, fontweight="bold", color=INK, zorder=7, path_effects=_HALO)
+            solid = [it for it in g if it[2]]
+            if solid:
+                rings.append(solid[-1][1])
+        if eps_ok:
+            for c in rings:
+                ax.add_patch(Circle(c, eps, fill=False, linestyle=(0, (3, 2)), edgecolor=INK, linewidth=0.8, zorder=5))
         ax.set_aspect("equal", adjustable="box")
         if compact:
             ax.set_anchor("N")
@@ -356,29 +378,28 @@ class ClusterVisualizer:
                 labs = axis_labels or ("x", "y")
             ax.set_xlabel(labs[0])
             ax.set_ylabel(labs[1])
-        if proj is not None and compact:
-            ax.text(0.97, 0.05, f"PCA: {proj['explained'].sum() * 100:.0f}% phương sai", transform=ax.transAxes, ha="right", va="bottom",
-                    fontsize=5.8, color="#444444")
         if title:
             ax.set_title(title, pad=3 if compact else 6, fontsize=6.8 if compact else None)
         if legend:
             self._legend(ax, snap, shown, eps_ok and bool(circle_centres))
         return ax
 
-    def _legend(self, ax, snap, shown, with_eps, fig=None, counts=True, loc="upper center", anchor=(0.5, -0.14), ncol=3):
+    def _legend(self, ax, snap, shown, with_eps, fig=None, counts=True, loc="upper center", anchor=(0.5, -0.14), ncol=3, present=None):
+        """present (khi counts=False): dict core, border, noise cho biết loại điểm nào có mặt trong hình; thiếu thì liệt kê đủ ba loại."""
         c = type_counts(snap) if counts else None
+        has = present or {"core": True, "border": True, "noise": True}
         ink = {"markerfacecolor": "#BBBBBB", "markeredgecolor": INK, "markeredgewidth": 0.5, "linestyle": ""}
 
         def lab(text, key):
             return f"{text}: {c[key]}" if c is not None else text
         handles = []
-        if c is None or c["core"]:
+        if (c is None and has["core"]) or (c is not None and c["core"]):
             handles.append(Line2D([], [], marker="o", markersize=6, label=lab("Điểm lõi (core)", "core"), **ink))
-        if c is None or c["border"]:
+        if (c is None and has["border"]) or (c is not None and c["border"]):
             handles.append(Line2D([], [], marker="^", markersize=6, label=lab("Điểm biên (border)", "border"), **ink))
         if c is not None and c["other"]:
             handles.append(Line2D([], [], marker="o", markersize=6, label=lab("Điểm thuộc cụm", "other"), **ink))
-        if c is None or c["noise"]:
+        if (c is None and has["noise"]) or (c is not None and c["noise"]):
             handles.append(Line2D([], [], marker="x", color=NOISE_COLOR, markersize=6, linestyle="", markeredgewidth=1.0,
                                   label=lab("Nhiễu (noise)", "noise")))
         if shown.get("seed"):
@@ -480,8 +501,10 @@ class ClusterVisualizer:
                            colors=label_colors(snap["labels"]))
             if legend:
                 shown = {"seed": bool(seed_ids), "insert": any(m["kind"] == "insert" for m in ma), "delete": any(m["kind"] == "delete" for m in mb)}
+                both = [type_counts(b), type_counts(a)]
+                present = {k: any(t[k] for t in both) for k in ("core", "border", "noise")}
                 self._legend(None, a2, shown, eps is not None and basis is None and bool(mb or ma), fig=fig, counts=False,
-                             anchor=(0.5, 0.0), ncol=4)
+                             anchor=(0.5, 0.0), ncol=4, present=present)
             if suptitle:
                 fig.suptitle(suptitle, fontsize=10, fontweight="bold")
             if legend and axes is not None:
@@ -522,21 +545,33 @@ class ClusterVisualizer:
                     fig.text((x0 + pw + panel_gap / 2) / width, (ytop - 0.2) / height, case["note"], ha="center", va="top",
                              fontsize=6.4, color="#444444")
             ink = {"markerfacecolor": "#BBBBBB", "markeredgecolor": INK, "markeredgewidth": 0.5, "linestyle": ""}
-            handles = [Line2D([], [], marker="o", markersize=5, label="Điểm lõi (core)", **ink),
-                       Line2D([], [], marker="^", markersize=5, label="Điểm biên (border)", **ink),
-                       Line2D([], [], marker="x", color=NOISE_COLOR, markersize=5, linestyle="", label="Nhiễu (noise)"),
-                       Line2D([], [], marker="*", markersize=10, markerfacecolor=INK, markeredgecolor="white", linestyle="", label="Điểm chèn (sao đặc)"),
-                       Line2D([], [], marker="X", markersize=6, markerfacecolor=INK, markeredgecolor="white", linestyle="", label="Điểm xóa (X đặc)"),
-                       Line2D([], [], marker="o", markersize=7, markerfacecolor="none", markeredgecolor=INK, linestyle="", label="UpdSeed"),
-                       Line2D([], [], color=INK, linestyle=(0, (3, 2)), linewidth=0.9, label="Vòng Eps"),
-                       Line2D([], [], marker="*", markersize=8, markerfacecolor="none", markeredgecolor=INK, linestyle="",
-                              label="Vị trí điểm sẽ chèn / đã xóa (rỗng)")]
-            fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, 0.0), ncol=4, frameon=False, fontsize=6.6,
+            entries = [(has["core"], Line2D([], [], marker="o", markersize=5, label="Điểm lõi (core)", **ink)),
+                       (has["border"], Line2D([], [], marker="^", markersize=5, label="Điểm biên (border)", **ink)),
+                       (has["noise"], Line2D([], [], marker="x", color=NOISE_COLOR, markersize=5, linestyle="", label="Nhiễu (noise)")),
+                       (has_ins, Line2D([], [], marker="*", markersize=10, markerfacecolor=INK, markeredgecolor="white", linestyle="",
+                                        label="Điểm vừa chèn (sao đặc)")),
+                       (has_ins, Line2D([], [], marker="*", markersize=8, markerfacecolor="none", markeredgecolor=INK, linestyle="",
+                                        label="Vị trí sắp chèn (sao rỗng)")),
+                       (has_del, Line2D([], [], marker="X", markersize=6, markerfacecolor=INK, markeredgecolor="white", linestyle="",
+                                        label="Điểm bị xóa (X đặc)")),
+                       (has_del, Line2D([], [], marker="X", markersize=6, markerfacecolor="none", markeredgecolor=INK, linestyle="",
+                                        label="Vị trí đã xóa (X rỗng)")),
+                       (has_seed, Line2D([], [], marker="o", markersize=7, markerfacecolor="none", markeredgecolor=INK, linestyle="", label="UpdSeed")),
+                       (has_eps, Line2D([], [], color=INK, linestyle=(0, (3, 2)), linewidth=0.9, label="Vòng Eps quanh điểm cập nhật"))]
+            handles = [h for ok, h in entries if ok]
+            ncol = 4 if len(handles) <= 8 else 5
+            fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, 0.0), ncol=ncol, frameon=False, fontsize=6.4,
                        handletextpad=0.3, columnspacing=1.0)
             fig.text(0.5, (legend_h - 0.1) / height, "Màu = cụm (giữ nguyên giữa trước và sau)", ha="center", va="bottom",
                      fontsize=6.4, color="#444444")
             return fig, used
 
+        counts = [type_counts(snapshot_from_model(c[k])) for c in cases for k in ("before", "after")]
+        has = {k: any(t[k] for t in counts) for k in ("core", "border", "noise")}
+        ups = [u for c in cases for u in _normalize_updates(c.get("update"))]
+        has_ins, has_del = any(u["op"] == "insert" for u in ups), any(u["op"] == "delete" for u in ups)
+        has_seed = any(c.get("seed_ids") for c in cases)
+        has_eps = bool(ups) and any(c.get("eps") is not None for c in cases)
         with report_style():
             fig, used = build([pw] * rows)          # lượt 1: đo chiều cao thật của panel (tỉ lệ khung hình đều nhau), lượt 2: co khoảng trống
             plt.close(fig)

@@ -71,10 +71,11 @@ def test_runtime_comparison_and_affected_points(atm_replay):
     timing, labels, _ = atm_replay
     slower = timing.assign(update_seconds=timing["update_seconds"] * 3)
     fig = plot_runtime_comparison(timing, slower)
-    assert isinstance(fig, plt.Figure) and "re-fit / incremental = 3.00" in fig.axes[1].get_title(loc="left")
+    title = fig.axes[1].get_title(loc="left")
+    assert isinstance(fig, plt.Figure) and "re-fit / incremental: delete 3.00, insert 3.00 lần" in title
     much_slower = timing.assign(update_seconds=timing["update_seconds"] * 300)
     title = plot_runtime_comparison(timing, much_slower, ratio_label="nhóm / sklearn").axes[1].get_title(loc="left")
-    assert "nhóm / sklearn = 300 lần" in title
+    assert "nhóm / sklearn: delete 300, insert 300 lần" in title
     counts = label_changes(labels, timing)
     assert list(counts.columns) == ["step", "n_affected", "op", "n_points"] and len(counts) == 40
     assert (counts["n_affected"] >= 0).all() and (counts["n_affected"] < counts["n_points"]).all()
