@@ -1,4 +1,5 @@
 from typing import Callable, Dict, Set
+
 from src.core.data_point import DataPoint, PointType
 
 
@@ -7,10 +8,16 @@ class ClusterUtils:
 
     @staticmethod
     def merge_clusters(points: Dict[int, DataPoint], source_id: int, target_id: int) -> None:
-        """Hợp hai cụm bằng cách chuyển tất cả các điểm thuộc source_id sang target_id."""
-        for pt in points.values():
-            if pt.cluster_id == source_id:
-                pt.cluster_id = target_id
+        """Đổi nhãn mọi điểm thuộc cụm nguồn sang cụm đích.
+
+        Args:
+            points: Các điểm được lập chỉ mục theo ID.
+            source_id: Nhãn cụm cần gộp.
+            target_id: Nhãn cụm sẽ được giữ lại.
+        """
+        for point in points.values():
+            if point.cluster_id == source_id:
+                point.cluster_id = target_id
 
     @staticmethod
     def relabel_unreachable_points(
@@ -18,10 +25,16 @@ class ClusterUtils:
         affected_ids: Set[int],
         region_query_fn: Callable[[int], Set[int]],
     ) -> None:
-        """Cập nhật lại nhãn BORDER hoặc NOISE cho các điểm không còn chạm tới CORE point."""
+        """Gán lại border/noise cho điểm không còn kề core sau khi cập nhật.
+
+        Args:
+            points: Các điểm được lập chỉ mục theo ID.
+            affected_ids: Các điểm cần xác định lại nhãn.
+            region_query_fn: Hàm lấy lân cận theo ID điểm.
+        """
         for point_id in sorted(affected_ids):
-            pt = points[point_id]
-            if pt.is_core:
+            point = points[point_id]
+            if point.is_core:
                 continue
 
             neighbors = region_query_fn(point_id)
@@ -34,16 +47,25 @@ class ClusterUtils:
             ]
 
             if core_neighbors:
-                pt.cluster_id = points[core_neighbors[0]].cluster_id
-                pt.point_type = PointType.BORDER
+                point.cluster_id = points[core_neighbors[0]].cluster_id
+                point.point_type = PointType.BORDER
             else:
-                pt.cluster_id = -1
-                pt.point_type = PointType.NOISE
+                point.cluster_id = -1
+                point.point_type = PointType.NOISE
 
     @staticmethod
     def clean_stale_cluster_ids(points: Dict[int, DataPoint], active_cluster_ids: Set[int]) -> None:
-        """Loại bỏ triệt để các tham chiếu cluster_id không còn tồn tại sau khi split/merge."""
-        for pt in points.values():
-            if pt.cluster_id is not None and pt.cluster_id >= 0 and pt.cluster_id not in active_cluster_ids:
-                pt.cluster_id = -1
-                pt.point_type = PointType.NOISE
+        """Đưa điểm về noise nếu nhãn cụm không còn core nào sở hữu.
+
+        Args:
+            points: Các điểm được lập chỉ mục theo ID.
+            active_cluster_ids: Nhãn cụm còn ít nhất một điểm core.
+        """
+        for point in points.values():
+            if (
+                point.cluster_id is not None
+                and point.cluster_id >= 0
+                and point.cluster_id not in active_cluster_ids
+            ):
+                point.cluster_id = -1
+                point.point_type = PointType.NOISE
