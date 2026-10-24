@@ -81,10 +81,9 @@ Nhóm so sánh Incremental DBSCAN với việc chạy lại DBSCAN đầy đủ 
 
 | TV | Họ và tên | Vai trò |
 |---|---|---|
-| TV1 | Nguyễn Hoàng Anh | _Leader / DBSCAN / tích hợp_ |
+| TV1 | Nguyễn Hoàng Anh | _Leader / DBSCAN / tích hợp_Evaluation + comparison + QA_ |
 | TV2 | Lý Huỳnh Phương Anh | _Incremental theory + INSERT_ |
 | TV3 | Từ Thiên Gia Bảo | _OOP + DBSCAN + DELETE_ |
 | TV4 | Nguyễn Phạm Gia Bảo | _Data + experiment + visualization_ |
-| TV5 | Hồ Ngọc Bảo | _Evaluation + comparison + QA_ |
 
 Môn học: _Máy học_ · Giảng viên: _Nguyễn An Tế_ · Trường: _Đại học Kinh tế TPHCM_
