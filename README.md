@@ -1,5 +1,7 @@
 # Incremental DBSCAN
 
+**Công cụ hỗ trợ phân cụm dữ liệu theo mật độ, cập nhật cụm khi thêm hoặc xóa điểm, và đối chiếu kết quả với DBSCAN chuẩn.**
+
 Tự cài đặt **DBSCAN** và **Incremental DBSCAN** bằng Python theo hướng đối tượng, không dùng thư viện cho phần thuật toán. Khi có điểm mới được thêm vào hoặc xóa đi, mô hình chỉ cập nhật vùng bị ảnh hưởng thay vì chạy lại toàn bộ.
 
 ## Ý tưởng chính
