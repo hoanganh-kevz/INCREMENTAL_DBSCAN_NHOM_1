@@ -9,7 +9,18 @@ class DistanceMetric:
 
     @staticmethod
     def euclidean(first: Iterable[float], second: Iterable[float]) -> float:
-        """Tự tính khoảng cách Euclidean giữa hai vector cùng số chiều."""
+        """Tính khoảng cách Euclidean giữa hai vector cùng số chiều.
+
+        Args:
+            first: Tọa độ vector thứ nhất.
+            second: Tọa độ vector thứ hai.
+
+        Returns:
+            Khoảng cách Euclidean.
+
+        Raises:
+            ValueError: Nếu hai vector có số chiều khác nhau.
+        """
         first_coords = np.asarray(first, dtype=float).reshape(-1)
         second_coords = np.asarray(second, dtype=float).reshape(-1)
         if first_coords.size != second_coords.size:

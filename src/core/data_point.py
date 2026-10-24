@@ -5,7 +5,8 @@ import numpy as np
 
 
 class PointType(Enum):
-    """Phân loại trạng thái của điểm dữ liệu trong thuật toán DBSCAN."""
+    """Trạng thái của một điểm theo DBSCAN."""
+
     UNCLASSIFIED = "UNCLASSIFIED"
     CORE = "CORE"
     BORDER = "BORDER"
@@ -15,7 +16,16 @@ class PointType(Enum):
 class DataPoint:
     """Biểu diễn một điểm dữ liệu trong không gian n chiều tổng quát."""
 
-    def __init__(self, point_id: int, coords: np.ndarray):
+    def __init__(self, point_id: int, coords: Iterable[float]) -> None:
+        """Khởi tạo điểm với ID ổn định và tọa độ n chiều.
+
+        Args:
+            point_id: ID duy nhất do mô hình quản lý.
+            coords: Các tọa độ của điểm.
+
+        Raises:
+            ValueError: Nếu không có tọa độ nào.
+        """
         self.id: int = point_id
         self.coords: np.ndarray = np.array(coords, dtype=float, copy=True).reshape(-1)
         if self.coords.size == 0:
@@ -31,7 +41,11 @@ class DataPoint:
         return len(self.neighbor_ids)
 
     def set_neighborhood(self, neighbor_ids: Iterable[int]) -> None:
-        """Thay cache lân cận bằng các ID ổn định của điểm láng giềng."""
+        """Thay cache lân cận bằng các ID ổn định của điểm láng giềng.
+
+        Args:
+            neighbor_ids: ID điểm nằm trong epsilon-lân cận.
+        """
         self.neighbor_ids = set(neighbor_ids)
 
     @property
@@ -44,7 +58,8 @@ class DataPoint:
         """Trả về số chiều dữ liệu của điểm."""
         return self.coords.size
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Trả về biểu diễn ngắn gọn để kiểm tra trạng thái điểm."""
         return (f"DataPoint(id={self.id}, coords={self.coords.tolist()}, "
                 f"cluster={self.cluster_id}, type={self.point_type.value}, "
                 f"neighbor_ids={sorted(self.neighbor_ids)})")
