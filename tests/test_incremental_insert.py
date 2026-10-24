@@ -272,3 +272,156 @@ def test_insert_two_creations_shared_border() -> None:
     assert len(_get_core_groups(model)) == 2
     _check_against_refit(model, np.vstack((data, [0.0])))
 
+
+def test_insert_just_outside_eps_stays_noise() -> None:
+    """Điểm ngoài Eps một khoảng nhỏ không được nhận vào cụm qua điểm biên."""
+
+    data = np.asarray([[0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5]], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+
+    new_id = model.insert(np.asarray([1.5625, 0.0]))
+
+    assert model.points[new_id].point_type == PointType.NOISE
+    assert model.points[new_id].cluster_id == -1
+    _check_against_refit(model, np.vstack((data, [1.5625, 0.0])))
+
+
+def test_insert_at_eps_promotes_existing_noise_to_core() -> None:
+    """Khoảng cách đúng Eps được tính vào lân cận và có thể tạo Core mới."""
+
+    data = np.asarray([[0, 0], [0.5, 0], [0, 0.5]], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+    assert _get_core_groups(model) == set()
+
+    new_id = model.insert(np.asarray([-1.0, 0.0]))
+
+    assert model.points[0].point_type == PointType.CORE
+    assert model.points[new_id].point_type == PointType.BORDER
+    assert _get_core_groups(model) == {frozenset({0})}
+    _check_against_refit(model, np.vstack((data, [-1.0, 0.0])))
+
+
+def test_insert_promotes_border_and_noise_neighbors_to_core() -> None:
+    """Một lần chèn có thể làm nhiều điểm kề cùng đạt ngưỡng MinPts."""
+
+    data = np.asarray([
+        [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5],
+        [1.25, 0], [1.25, 1.4], [1.6, 1.3], [1.9, 1.0],
+    ], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+    assert model.points[4].point_type == PointType.BORDER
+    assert all(model.points[i].point_type == PointType.NOISE for i in (5, 6, 7))
+
+    new_id = model.insert(np.asarray([1.25, 0.5]))
+
+    expected_new_cores = {4, 5, 6, 7, new_id}
+    actual_cores = {
+        point_id for point_id, point in model.points.items()
+        if point.point_type == PointType.CORE
+    }
+    assert expected_new_cores <= actual_cores
+    assert all(model.points[i].cluster_id == model.points[0].cluster_id
+               for i in expected_new_cores)
+    _check_against_refit(model, np.vstack((data, [1.25, 0.5])))
+
+
+def test_insert_merge_absorbs_one_noise_and_leaves_another() -> None:
+    """Merge cụm đồng thời chỉ hấp thụ noise nằm trong Eps của Core mới."""
+
+    data = np.asarray([
+        [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5],
+        [2, 0], [2.5, 0], [2, 0.5], [2.5, 0.5],
+        [1.25, 1.2], [1.25, -0.9],
+    ], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+    left_cluster = model.points[0].cluster_id
+    right_cluster = model.points[4].cluster_id
+    assert left_cluster != right_cluster
+    assert model.points[8].point_type == model.points[9].point_type == PointType.NOISE
+
+    new_id = model.insert(np.asarray([1.25, 0.25]))
+
+    assert model.points[new_id].point_type == PointType.CORE
+    assert model.points[0].cluster_id == model.points[4].cluster_id
+    assert model.points[8].point_type == PointType.BORDER
+    assert model.points[9].point_type == PointType.NOISE
+    _check_against_refit(model, np.vstack((data, [1.25, 0.25])))
+
+
+def test_insert_creates_cluster_exactly_at_min_pts() -> None:
+    """Cụm chỉ xuất hiện sau lần chèn làm vùng lân cận đạt đúng MinPts."""
+
+    data = np.asarray([[0, 0], [5, 5]], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+    updates = [[0.5, 0], [0, 0.5], [0.5, 0.5]]
+
+    for index, coords in enumerate(updates):
+        new_id = model.insert(np.asarray(coords, dtype=float))
+        data = np.vstack((data, coords))
+        if index < 2:
+            assert model.points[new_id].point_type == PointType.NOISE
+            assert _get_core_groups(model) == set()
+        else:
+            assert model.points[new_id].point_type == PointType.CORE
+            assert len(_get_core_groups(model)) == 1
+            assert all(model.points[i].point_type == PointType.CORE for i in (0, 2, 3, 4))
+        assert model.points[1].point_type == PointType.NOISE
+        _check_against_refit(model, data)
+
+
+def test_insert_near_border_but_outside_every_core_is_noise() -> None:
+    """Điểm biên không truyền mật độ sang điểm mới nằm ngoài mọi Core."""
+
+    data = np.asarray([
+        [0, 0], [0.5, 0], [0, 0.5], [0.5, 0.5], [1.4, 0],
+    ], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+    assert model.points[4].point_type == PointType.BORDER
+
+    new_id = model.insert(np.asarray([2.2, 0.0]))
+
+    assert model.points[new_id].point_type == PointType.NOISE
+    assert len(_get_core_groups(model)) == 1
+    _check_against_refit(model, np.vstack((data, [2.2, 0.0])))
+
+
+def test_insert_merges_clusters_in_four_dimensions() -> None:
+    """Tính khoảng cách dùng đủ bốn tọa độ khi một điểm nối hai cụm."""
+
+    data = np.asarray([
+        [0, 0, 0, 0], [0.3, 0, 0, 0], [0, 0.3, 0, 0],
+        [0, 0, 0.3, 0], [0, 0, 0, 0.3],
+        [1.7, 0, 0, 0], [1.4, 0, 0, 0], [1.7, 0.3, 0, 0],
+        [1.7, 0, 0.3, 0], [1.7, 0, 0, 0.3],
+        [0.5, 0.5, 3, 3], [0.55, 0.5, 3, 3], [0.5, 0.55, 3, 3],
+    ], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=4).fit(data)
+    assert len(_get_core_groups(model)) == 2
+
+    new_id = model.insert(np.asarray([0.85, 0, 0, 0]))
+
+    assert model.points[new_id].point_type == PointType.CORE
+    assert len(_get_core_groups(model)) == 1
+    assert all(model.points[i].point_type == PointType.NOISE for i in (10, 11, 12))
+    _check_against_refit(model, np.vstack((data, [0.85, 0, 0, 0])))
+
+
+def test_insert_min_pts_two_connects_core_chain() -> None:
+    """Với MinPts=2, các điểm kề tạo thành chuỗi lõi không có điểm biên."""
+
+    data = np.asarray([
+        [0, 0], [0.9, 0], [1.8, 0], [3.6, 0], [4.5, 0], [5.4, 0], [0, 3],
+    ], dtype=float)
+    model = IncrementalDBSCAN(eps=1.0, min_pts=2).fit(data)
+    assert len(_get_core_groups(model)) == 2
+    assert model.points[6].point_type == PointType.NOISE
+
+    for coords, expected_cluster_count in (([2.7, 0], 1), ([6.3, 0], 1)):
+        new_id = model.insert(np.asarray(coords, dtype=float))
+        data = np.vstack((data, coords))
+        assert model.points[new_id].point_type == PointType.CORE
+        assert len(_get_core_groups(model)) == expected_cluster_count
+        assert all(point.point_type != PointType.BORDER for point in model.points.values())
+        assert model.points[6].point_type == PointType.NOISE
+        _check_against_refit(model, data)
+
