@@ -11,6 +11,27 @@ Bảng này phục vụ lựa chọn phương pháp và diễn giải kết qu�
 | K-Means | Tâm cụm / tối ưu khoảng cách | Hợp với cụm gần hình cầu, kích thước tương tự | Không có noise tự nhiên; mọi điểm được gán cụm | Số cụm `k`, số lần khởi tạo | Không hỗ trợ insert/delete chính xác theo chuẩn; có biến thể cập nhật tâm xấp xỉ | Mỗi vòng lặp thường O(n·k·d); thường mở rộng tốt khi k và số chiều vừa phải. |
 | HAC (phân cụm phân cấp kết tụ) | Phân cấp / khoảng cách liên cụm | Phụ thuộc linkage; có thể tạo cụm không lồi nhưng nhạy với linkage | Không có noise tự nhiên; mọi điểm nằm trong cây | Linkage, metric và ngưỡng cắt cây | Thường phải cập nhật cây khi dữ liệu thay đổi | Thường cần O(n²) bộ nhớ; một số linkage cần O(n²) đến O(n³) thời gian. |
 
+## Benchmark thực nghiệm
+
+Benchmark cập nhật chạy cùng D0, thứ tự insert/delete, tọa độ, metric Euclidean và `MinPts` tham chiếu qua bốn phương pháp: Incremental DBSCAN OOP tự cài, DBSCAN, HDBSCAN và OPTICS của scikit-learn. Incremental DBSCAN dùng insert/delete cục bộ; ba estimator scikit-learn được fit lại toàn bộ trên tập điểm hiện tại sau từng cập nhật.
+
+| Phương pháp | Cấu hình trong benchmark | Cách cập nhật |
+|---|---|---|
+| Incremental DBSCAN OOP | `eps` và `min_pts` theo `params.json`; Euclidean | Insert/delete vùng ảnh hưởng |
+| scikit-learn DBSCAN | `eps` theo `params.json`, `min_samples=MinPts`, Euclidean | Fit lại toàn bộ |
+| scikit-learn HDBSCAN | `min_cluster_size=MinPts`, `min_samples=MinPts`, `cluster_selection_method='eom'`, Euclidean | Fit lại toàn bộ |
+| scikit-learn OPTICS | `min_samples=MinPts`, `max_eps=inf`, `cluster_method='xi'`, `xi=0.05`, Euclidean | Fit lại toàn bộ |
+
+`MinPts` của DBSCAN được ánh xạ sang `min_samples`; với HDBSCAN và OPTICS đây là tham số gần tương ứng chứ không làm cho các thuật toán có cùng định nghĩa cụm. HDBSCAN và OPTICS không dùng `eps` DBSCAN theo cùng cách. Vì vậy benchmark so sánh thời gian cập nhật trên cùng dữ liệu và cấu hình đã công bố, còn ARI/noise là mức đồng thuận với Incremental DBSCAN, không phải khẳng định chất lượng tối ưu của HDBSCAN/OPTICS.
+
+Mặc định benchmark chạy 5 lượt trên prefix tối đa 20 cập nhật của ba stream ATM 2D, thẻ 5D và thẻ 5D khó; có thể tăng `--max-steps` để chạy dài hơn. Mỗi lượt gồm một lần fit D0 được ghi riêng và tổng thời gian insert/delete. Warm-up không được tính vào số liệu. CSV theo lượt, theo từng bước, bảng tổng hợp và hình được lưu tại `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`.
+
+Chạy lại bằng:
+
+```bash
+python -m baseline.benchmark_density_algorithms --repeats 5 --warmups 1 --max-steps 20 --seed 42
+```
+
 ## Cách đọc kết quả
 
 - Chọn DBSCAN/Incremental DBSCAN khi cần cụm theo mật độ, hình dạng tùy ý và phát hiện noise; cần kiểm tra độ nhạy của `eps` và `MinPts`.
@@ -20,4 +41,4 @@ Bảng này phục vụ lựa chọn phương pháp và diễn giải kết qu�
 - Dùng HAC khi cần cây phân cấp dễ diễn giải và kích thước dữ liệu phù hợp với nhu cầu bộ nhớ.
 - Incremental DBSCAN có lợi khi thay đổi dữ liệu cục bộ; nếu một cập nhật ảnh hưởng phần lớn dữ liệu thì chi phí có thể gần với chạy lại DBSCAN đầy đủ.
 
-Các thuật toán trong bảng ngoài DBSCAN/Incremental DBSCAN là đối tượng đối chiếu lý thuyết; bảng không tuyên bố rằng chúng đã được cài đặt trong dự án.
+K-Means và HAC trong bảng là phần đối chiếu lý thuyết. Benchmark thực nghiệm chỉ so sánh bốn phương pháp density-based được liệt kê ở trên.
