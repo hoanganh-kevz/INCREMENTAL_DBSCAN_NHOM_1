@@ -1,6 +1,9 @@
-numpy
-pandas
-matplotlib
-scikit-learn
-jupyter
-pytest
+# Runtime and plotting dependencies; scikit-learn is used only for baselines/evaluation.
+numpy>=1.24,<3
+pandas>=2.0,<4
+matplotlib>=3.7,<4
+scikit-learn>=1.4,<2
+
+# Notebook demo and optional project checks.
+jupyter>=1.0,<2
+pytest>=7,<10

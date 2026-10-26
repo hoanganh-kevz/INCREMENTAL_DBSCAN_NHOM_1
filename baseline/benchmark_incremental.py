@@ -8,7 +8,8 @@ Cùng máy, cùng bảng bench (data/raw/bench, ATM 2D và thẻ 5D), cùng Eps 
 Hai thí nghiệm:
   theo n   n = 500, 1000, 2000, 4000; mỗi (family, n) chạy 20 update (10 insert xen kẽ 10 delete điểm cũ nhất, như baseline --bench);
            ghi trung vị và trung bình của từng loại op, kèm bộ nhớ giữ lại sau fit và đỉnh bộ nhớ của một insert, một delete (tracemalloc).
-  theo m   n = 2000, m = 1 đến 500 update: tổng thời gian xử lý m update bằng gia tăng, bằng fit lại sau mỗi update, và bằng một lần fit lại cuối.
+  theo m   n = 2000, m = 1 đến 500 update: phát lại toàn bộ chuỗi nhiều lần; báo cáo trung vị và trung bình tổng thời gian của m update
+           bằng gia tăng, bằng fit lại sau mỗi update, và bằng một lần fit lại cuối.
 
 Chạy từ gốc repo: python -m baseline.benchmark_incremental [--n 500 1000 2000 4000] [--repeats 5] [--m-n 2000]
 Ghi data/processed/experiments/d09/ (thời gian phụ thuộc máy) và report/figures/d09_*.png.
@@ -120,32 +121,93 @@ def bench_by_n(ns=BENCH_NS, repeats=REPEATS, own_max_updates=None, log=print):
     return pd.DataFrame(timing), pd.DataFrame(memory)
 
 
-def bench_by_m(n=2000, ms=M_VALUES, families=("atm", "card"), log=print):
-    """Thí nghiệm theo m: D0 cố định, áp dụng max(ms) update (xen kẽ insert và delete điểm cũ nhất), đo từng update MỘT lần.
+def bench_by_m(n=2000, ms=M_VALUES, families=("atm", "card"), repeats=REPEATS, log=print):
+    """Phát lại cùng stream độc lập repeats lần và tổng hợp thời gian theo số update m.
 
-    Với mỗi m: incremental_ms = tổng thời gian m update gia tăng; sklearn_refit_each_ms = tổng m lần fit lại sklearn (đo thật);
-    own_refit_each_ms = m x thời gian một lần fit của DBSCAN của nhóm (ƯỚC TÍNH, không chạy thật vì quá lâu); sklearn_refit_once_ms và
-    own_refit_once_ms = một lần fit lại trên dữ liệu sau m update (đo thật); incremental_fit_ms = lần fit đầu của bản gia tăng (chi phí một lần)."""
+    Các cột thời gian update là trung vị; các cột *_mean_ms, *_std_ms, *_min_ms, *_max_ms
+    mô tả độ phân tán. own_refit_each_ms_est là ước tính m lần fit đầy đủ từ thời gian fit D0.
+    """
+    if repeats < 1:
+        raise ValueError("repeats phải lớn hơn hoặc bằng 1")
+    if not ms or any(int(m) < 1 for m in ms):
+        raise ValueError("ms phải chứa ít nhất một số nguyên dương")
+
     rows = []
     mmax = max(ms)
     for family in families:
         d0, upd, p, feats = load_bench(family, n, n_updates=mmax)
-        inc, t_inc = run_ops(IncrementalEngine, d0, upd, p, feats, repeats=1)
-        _, t_sk = run_ops(RefitDBSCAN, d0, upd, p, feats, repeats=1)
-        own_fit_ms = t_inc.loc[0, "seconds"] * 1000            # fit đầu của bản gia tăng chính là DBSCAN.fit của nhóm
+        x0 = stream_coordinates(p, d0, feats)
+        xs = stream_coordinates(p, upd, feats)
+
+        def replay_update_times(engine_template):
+            """Phát lại stream từ cùng trạng thái D0; chỉ tính giờ insert/delete."""
+            engine = copy.deepcopy(engine_template)
+            ids = IdMap()
+            for stream_id, engine_id in zip(d0["point_id"].tolist(), engine.snapshot()["ids"].tolist()):
+                ids.bind(stream_id, engine_id)
+            seconds = []
+            for index, (_, row) in enumerate(upd.iterrows()):
+                if row["op"] == "insert":
+                    started = time.perf_counter()
+                    engine_id = engine.insert(xs[index])
+                    seconds.append(time.perf_counter() - started)
+                    ids.bind(row["point_id"], engine_id)
+                else:
+                    engine_id = ids.release(row["point_id"])
+                    started = time.perf_counter()
+                    engine.delete(engine_id)
+                    seconds.append(time.perf_counter() - started)
+            return seconds
+
+        incremental_base = IncrementalEngine(p["eps"], p["minpts"])
+        fit_started = time.perf_counter()
+        incremental_base.fit(x0)
+        incremental_fit_ms = (time.perf_counter() - fit_started) * 1000
+        sklearn_base = RefitDBSCAN(p["eps"], p["minpts"])
+        sklearn_base.fit(x0)
+
+        update_runs = {
+            "incremental": np.asarray(
+                [replay_update_times(incremental_base) for _ in range(repeats)], dtype=float
+            ),
+            "sklearn": np.asarray(
+                [replay_update_times(sklearn_base) for _ in range(repeats)], dtype=float
+            ),
+        }
+        # Fit của DBSCAN nhóm làm mốc ước tính cho một lần refit đầy đủ.
+        own_fit_ms = incremental_fit_ms
+
         for m in ms:
             final = _final_coords(d0, upd.iloc[:m], p, feats)
-            _, sk_once, _ = _timed(RefitDBSCAN(p["eps"], p["minpts"]), lambda e: e.fit(final), REPEATS)
-            t0 = time.perf_counter()
+            _, sk_once, _ = _timed(
+                RefitDBSCAN(p["eps"], p["minpts"]), lambda engine: engine.fit(final), repeats
+            )
+            started = time.perf_counter()
             OwnRefitDBSCAN(p["eps"], p["minpts"]).fit(final)
-            own_once = time.perf_counter() - t0
-            rows.append({"family": family, "dims": len(feats), "n_d0": len(d0), "m": m,
-                         "incremental_ms": t_inc["seconds"].iloc[1:m + 1].sum() * 1000,
-                         "incremental_fit_ms": own_fit_ms,
-                         "sklearn_refit_each_ms": t_sk["seconds"].iloc[1:m + 1].sum() * 1000,
-                         "own_refit_each_ms_est": m * own_fit_ms,
-                         "sklearn_refit_once_ms": sk_once * 1000, "own_refit_once_ms": own_once * 1000})
-            log(f"m-sweep {family} m={m}: gia tăng {rows[-1]['incremental_ms']:.1f} ms, sklearn mỗi lần {rows[-1]['sklearn_refit_each_ms']:.1f} ms")
+            own_once = time.perf_counter() - started
+
+            totals = {
+                name: update_runs[name][:, :m].sum(axis=1) * 1000
+                for name in ("incremental", "sklearn")
+            }
+            inc, sk = totals["incremental"], totals["sklearn"]
+            rows.append({
+                "family": family, "dims": len(feats), "n_d0": len(d0), "m": m,
+                "incremental_ms": float(np.median(inc)),
+                "incremental_mean_ms": float(np.mean(inc)),
+                "incremental_std_ms": float(np.std(inc, ddof=1)) if repeats > 1 else 0.0,
+                "incremental_min_ms": float(np.min(inc)), "incremental_max_ms": float(np.max(inc)),
+                "incremental_fit_ms": incremental_fit_ms,
+                "sklearn_refit_each_ms": float(np.median(sk)),
+                "sklearn_refit_each_mean_ms": float(np.mean(sk)),
+                "sklearn_refit_each_std_ms": float(np.std(sk, ddof=1)) if repeats > 1 else 0.0,
+                "sklearn_refit_each_min_ms": float(np.min(sk)), "sklearn_refit_each_max_ms": float(np.max(sk)),
+                "own_refit_each_ms_est": m * own_fit_ms,
+                "sklearn_refit_once_ms": sk_once * 1000, "own_refit_once_ms": own_once * 1000,
+                "repeats": repeats,
+            })
+            log(f"m-sweep {family} m={m}: gia tăng {rows[-1]['incremental_ms']:.1f} ms, "
+                f"sklearn mỗi lần {rows[-1]['sklearn_refit_each_ms']:.1f} ms (trung vị của {repeats} lượt)")
     return pd.DataFrame(rows)
 
 
@@ -271,7 +333,7 @@ def main(argv=None):
     timing, memory = bench_by_n(a.n, repeats=a.repeats, log=lambda s: print(s, flush=True))
     timing.to_csv(OUT / "bench_by_n.csv", index=False, encoding="utf-8", lineterminator="\n")
     memory.to_csv(OUT / "memory_by_n.csv", index=False, encoding="utf-8", lineterminator="\n")
-    sweep = bench_by_m(a.m_n, log=lambda s: print(s, flush=True))
+    sweep = bench_by_m(a.m_n, repeats=a.repeats, log=lambda s: print(s, flush=True))
     sweep.to_csv(OUT / "bench_by_m.csv", index=False, encoding="utf-8", lineterminator="\n")
     vis = ClusterVisualizer()
     vis.save(plot_by_n(timing), FIG / "d09_runtime_by_n.png")
@@ -282,9 +344,11 @@ def main(argv=None):
         f"Máy: {platform.platform()}, {platform.processor() or platform.machine()}, Python {platform.python_version()}, "
         f"scikit-learn {sklearn.__version__}, numpy {np.__version__}.\n"
         f"Theo n: 20 update mỗi (family, n); incremental và sklearn_refit đo mỗi update {a.repeats} lần trên bản sao sâu (trung vị), "
-        "own_refit đo một lần và chỉ vài update ở n lớn (mỗi update là một lần fit đầy đủ). fit của incremental đo một lần.\n"
+        "own_refit đo một lần và chỉ vài update ở n lớn (mỗi update là một lần fit đầy đủ); fit incremental đo một lần, fit sklearn lặp lại.\n"
         "Bộ nhớ: tracemalloc; retained_kb là cấp phát khi sao sâu engine, insert_peak_kb và delete_peak_kb là đỉnh của một update.\n"
-        f"Theo m: n = {a.m_n}, mỗi update đo một lần; own_refit_each_ms_est là ước tính m x một lần fit.\n", encoding="utf-8", newline="\n")
+        f"Theo m: n = {a.m_n}, phát lại chuỗi {a.repeats} lần độc lập; báo cáo trung vị, trung bình, độ lệch chuẩn, nhỏ nhất và lớn nhất "
+        "của tổng thời gian m update. own_refit_each_ms_est là ước tính m x thời gian một lần fit đầy đủ của nhóm.\n",
+        encoding="utf-8", newline="\n")
     print(timing.round(3).to_string(index=False))
     print(memory.round(1).to_string(index=False))
     print(sweep.round(1).to_string(index=False))

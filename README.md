@@ -17,14 +17,15 @@ INCREMENTAL_DBSCAN_NHOM_1/
 ├─ README.md
 ├─ requirements.txt
 ├─ run_demo.py
-├─ report/Report_Incremental_DBSCAN.pdf
+├─ docs/results_discussion.md  # Bản thảo V07 để tích hợp vào báo cáo PDF
+├─ report/figures/             # Hình kết quả dùng trong báo cáo
 ├─ src/
 │  ├─ core/            # DataPoint, DistanceMetric
 │  ├─ preprocessing/   # ManualScaler
 │  ├─ clustering/      # DBSCAN, IncrementalDBSCAN
-│  ├─ evaluation/      # ClusterEvaluator (Silhouette, thống kê cụm/noise)
+│  ├─ evaluation/      # Hàm đánh giá Silhouette tự cài và đối chiếu thư viện
 │  ├─ visualization/   # ClusterVisualizer (minh họa 2D trước/sau update)
-│  └─ experiments/     # ExperimentRunner (chạy kịch bản, benchmark)
+│  └─ experiments/     # IncrementalEngine, phân tích update và adapter thực nghiệm
 ├─ baseline/           # DBSCAN của thư viện, chỉ dùng để đối chứng
 ├─ data/raw/ + data/processed/
 ├─ notebooks/Incremental_DBSCAN_Demo.ipynb
@@ -33,25 +34,19 @@ INCREMENTAL_DBSCAN_NHOM_1/
 
 Phần thuật toán trong `src/clustering` không gọi `sklearn` hay `scipy`. Thư viện chỉ xuất hiện ở `baseline/`, phần đánh giá đối chứng và vẽ hình. Mỗi điểm dữ liệu là vector n chiều, không hard-code x/y; hình minh họa 2D chỉ là một trường hợp riêng.
 
-## Cài đặt
+## Cài đặt và chạy
 
-Cần Python 3.10 trở lên.
+Yêu cầu Python 3.10 trở lên. Các phụ thuộc chạy và vẽ hình được khai báo trong `requirements.txt`; DBSCAN tự cài trong `src/clustering` không dùng scikit-learn. Trên Windows PowerShell, chạy 5 lệnh sau từ thư mục gốc repo:
 
-```bash
-git clone https://github.com/hoanganh-kevz/INCREMENTAL_DBSCAN_NHOM_1
-cd INCREMENTAL_DBSCAN_NHOM_1
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python run_demo.py --seed 42
+jupyter notebook notebooks/Incremental_DBSCAN_Demo.ipynb
 ```
 
-## Chạy thử
-
-Chạy nhanh một kịch bản insert/delete và in kết quả:
-
-```bash
-python run_demo.py
-```
+Trên macOS/Linux, thay lệnh kích hoạt môi trường ở dòng 2 bằng `source .venv/bin/activate`. Demo 2D bắt đầu với hai cụm, insert điểm cầu nối để gộp cụm, rồi delete điểm đó để tách cụm lại. Seed mặc định là 42; có thể truyền seed khác bằng `--seed`.
 
 Chạy toàn bộ test (4 case insert, 3 case delete, dữ liệu n chiều, tương đương với full DBSCAN):
 
@@ -59,7 +54,7 @@ Chạy toàn bộ test (4 case insert, 3 case delete, dữ liệu n chiều, tư
 pytest tests/
 ```
 
-Để xem bản trình bày đầy đủ, mở `notebooks/Incremental_DBSCAN_Demo.ipynb` rồi chọn **Run All**. Notebook đi theo thứ tự: tiền xử lý, mô hình, kết quả, trực quan hóa, đánh giá, so sánh và chọn lựa. Notebook chỉ import từ `src/`, không chứa logic thuật toán riêng.
+Notebook đi theo thứ tự: tiền xử lý, mô hình, kết quả, trực quan hóa, đánh giá, so sánh và chọn lựa. Notebook chỉ import từ `src/`, không chứa logic thuật toán riêng.
 
 Nếu chạy trên Google Colab, thêm cell đầu:
 
@@ -71,11 +66,22 @@ Nếu chạy trên Google Colab, thêm cell đầu:
 
 ## Dữ liệu
 
-Dữ liệu gốc nằm ở `data/raw/`, dữ liệu đã xử lý ở `data/processed/`, kèm file mô tả, seed cố định và đường dẫn tương đối để chạy lại trên máy khác. Luồng cập nhật (update stream) dùng cho thí nghiệm insert/delete cũng nằm trong thư mục này.
+Dữ liệu gốc nằm ở `data/raw/`, dữ liệu đã xử lý ở `data/processed/`, kèm file mô tả và đường dẫn tương đối. Seed của từng bộ sinh dữ liệu được ghi tại `data/README_data.md`; demo cho phép đặt seed bằng `--seed`, mặc định là 42. Luồng cập nhật (update stream) dùng cho thí nghiệm insert/delete cũng nằm trong thư mục này.
 
 ## Đánh giá
 
 Nhóm so sánh Incremental DBSCAN với việc chạy lại DBSCAN đầy đủ trên cùng dữ liệu và tham số, về độ tương đương kết quả và thời gian chạy. Chất lượng cụm được đo bằng Silhouette tự cài cùng thống kê số cụm và số noise. Vì Silhouette không phù hợp hoàn toàn với cụm theo mật độ, báo cáo có phần nêu rõ giới hạn này và cách xử lý noise. Phần so sánh rộng hơn gồm OPTICS, HDBSCAN, KMeans và HAC.
+
+Chạy các phần đánh giá V04 và V05:
+
+```bash
+python -m src.evaluation.equivalence
+python -m src.evaluation.parameter_selection
+```
+
+V04 ghi kết quả đối chiếu từng bước vào `results/equivalence_results.csv`. V05 ghi bảng chọn tham số và profile k-distance vào `results/parameter_selection.csv`, `results/k_distance_moons.csv` và `results/k_distance_moons.png`.
+
+Phần phân tích kết quả và giới hạn cho báo cáo (V07) được soạn tại `docs/results_discussion.md`; README chỉ giữ hướng dẫn cài đặt và chạy.
 
 ## Thành viên
 

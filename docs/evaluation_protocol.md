@@ -32,3 +32,7 @@ Silhouette đo mức gần nhau trong cụm và xa nhau giữa các cụm bằng
 `src/evaluation/metrics.py` là bản tự cài, chỉ dùng thư viện chuẩn. `src/evaluation/evaluation_library.py` gọi scikit-learn để đối chiếu trên cùng các điểm không-noise và cùng metric Euclidean. Bản thư viện không được import vào `src/clustering` hay dùng trong logic phân cụm.
 
 Khi có nhãn chuẩn, ARI/AMI của bản thư viện tính trên toàn bộ điểm; nhãn noise là một nhãn dự đoán bình thường. Điều này giữ lại cả lỗi dự đoán điểm thuộc cụm thành noise và ngược lại. Kết quả đối chiếu Silhouette trên fixture mẫu được lưu tại `results/evaluation_metrics_crosscheck.csv` và được kiểm tra trong `tests/test_evaluation_metrics.py`.
+
+## Tương đương với DBSCAN chạy lại (V04)
+
+`src/evaluation/equivalence.py` phát lại từng kịch bản toy/toy_edge và ba stream dữ liệu trên Incremental DBSCAN tự cài, rồi so với `RefitDBSCAN` của sklearn sau mỗi bước. ARI không phụ thuộc ID cụm; so sánh thêm tập noise và tập core. Chỉ các điểm biên mơ hồ đã được đánh dấu trong dữ liệu mới bị bỏ qua. Chạy `python -m src.evaluation.equivalence` để tạo `results/equivalence_results.csv`; cột `equivalent` chỉ đạt khi ARI = 1, noise khớp và tập core khớp.
