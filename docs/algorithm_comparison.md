@@ -24,7 +24,7 @@ Benchmark cập nhật chạy cùng D0, thứ tự insert/delete, tọa độ, m
 
 `MinPts` của DBSCAN được ánh xạ sang `min_samples`; với HDBSCAN và OPTICS đây là tham số gần tương ứng chứ không làm cho các thuật toán có cùng định nghĩa cụm. HDBSCAN và OPTICS không dùng `eps` DBSCAN theo cùng cách. Vì vậy benchmark so sánh thời gian cập nhật trên cùng dữ liệu và cấu hình đã công bố, còn ARI/noise là mức đồng thuận với Incremental DBSCAN, không phải khẳng định chất lượng tối ưu của HDBSCAN/OPTICS.
 
-Mặc định benchmark chạy 5 lượt trên prefix tối đa 20 cập nhật của ba stream ATM 2D, thẻ 5D và thẻ 5D khó; có thể tăng `--max-steps` để chạy dài hơn. Mỗi lượt gồm một lần fit D0 được ghi riêng và tổng thời gian insert/delete. Warm-up không được tính vào số liệu. CSV theo lượt, theo từng bước, bảng tổng hợp và hình được lưu tại `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`.
+Mặc định benchmark chạy 5 lượt trên prefix tối đa 20 cập nhật, cùng một stream thẻ với 2D, 3D và 4D bằng cách lấy lần lượt 2, 3 và 4 đặc trưng đầu sau chuẩn hóa đóng băng. Cả ba trường hợp dùng chung D0, thứ tự cập nhật, `eps=0.4`, `MinPts=6` và seed dữ liệu; chỉ số chiều đổi. Mỗi lượt gồm một lần fit D0 được ghi riêng và tổng thời gian insert/delete. Warm-up không được tính vào số liệu. CSV theo lượt, theo từng bước, bảng tổng hợp và hình được lưu tại `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`.
 
 Chạy lại bằng:
 

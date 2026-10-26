@@ -87,7 +87,7 @@ Chạy benchmark V06 để so sánh Incremental DBSCAN OOP với DBSCAN, HDBSCAN
 python -m baseline.benchmark_density_algorithms --repeats 5 --warmups 1 --max-steps 20 --seed 42
 ```
 
-Mặc định chạy 5 lượt trên tối đa 20 cập nhật của ATM 2D, thẻ 5D và thẻ 5D khó. Tăng `--max-steps` để phát lại nhiều bước hơn. Ba estimator scikit-learn được fit lại toàn bộ sau mỗi insert/delete; Incremental DBSCAN OOP cập nhật cục bộ. Kết quả từng bước, từng lượt, bảng tổng hợp và biểu đồ lần lượt nằm ở `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`. Tham số từng phương pháp và giới hạn so sánh được ghi trong `docs/algorithm_comparison.md` và file README kết quả.
+Mặc định chạy 5 lượt trên tối đa 20 cập nhật của cùng stream thẻ, lần lượt dùng 2, 3 và 4 đặc trưng đầu sau chuẩn hóa đóng băng. Cả ba trường hợp dùng chung D0, thứ tự insert/delete, Eps = 0,4 và MinPts = 6; chỉ số chiều thay đổi. Tăng `--max-steps` để phát lại nhiều bước hơn. Ba estimator scikit-learn được fit lại toàn bộ sau mỗi insert/delete; Incremental DBSCAN OOP cập nhật cục bộ. Kết quả từng bước, từng lượt, bảng tổng hợp và biểu đồ lần lượt nằm ở `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`. Tham số từng phương pháp và giới hạn so sánh được ghi trong `docs/algorithm_comparison.md` và file README kết quả.
 
 Phần phân tích kết quả và giới hạn cho báo cáo (V07) được soạn tại `docs/results_discussion.md`; README chỉ giữ hướng dẫn cài đặt và chạy.
 

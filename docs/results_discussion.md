@@ -42,28 +42,36 @@ Bảng dưới trích các nhóm tình huống đại diện từ `case_summary.
 
 ## 5. Benchmark bốn thuật toán qua nhiều lượt
 
-Benchmark V06 phát lại cùng D0 và 20 cập nhật đầu tiên của mỗi stream trong 5 lượt, có 1 lượt warm-up fit D0 không tính vào số liệu. Các lần chạy được xáo thứ tự thuật toán theo seed 42. Bảng dưới ghi **trung vị ± độ lệch chuẩn** của tổng thời gian insert/delete trong 20 bước, tính bằng mili giây. Đây là kết quả trên máy Windows 11, Python 3.14.2, scikit-learn 1.9.1; thời gian phụ thuộc máy.
+Benchmark phát lại cùng D0 gồm 500 điểm và cùng 20 cập nhật đầu (10 insert, 10 delete) trong **5 lượt** cho mỗi thuật toán và số chiều. Có một lượt warm-up fit D0 không tính vào số liệu; thứ tự chạy bốn thuật toán được xáo theo seed 42. Ba trường hợp dùng cùng stream thẻ, thêm dần đặc trưng sau chuẩn hóa đóng băng:
 
-| Stream (Eps, MinPts) | Incremental DBSCAN OOP | sklearn DBSCAN | sklearn HDBSCAN | sklearn OPTICS |
-|---|---:|---:|---:|---:|
-| ATM 2D (0,5; 4) | 80,40 ± 1,75 | 70,36 ± 2,58 | 237,00 ± 16,58 | 11.519,48 ± 227,23 |
-| Thẻ 5D (0,4; 6) | 125,48 ± 4,19 | 125,94 ± 2,48 | 153,65 ± 4,25 | 10.752,59 ± 308,89 |
-| Thẻ 5D khó (0,3; 6) | 991,16 ± 26,80 | 97,15 ± 2,09 | 148,85 ± 7,40 | 10.560,39 ± 255,55 |
+| Số chiều | Đặc trưng dùng |
+|---:|---|
+| 2D | `log10_amount_vnd`, `hour_of_day` |
+| 3D | 2D + `distance_from_home_km` |
+| 4D | 3D + `txns_last_7d` |
 
-Mỗi lần insert/delete của Incremental DBSCAN gọi cập nhật vùng ảnh hưởng. Ba adapter scikit-learn thay đổi tập điểm rồi chạy lại estimator trên toàn bộ tập hiện tại; do đó thời gian của chúng phản ánh **refit mỗi bước**, không phải thuật toán incrementally cập nhật. Trong 20 bước này, bản OOP gần ngang sklearn DBSCAN ở stream thẻ 5D, nhưng chậm hơn ở ATM và đặc biệt ở stream thẻ khó, nơi một số lần xóa có vùng ảnh hưởng lớn. Kết quả không ủng hộ khẳng định rằng Incremental DBSCAN luôn nhanh hơn bản thư viện.
+Cả ba trường hợp dùng Eps = 0,4, MinPts = 6 và khoảng cách Euclidean. Bảng ghi **trung vị ± độ lệch chuẩn** của tổng thời gian 20 thao tác cập nhật, đơn vị ms, qua 5 lượt:
 
-Độ khớp nhãn với Incremental DBSCAN OOP, đo bằng ARI trung bình qua các bước cập nhật, lần lượt trên ba stream ATM / thẻ 5D / thẻ 5D khó:
+| Số chiều | Incremental DBSCAN OOP | sklearn DBSCAN | sklearn HDBSCAN | sklearn OPTICS |
+|---:|---:|---:|---:|---:|
+| 2D | 50,57 ± 1,24 | 92,57 ± 1,52 | 141,83 ± 43,66 | 10.347,68 ± 207,39 |
+| 3D | 51,93 ± 0,58 | 109,70 ± 10,30 | 153,12 ± 7,90 | 10.352,66 ± 111,07 |
+| 4D | 52,28 ± 20,50 | 71,09 ± 41,21 | 107,76 ± 49,15 | 6.851,29 ± 2.077,25 |
 
-| Phương pháp | ATM 2D | Thẻ 5D | Thẻ 5D khó |
-|---|---:|---:|---:|
-| Incremental DBSCAN OOP | 1,000 | 1,000 | 1,000 |
-| sklearn DBSCAN | 1,000 | 1,000 | 1,000 |
-| sklearn HDBSCAN | 0,963 | 0,987 | 0,513 |
-| sklearn OPTICS | 0,274 | 0,017 | 0,034 |
+Các tham số cụ thể trong từng chiều:
 
-DBSCAN dùng `eps`/`MinPts` của mỗi stream và sklearn `min_samples=MinPts`. HDBSCAN dùng `min_cluster_size=MinPts`, `min_samples=MinPts`, `cluster_selection_method='eom'`; OPTICS dùng `min_samples=MinPts`, `max_eps=inf`, `cluster_method='xi'`, `xi=0.05`. `MinPts` chỉ là tham số tham chiếu gần nhất cho hai thuật toán sau; chúng có định nghĩa và cách trích cụm riêng, nên khác biệt ARI không tự nó chứng minh thuật toán kém chất lượng. OPTICS có thời gian cao trong cấu hình `max_eps=inf` và trích cụm `xi`; đây là so sánh một cấu hình công bố, chưa phải tối ưu tham số từng thuật toán.
+| Thuật toán | Tham số benchmark |
+|---|---|
+| Incremental DBSCAN OOP | `eps=0.4`, `min_pts=6`, Euclidean; cập nhật vùng ảnh hưởng |
+| sklearn DBSCAN | `eps=0.4`, `min_samples=6`, Euclidean; fit lại toàn bộ sau mỗi cập nhật |
+| sklearn HDBSCAN | `min_cluster_size=6`, `min_samples=6`, `cluster_selection_method='eom'`, Euclidean; fit lại toàn bộ |
+| sklearn OPTICS | `min_samples=6`, `max_eps=inf`, `cluster_method='xi'`, `xi=0.05`, Euclidean; fit lại toàn bộ |
 
-Kết quả từng bước/lượt, một dòng cho mỗi lượt/phương pháp, thống kê tổng hợp và thông tin môi trường nằm tại `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_summary.csv` và `results/density_algorithm_benchmark_README.txt`. Hình so sánh thời gian nằm tại `report/figures/density_algorithm_benchmark.png`. Do chỉ dùng prefix 20 bước, không suy rộng kết quả này ra toàn bộ các stream 119/300 bước.
+Ở 20 bước này, OOP có tổng thời gian cập nhật thấp hơn ba cách còn lại. Tuy nhiên, fit D0 ban đầu của OOP có trung vị khoảng 643–950 ms, trong khi DBSCAN của sklearn khoảng 4–6 ms và HDBSCAN khoảng 6–8 ms. Tính cả fit D0, tổng trung vị OOP khoảng 694–1.002 ms; sklearn DBSCAN khoảng 75–116 ms. Vì vậy kết quả chỉ cho thấy chi phí cập nhật cục bộ thấp hơn trong prefix này, không cho thấy bản OOP nhanh hơn toàn bộ từ lúc huấn luyện.
+
+ARI trung bình qua 20 bước so với nhãn Incremental DBSCAN OOP là 1,000 cho cả OOP, sklearn DBSCAN và sklearn HDBSCAN ở cả ba số chiều. Với OPTICS, ARI lần lượt là −0,011, 0,038 và 0,011; cấu hình `xi` cho ra số cụm và tỷ lệ noise khác nhiều. HDBSCAN/OPTICS có tham số và mục tiêu trích cụm riêng; `MinPts` ở đây là giá trị tham chiếu, còn điểm số đo mức đồng thuận với OOP chứ không phải chất lượng tối ưu của từng thuật toán. Cấu hình OPTICS được công bố để kết quả có thể lặp lại, chưa được tinh chỉnh riêng.
+
+Kết quả từng bước, từng lượt, bảng tổng hợp, cấu hình môi trường và biểu đồ nằm tại `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_summary.csv`, `results/density_algorithm_benchmark_README.txt` và `report/figures/density_algorithm_benchmark.png`. CSV theo lượt có một dòng cho mỗi lần lặp và chứa đầy đủ cấu hình. Các trường hợp 2D/3D/4D là các tập đặc trưng lồng nhau của cùng dữ liệu, không phải ba bộ dữ liệu độc lập; chỉ dùng prefix 20 bước nên không suy rộng kết quả này ra toàn bộ 300 bước.
 
 ## 6. Ghi chú trước khi chốt số liệu hiệu năng
 

@@ -3,7 +3,8 @@
 Chạy từ gốc repo:
     python -m baseline.benchmark_density_algorithms --repeats 5 --max-steps 20
 
-Mọi phương pháp nhận cùng D0, thứ tự cập nhật, tọa độ, Euclidean và MinPts.
+Mỗi ca 2D/3D/4D lấy số chiều đầu từ cùng stream thẻ; mọi phương pháp trong một ca
+nhận cùng D0, thứ tự cập nhật, tọa độ, Euclidean và MinPts.
 Incremental DBSCAN cập nhật cục bộ; sklearn DBSCAN, HDBSCAN và OPTICS được fit
 lại toàn bộ sau mỗi cập nhật vì các estimator này không có giao diện insert/delete.
 """
@@ -44,10 +45,11 @@ SUMMARY_CSV = RESULTS / "density_algorithm_benchmark_summary.csv"
 README_TXT = RESULTS / "density_algorithm_benchmark_README.txt"
 FIGURE_PATH = FIGURES / "density_algorithm_benchmark.png"
 
+CARD_STREAM = RAW / "bank_card" / "card_stream"
 STREAMS = {
-    "ATM 2D": RAW / "bank_geo" / "atm_stream",
-    "Thẻ 5D": RAW / "bank_card" / "card_stream",
-    "Thẻ 5D khó": RAW / "bank_card" / "card_stream_hard",
+    "Thẻ 2D": (CARD_STREAM, 2),
+    "Thẻ 3D": (CARD_STREAM, 3),
+    "Thẻ 4D": (CARD_STREAM, 4),
 }
 METHODS = (
     "Incremental DBSCAN (OOP)",
@@ -86,18 +88,19 @@ def _make_sklearn_estimator(method: str, eps: float, min_pts: int):
     raise ValueError(f"Không phải estimator sklearn: {method}")
 
 
-def _parameters(method: str, eps: float, min_pts: int) -> str:
+def _parameters(method: str, eps: float, min_pts: int, features: list[str]) -> str:
     """Lưu đầy đủ tham số để đọc kết quả mà không phải suy ra từ mã nguồn."""
+    common = {"dimensions": len(features), "features": features, "metric": "euclidean"}
     if method == "Incremental DBSCAN (OOP)":
-        config = {"eps": eps, "min_pts": min_pts, "metric": "euclidean", "update": "local insert/delete"}
+        config = {**common, "eps": eps, "min_pts": min_pts, "update": "local insert/delete"}
     elif method == "sklearn DBSCAN (re-fit)":
-        config = {"eps": eps, "min_samples": min_pts, "metric": "euclidean", "update": "full refit"}
+        config = {**common, "eps": eps, "min_samples": min_pts, "update": "full refit"}
     elif method == "sklearn HDBSCAN (re-fit)":
         config = {
+            **common,
             "min_cluster_size": max(2, min_pts),
             "min_samples": min_pts,
             "cluster_selection_method": "eom",
-            "metric": "euclidean",
             "n_jobs": 1,
             "update": "full refit",
         }
@@ -105,11 +108,11 @@ def _parameters(method: str, eps: float, min_pts: int) -> str:
             config["copy"] = True
     else:
         config = {
+            **common,
             "min_samples": min_pts,
             "max_eps": "inf",
             "cluster_method": "xi",
             "xi": 0.05,
-            "metric": "euclidean",
             "n_jobs": 1,
             "update": "full refit",
         }
@@ -186,18 +189,17 @@ def _run_one_stream(
     stream_name: str,
     d0: pd.DataFrame,
     updates: pd.DataFrame,
-    params: dict,
     feature_cols: list[str],
+    eps: float,
+    min_pts: int,
+    initial_coords: np.ndarray,
     update_coords: np.ndarray,
 ) -> tuple[list[dict], dict[int, dict[int, int]]]:
-    eps = float(params.get("eps", params.get("eps_km")))
-    min_pts = int(params["minpts"])
     model = _new_model(method, eps, min_pts)
     ids = IdMap()
     records: list[dict] = []
     states: dict[int, dict[int, int]] = {}
 
-    initial_coords = stream_coordinates(params, d0, feature_cols)
     started = time.perf_counter()
     model.fit(initial_coords)
     initial_ms = (time.perf_counter() - started) * 1000
@@ -217,13 +219,14 @@ def _run_one_stream(
             "n_before": n_before,
             "n_after": len(state),
             "dimensions": int(initial_coords.shape[1]),
+            "features": ",".join(feature_cols),
             "n_clusters": n_clusters,
             "n_noise": n_noise,
             "noise_fraction": noise_fraction,
             "elapsed_ms": elapsed_ms,
             "eps": eps,
             "min_pts_reference": min_pts,
-            "parameters": _parameters(method, eps, min_pts),
+            "parameters": _parameters(method, eps, min_pts, feature_cols),
         })
 
     record(0, "fit", None, "", initial_ms, 0)
@@ -270,11 +273,16 @@ def _add_agreement_scores(records: list[dict], states_by_method: dict[str, dict[
         row["noise_matches_incremental"] = score_by_method_step[(row["method"], row["step"])][1]
 
 
-def _load_prefix(stream_dir: Path, max_steps: int):
+def _load_prefix(stream_dir: Path, dimensions: int, max_steps: int):
     d0, updates, params, feature_cols = read_stream(stream_dir)
+    if not 1 <= dimensions <= len(feature_cols):
+        raise ValueError(f"Số chiều {dimensions} không hợp lệ cho {len(feature_cols)} đặc trưng.")
     updates = updates.sort_values("step").head(max_steps).reset_index(drop=True)
-    update_coords = stream_coordinates(params, updates, feature_cols)
-    return d0, updates, params, feature_cols, update_coords
+    initial_coords = stream_coordinates(params, d0, feature_cols)[:, :dimensions]
+    update_coords = stream_coordinates(params, updates, feature_cols)[:, :dimensions]
+    frozen_scaling = params.get("frozen_scaling")
+    scaled_features = frozen_scaling["columns"] if frozen_scaling else feature_cols
+    return d0, updates, params, scaled_features[:dimensions], initial_coords, update_coords
 
 
 def run_benchmark(
@@ -286,7 +294,7 @@ def run_benchmark(
     seed: int = 42,
     log: Callable[[str], None] = print,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Benchmark các prefix stream giống nhau; estimator thư viện fit lại toàn bộ sau từng update."""
+    """Benchmark các prefix của cùng stream thẻ ở 2D/3D/4D; sklearn refit toàn bộ sau từng update."""
     if repeats < 2:
         raise ValueError("repeats phải từ 2 trở lên")
     if warmups < 0:
@@ -300,11 +308,13 @@ def run_benchmark(
 
     all_records = []
     rng = random.Random(seed)
-    for stream_index, stream_name in enumerate(chosen):
-        d0, updates, params, feature_cols, update_coords = _load_prefix(STREAMS[stream_name], max_steps)
+    for stream_name in chosen:
+        stream_dir, dimensions = STREAMS[stream_name]
+        d0, updates, params, feature_cols, initial_coords, update_coords = _load_prefix(
+            stream_dir, dimensions, max_steps
+        )
         eps = float(params.get("eps", params.get("eps_km")))
         min_pts = int(params["minpts"])
-        initial_coords = stream_coordinates(params, d0, feature_cols)
 
         # Warm-up chỉ fit D0; các phép đo bên dưới vẫn phát lại từng chuỗi từ đầu.
         for method in METHODS:
@@ -319,7 +329,8 @@ def run_benchmark(
             repeat_records = []
             for method in order:
                 records, states = _run_one_stream(
-                    method, stream_name, d0, updates, params, feature_cols, update_coords
+                    method, stream_name, d0, updates, feature_cols, eps, min_pts,
+                    initial_coords, update_coords,
                 )
                 for row in records:
                     row["repeat"] = repeat
@@ -356,6 +367,7 @@ def summarize_repeats(runs: pd.DataFrame) -> pd.DataFrame:
             "repeat": int(repeat),
             "n_d0": int(initial["n_after"]),
             "dimensions": int(initial["dimensions"]),
+            "features": initial["features"],
             "n_updates": int(len(updates)),
             "n_insert": int((updates["op"] == "insert").sum()),
             "n_delete": int((updates["op"] == "delete").sum()),
@@ -388,6 +400,7 @@ def summarize_runs(repeats: pd.DataFrame, *, max_steps: int) -> pd.DataFrame:
             "repeats": int(part["repeat"].nunique()),
             "n_d0": int(part["n_d0"].iloc[0]),
             "dimensions": int(part["dimensions"].iloc[0]),
+            "features": part["features"].iloc[0],
             "max_steps_requested": max_steps,
             "n_updates_per_repeat": int(part["n_updates"].median()),
             "n_insert_per_repeat": int(part["n_insert"].median()),
@@ -476,15 +489,17 @@ def main(argv=None) -> None:
         "Benchmark chuỗi cập nhật: Incremental DBSCAN OOP so với DBSCAN, HDBSCAN và OPTICS của sklearn chạy lại toàn bộ.\n"
         f"Máy: {platform.platform()}, {platform.processor() or platform.machine()}, Python {platform.python_version()}, "
         f"scikit-learn {sklearn.__version__}, numpy {np.__version__}, pandas {pd.__version__}.\n"
-        f"Mỗi stream: {args.warmups} warm-up fit D0 và {args.repeats} lượt phát lại prefix tối đa {args.max_steps} update; "
+        f"Mỗi trường hợp chiều: {args.warmups} warm-up fit D0 và {args.repeats} lượt phát lại prefix tối đa {args.max_steps} update; "
         f"seed xáo thứ tự thuật toán: {args.seed}.\n"
-        "Bốn phương pháp nhận cùng D0, thứ tự update, tọa độ, metric Euclidean và MinPts tham chiếu. Incremental DBSCAN chỉ cập nhật vùng ảnh hưởng;\n"
+        "Ba trường hợp 2D/3D/4D lấy lần lượt 2, 3, 4 đặc trưng đầu của cùng stream thẻ đã chuẩn hóa đóng băng; D0 và thứ tự update giống nhau.\n"
+        "Danh sách đặc trưng: log10_amount_vnd, hour_of_day; thêm distance_from_home_km cho 3D; thêm txns_last_7d cho 4D.\n"
+        "Cả bốn phương pháp trong từng trường hợp nhận cùng D0, tọa độ, metric Euclidean và MinPts tham chiếu. Incremental DBSCAN chỉ cập nhật vùng ảnh hưởng;\n"
         "ba estimator sklearn không có insert/delete nên adapter cập nhật tập điểm rồi fit lại toàn bộ ở từng step.\n"
         "DBSCAN dùng Eps/MinPts trong params.json; HDBSCAN dùng min_cluster_size=min_samples=MinPts và EOM;\n"
         "OPTICS dùng min_samples=MinPts, xi=0.05 và cluster_method='xi'. OPTICS/HDBSCAN có ngữ nghĩa tham số riêng, không dùng Eps DBSCAN.\n"
         "CSV repeats có một dòng cho mỗi stream/phương pháp/lượt chạy; CSV runs lưu từng step/lượt; CSV summary tổng hợp median/mean/std/min/max thời gian qua các lượt.\n"
         "Các CSV có cả cấu hình tham số, số cụm/noise, ARI trung bình/cuối và tỷ lệ noise khớp Incremental DBSCAN OOP.\n"
-        "Thời gian phụ thuộc máy; kết quả trên prefix stream không đại diện toàn bộ 119/300 bước.\n",
+        "Thời gian phụ thuộc máy; kết quả trên prefix stream không đại diện toàn bộ 300 bước.\n",
         encoding="utf-8",
         newline="\n",
     )
