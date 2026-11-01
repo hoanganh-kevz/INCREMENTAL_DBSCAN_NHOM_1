@@ -68,43 +68,15 @@ classDiagram
         +save(figure, path)
     }
 
-    class ClusterEvaluator {
-        <<design target>>
-        +evaluate(data, labels): dict
-    }
-
-    class ExperimentRunner {
-        <<design target>>
-        +run(initial_data, updates): list
-    }
-
-    class EvaluationMetrics {
-        <<module>>
-        +silhouette_samples(data, labels)
-        +silhouette_score(data, labels)
-    }
-
-    class UpdateCaseAnalysis {
-        <<module>>
-        +update_seeds(before, after, op, eps)
-        +changed_points(before, after)
-        +delete_scope(before, point_id, eps)
-        +describe_update(before, after, op, point_id, eps)
-    }
-
     IncrementalDBSCAN --|> DBSCAN
     IncrementalEngine --|> IncrementalDBSCAN
     DBSCAN "1" o-- "0..*" DataPoint : quản lý theo ID
     DataPoint --> PointType : trạng thái
     DBSCAN ..> DistanceMetric : đo khoảng cách
     ClusterVisualizer ..> DataPoint : đọc snapshot
-    ExperimentRunner ..> ManualScaler : tiền xử lý
-    ExperimentRunner ..> IncrementalDBSCAN : chạy cập nhật
-    ExperimentRunner ..> ClusterEvaluator : đánh giá
-    ExperimentRunner ..> ClusterVisualizer : trực quan hóa
 ```
 
-Ký hiệu <<module>> chỉ nhóm hàm, không phải class Python. ClusterEvaluator và ExperimentRunner được giữ trong UML như hai lớp thiết kế của C02, nhưng hiện chưa có class Python tương ứng. Các thành phần gắn <<module>> thể hiện cách source đang đảm nhiệm một phần trách nhiệm đó.
+Sơ đồ chỉ thể hiện các class Python đang có trong source. Đánh giá và điều phối thí nghiệm nằm ở các module hàm riêng, không được biểu diễn thành class trong UML.
 
 ## Trách nhiệm và giao diện
 
@@ -118,13 +90,11 @@ Ký hiệu <<module>> chỉ nhóm hàm, không phải class Python. ClusterEvalu
 | IncrementalDBSCAN | Cập nhật cụm cục bộ khi thêm hoặc xóa điểm. | src/clustering/incremental_dbscan.py: insert, delete và các bí danh tương thích |
 | IncrementalEngine | Bổ sung snapshot và thống kê số điểm/cụm để các phần thực nghiệm và vẽ dùng chung giao diện. | src/experiments/engine.py |
 | ClusterVisualizer | Vẽ snapshot 2D; dữ liệu nhiều chiều được chiếu xuống 2D khi cần. | src/visualization/plotter.py: plot_2d, plot_before_after, plot_case_gallery, save |
-| ClusterEvaluator | Lớp dự kiến gom các phép đánh giá kết quả phân cụm. | Chưa có class; hiện dùng hàm trong src/evaluation/metrics.py và src/evaluation/evaluation_library.py |
-| ExperimentRunner | Lớp dự kiến điều phối tiền xử lý, cập nhật, đánh giá và trực quan hóa. | Chưa có class; hiện có IncrementalEngine, hàm chạy kịch bản ở src/visualization/scenarios.py và các lệnh thực nghiệm ở baseline/ |
-| EvaluationMetrics | Các hàm đánh giá Silhouette tự cài, không dùng sklearn. | src/evaluation/metrics.py: silhouette_samples, silhouette_score |
-| UpdateCaseAnalysis | Phân tích UpdSeed, điểm đổi trạng thái và phạm vi xử lý của delete. | src/experiments/update_cases.py |
+| Module đánh giá | Các hàm tính Silhouette tự cài; đây không phải class. | src/evaluation/metrics.py: silhouette_samples, silhouette_score |
+| Module phân tích cập nhật | Các hàm phân tích UpdSeed, điểm đổi trạng thái và phạm vi xử lý của delete; đây không phải class. | src/experiments/update_cases.py |
 
-## Hai tên class trong bản thiết kế trước
+## Tổ chức đánh giá và thực nghiệm
 
-Bản thiết kế C02 yêu cầu có ClusterEvaluator và ExperimentRunner trong sơ đồ lớp. Hai class vẫn được giữ làm thiết kế mục tiêu, nhưng source hiện chưa định nghĩa chúng. Phần đánh giá hiện là các hàm trong src/evaluation/metrics.py và src/evaluation/evaluation_library.py; phần điều phối kỹ thuật gồm IncrementalEngine, các hàm chạy kịch bản trong src/visualization/scenarios.py và các lệnh thực nghiệm trong baseline/.
+Phần đánh giá dùng các hàm trong `src/evaluation/metrics.py` và `src/evaluation/evaluation_library.py`. Việc chạy kịch bản được chia giữa `IncrementalEngine`, các hàm trong `src/visualization/scenarios.py` và notebook benchmark. Không thêm lớp bao bọc riêng vì hiện chưa cần một bộ đánh giá hay bộ điều phối có trạng thái dùng chung.
 
-DBSCAN và IncrementalDBSCAN dùng chung fit() và get_labels(); lớp incremental bổ sung thao tác insert/delete. Mỗi class chịu trách nhiệm cho một phần riêng, còn phần đánh giá và chạy kịch bản được tổ chức theo module hàm.
+DBSCAN và IncrementalDBSCAN dùng chung `fit()` và `get_labels()`; lớp incremental bổ sung thao tác insert/delete. Mỗi class chịu trách nhiệm cho một phần riêng, còn phần đánh giá và chạy kịch bản được tổ chức theo module hàm.
