@@ -1,5 +1,2 @@
-# Dau ra sinh lai duoc cua TV4, khong commit (xem data/README_data.md)
-raw/bench/
-processed/baseline/
-processed/baseline_bench/
-preview/
+__pycache__/
+*.py[cod]

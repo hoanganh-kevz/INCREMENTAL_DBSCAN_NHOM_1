@@ -1,7 +1,7 @@
 """Đo một lần cập nhật từ hai snapshot (trước, sau): UpdSeed, số điểm đổi trạng thái, phạm vi xử lý lại của phép xóa. numpy thuần, không sklearn.
 
 Snapshot là dict ids, coords, labels, point_types (mã 3 lõi, 2 biên, 1 nhiễu) như IncrementalEngine.snapshot() hay RefitDBSCAN.snapshot().
-Định nghĩa UpdSeed theo Ester et al. (1998), giống data/README_data.md mục 3:
+Định nghĩa UpdSeed theo Ester et al. (1998), như mô tả trong docs/oop_design.md:
   insert: các điểm lõi SAU update nằm trong Eps của một điểm vừa thành lõi (kể cả điểm chèn nếu nó là lõi);
   delete: các điểm lõi SAU update nằm trong Eps của một điểm vừa mất tính lõi (kể cả điểm xóa nếu nó từng là lõi).
 """

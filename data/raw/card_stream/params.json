@@ -1,0 +1,43 @@
+{
+  "simulated": true,
+  "seed": 42,
+  "eps": 0.4,
+  "minpts": 6,
+  "metric": "euclidean",
+  "neighbourhood_includes_self": true,
+  "n_d0": 500,
+  "n_steps": 300,
+  "feature_columns": [
+    "amount_vnd",
+    "hour_of_day",
+    "distance_from_home_km",
+    "txns_last_7d",
+    "merchant_risk_score"
+  ],
+  "frozen_scaling": {
+    "columns": [
+      "log10_amount_vnd",
+      "hour_of_day",
+      "distance_from_home_km",
+      "txns_last_7d",
+      "merchant_risk_score"
+    ],
+    "mean": [
+      5.622263159478165,
+      13.273404825737284,
+      17.338619302949045,
+      7.565013404825737,
+      0.337847184986595
+    ],
+    "std": [
+      0.7856003697852402,
+      6.680022008735341,
+      54.631271551535775,
+      5.370252045980125,
+      0.20450944241357574
+    ],
+    "note": "apply log10 to amount_vnd then (x - mean) / std with these constants; do not re-fit on the stream"
+  },
+  "d0_ambiguous_border_ids": [],
+  "scaling_note": "Fixed from the full simulated stream, including observations after D0. Kept for a controlled comparison; this is not an online deployment without future information."
+}

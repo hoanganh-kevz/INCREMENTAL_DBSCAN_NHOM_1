@@ -1,4 +1,4 @@
-"""Tiền xử lý dữ liệu cho DBSCAN: ManualScaler (numpy thuần), hàm làm sạch (pandas) và tọa độ stream cố định."""
+"""Chuẩn hóa thủ công và chuyển tọa độ cho luồng Incremental DBSCAN."""
 from .scaler import ManualScaler
 from .stream_scaling import apply_frozen_scaling, feature_columns, stream_coordinates
 

@@ -1,16 +1,4 @@
-"""Baseline DBSCAN bằng scikit-learn (D04). sklearn CHỈ được dùng ở thư mục baseline/, không bao giờ trong src/.
-
-Gồm năm phần:
-  (a) fit_full_dbscan: một lần DBSCAN đầy đủ, trả nhãn và loại điểm (CORE, BORDER, NOISE).
-  (b) RefitDBSCAN: lớp THAY THẾ TẠM cho IncrementalDBSCAN của nhóm; mỗi insert/delete fit lại toàn bộ.
-  (c) compare_partitions: so hai phân hoạch (ARI, tập nhiễu, tập lõi), bỏ điểm biên mơ hồ.
-  (d) replay_stream / run_stream: chạy lại một stream (d0.csv, updates.csv, params.json), ghi thời gian và nhãn.
-  (e) benchmark: python -m baseline.sklearn_dbscan --bench, thời gian re-fit theo n = 500, 1000, 2000, 4000.
-
-Quy ước nhóm (đầy đủ ở docs_extra/CONVENTIONS.md): lân cận Eps tính cả chính điểm đó, min_pts của nhóm = min_samples của sklearn,
-khoảng cách Euclid, biên Eps bao hàm (d <= eps). Tọa độ stream lấy từ src/preprocessing/stream_scaling.py (dùng chung với phần còn lại).
-"""
-import copy
+"""DBSCAN tham chiếu dùng trong baseline và kiểm tra kết quả Incremental DBSCAN."""
 import json
 import time
 from enum import IntEnum
@@ -22,9 +10,7 @@ import pandas as pd
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import adjusted_rand_score
 
-from src.preprocessing.stream_scaling import feature_columns, stream_coordinates
-
-REPEATS = 5     # số lần đo mỗi update (trên bản sao sâu của engine), lấy trung vị
+from src.preprocessing.stream_scaling import feature_columns
 
 
 class PointType(IntEnum):
@@ -104,19 +90,7 @@ class IdMap:
 
 # ------------------------------------------------------------------ (b) lớp thay thế tạm
 class RefitDBSCAN:
-    """THAY THẾ TẠM cho IncrementalDBSCAN: mỗi insert hoặc delete fit lại toàn bộ bằng sklearn.
-
-    Mục đích: để D05 đến D10 (thí nghiệm, trực quan, benchmark, demo) chạy được trước khi TV2 (insert)
-    và TV3 (delete) viết xong thuật toán thật. Bề mặt công khai là thứ lớp thật sẽ có; chỉ cần đổi lớp.
-
-    Tên phương thức CHƯA CHỐT trong nhóm (bảng task: fit_initial/insert/delete; tài liệu R04:
-    fit/insert_point/delete_point; docs/oop_design.md: fit/insert/delete). Vì vậy `fit_initial`,
-    `insert_point` và `delete_point` chỉ là bí danh mỏng, TẠM THỜI; xóa khi nhóm chốt tên.
-
-    Bề mặt: fit(data) -> self; insert(coords hoặc DataPoint) -> id mới; delete(point_id); get_labels(); snapshot();
-    last_update_seconds (thời gian của lần fit/insert/delete gần nhất); n_points, n_clusters, n_noise.
-    id điểm: fit gán 0..n-1 theo thứ tự dòng, insert gán id tăng dần, id đã xóa không dùng lại.
-    """
+    """Baseline đối chứng: dùng sklearn DBSCAN và fit lại toàn bộ sau mỗi insert/delete."""
 
     def __init__(self, eps, min_pts):
         self.eps = float(eps)
@@ -246,7 +220,7 @@ def read_stream(stream_dir):
     d0 = pd.read_csv(stream_dir / "d0.csv", encoding="utf-8")
     upd = pd.read_csv(stream_dir / "updates.csv", dtype={"ambiguous_border_ids": str}, encoding="utf-8")
     params = json.loads((stream_dir / "params.json").read_text(encoding="utf-8"))
-    return d0, upd, params, feature_columns(d0)
+    return d0, upd, params, feature_columns(d0, params)
 
 
 def ambiguous_by_step(params, upd):
@@ -256,192 +230,3 @@ def ambiguous_by_step(params, upd):
     for step, ids in zip(upd["step"], upd["ambiguous_border_ids"]):
         amb[int(step)] = [int(v) for v in str(ids).split(";") if v and v != "nan"]
     return amb
-
-
-def _timed(engine, apply_fn, repeats):
-    """Áp dụng apply_fn(engine) THẬT một lần và trả (kết quả, giây, số lần đo).
-
-    repeats <= 1: giây = thời gian của chính lần áp dụng thật. repeats > 1: giây = TRUNG VỊ của `repeats` lần chạy trên
-    bản sao sâu (deepcopy) của engine trước update, rồi mới áp dụng thật (không tính giờ), nên một lần chạy nguội hoặc
-    một lần bị hệ điều hành chen ngang không làm lệch con số."""
-    if repeats <= 1:
-        t0 = time.perf_counter()
-        out = apply_fn(engine)
-        return out, time.perf_counter() - t0, 1
-    secs = []
-    for _ in range(repeats):
-        clone = copy.deepcopy(engine)
-        t0 = time.perf_counter()
-        apply_fn(clone)
-        secs.append(time.perf_counter() - t0)
-    return apply_fn(engine), float(np.median(secs)), repeats
-
-
-TIMING_COLUMNS = ["step", "op", "n_points", "n_clusters", "n_noise", "update_seconds", "n_repeats", "n"]
-
-
-def replay_stream(engine, d0, upd, params, feats, repeats=REPEATS, max_steps=None):
-    """Chạy d0 rồi từng dòng updates (theo step) trên `engine`; trả (timing DataFrame, labels DataFrame).
-
-    engine: lớp hoặc hàm tạo nhận (eps=, min_pts=) như RefitDBSCAN, hoặc một đối tượng đã tạo sẵn (khi đó
-    eps/minpts của params không được đặt lại). Cần fit(data), insert(coords) -> id, delete(id), snapshot().
-    Tọa độ lấy từ stream_coordinates (stream thẻ: frozen_scaling = cửa sổ tham chiếu cố định, xem stream_scaling.py).
-    timing: step 0 là lần fit đầu trên D0; update_seconds là trung vị của n_repeats lần đo; n = số điểm engine xử lý (= n_points).
-    labels: (step, point_id, label) với point_id là id của STREAM (IdMap đổi từ id engine).
-    """
-    is_factory = isinstance(engine, type) or not hasattr(engine, "fit")
-    eng = engine(eps=params.get("eps", params.get("eps_km")), min_pts=params["minpts"]) if is_factory else engine
-    ids = IdMap()
-    timing, labels = [], []
-
-    def record(step, op, secs, reps):
-        snap = eng.snapshot()
-        lab = np.asarray(snap["labels"])
-        timing.append((step, op, len(lab), len(set(lab.tolist()) - {-1}), int((lab == -1).sum()), secs, reps, len(lab)))
-        labels.extend((step, ids.stream_id(e), int(l)) for e, l in zip(snap["ids"], lab))
-
-    coords0 = stream_coordinates(params, d0, feats)
-    _, secs, reps = _timed(eng, lambda e: e.fit(coords0), repeats)
-    for sid, eid in zip(d0["point_id"].tolist(), eng.snapshot()["ids"].tolist()):
-        ids.bind(sid, eid)
-    record(0, "fit", secs, reps)
-    rows = upd.sort_values("step")
-    if max_steps is not None:
-        rows = rows[rows["step"] <= max_steps]
-    coords = stream_coordinates(params, rows, feats)
-    for k, (_, r) in enumerate(rows.iterrows()):
-        if r["op"] == "insert":
-            eid, secs, reps = _timed(eng, lambda e, x=coords[k]: e.insert(x), repeats)
-            ids.bind(r["point_id"], eid)
-        elif r["op"] == "delete":
-            eid = ids.release(r["point_id"])
-            _, secs, reps = _timed(eng, lambda e, i=eid: e.delete(i), repeats)
-        else:
-            raise ValueError(f"op lạ ở step {r['step']}: {r['op']!r}")
-        record(int(r["step"]), r["op"], secs, reps)
-    return (pd.DataFrame(timing, columns=TIMING_COLUMNS), pd.DataFrame(labels, columns=["step", "point_id", "label"]))
-
-
-def run_stream(engine, stream_dir, out_dir, max_steps=None, repeats=REPEATS):
-    """Đọc một thư mục stream (d0.csv, updates.csv, params.json), chạy replay_stream và ghi
-    out_dir/<tên thư mục stream>/timing.csv (cột TIMING_COLUMNS) và labels_long.csv (step, point_id, label).
-    Trả (timing, labels). Phần xác định (mọi cột trừ update_seconds) không phụ thuộc repeats."""
-    stream_dir = Path(stream_dir)
-    d0, upd, params, feats = read_stream(stream_dir)
-    timing, labels = replay_stream(engine, d0, upd, params, feats, repeats=repeats, max_steps=max_steps)
-    out = Path(out_dir) / stream_dir.name
-    out.mkdir(parents=True, exist_ok=True)
-    timing.to_csv(out / "timing.csv", index=False, encoding="utf-8", lineterminator="\n")
-    labels.to_csv(out / "labels_long.csv", index=False, encoding="utf-8", lineterminator="\n")
-    return timing, labels
-
-
-# ------------------------------------------------------------------ (e) benchmark theo n
-BENCH_NS = (500, 1000, 2000, 4000)
-BENCH_UPDATES = 20      # 10 insert xen kẽ 10 delete điểm cũ nhất; D0 là phần còn lại của bảng
-
-
-def _bench_frames(family, table, params_n, n_updates=BENCH_UPDATES):
-    """Dựng (d0, updates, params, feats) trong bộ nhớ từ một bảng bench (data/raw/bench). Thời gian không phụ thuộc cách
-    chuẩn hóa nên thẻ dùng cửa sổ tham chiếu cố định = chính bảng bench (log10 amount rồi z-score, như frozen_scaling của stream)."""
-    if family == "card":
-        feats = ["amount_vnd", "hour_of_day", "distance_from_home_km", "txns_last_7d", "merchant_risk_score"]
-        table = table.drop_duplicates().dropna(subset=feats)       # bảng bench còn ô thiếu và dòng trùng như bảng thẻ chính
-        x = table[feats].to_numpy(float).copy()
-        x[:, 0] = np.log10(x[:, 0])
-        cols = ["log10_amount_vnd"] + feats[1:]
-        p = {"eps": params_n["card"]["recommended_eps"], "minpts": params_n["card"]["recommended_minpts"],
-             "frozen_scaling": {"columns": cols, "mean": x.mean(axis=0).tolist(), "std": x.std(axis=0).tolist()}}
-    else:
-        feats = ["x_km", "y_km"]
-        p = {"eps": params_n["atm"]["eps_km"], "minpts": params_n["atm"]["minpts"]}
-    tab = table[feats].reset_index(drop=True)
-    n_ins = n_updates // 2
-    d0 = tab.iloc[: len(tab) - n_ins].copy()
-    d0.insert(0, "point_id", range(len(d0)))
-    d0["ref_label"] = 0
-    rows, oldest, nxt = [], 0, len(d0)
-    for step in range(1, n_updates + 1):
-        if step % 2:
-            rows.append({"step": step, "op": "insert", "point_id": nxt, **tab.iloc[nxt].to_dict()})
-            nxt += 1
-        else:
-            rows.append({"step": step, "op": "delete", "point_id": oldest, **tab.iloc[oldest].to_dict()})
-            oldest += 1
-    return d0, pd.DataFrame(rows), p, feats
-
-
-def _ensure_bench_tables(ns, bench_dir, root):
-    """Tạo data/raw/bench/ bằng bộ sinh dữ liệu (generate_data.write_bench, giống `--n`) nếu thiếu file; không đụng file khác."""
-    if all((bench_dir / f"{kind}_n{n}.csv").exists() for n in ns for kind in ("card_txn_5d", "atm_txn_2d")) \
-            and all((bench_dir / f"params_n{n}.json").exists() for n in ns):
-        return
-    import importlib.util
-    import sys
-    sys.path.insert(0, str(root / "data"))      # generate_data import các gen_* cùng thư mục
-    try:
-        spec = importlib.util.spec_from_file_location("generate_data", root / "data" / "generate_data.py")
-        gen = importlib.util.module_from_spec(spec)
-        sys.modules["generate_data"] = gen
-        spec.loader.exec_module(gen)
-        gen.write_bench(list(ns))
-    finally:
-        sys.path.remove(str(root / "data"))
-
-
-def run_benchmark(ns=BENCH_NS, out_dir=None, repeats=REPEATS, root=None):
-    """Đo thời gian re-fit của RefitDBSCAN theo n (bảng bench 2D ATM và 5D thẻ) và ghi data/processed/baseline_bench/.
-
-    Mỗi dòng bench_timing.csv: family, n, op (fit, insert, delete), eps, minpts, n_updates, repeats, median_ms, min_ms, max_ms.
-    File thời gian phụ thuộc máy (CPU, hệ điều hành, phiên bản sklearn) nên không đưa lên git (xem data/.gitignore); README.txt trong thư mục ghi cấu hình máy.
-    """
-    import platform
-    import sklearn
-    root = Path(root) if root else Path(__file__).resolve().parents[1]
-    out = Path(out_dir) if out_dir else root / "data" / "processed" / "baseline_bench"
-    bench_dir = root / "data" / "raw" / "bench"
-    _ensure_bench_tables(ns, bench_dir, root)
-    rows = []
-    for n in ns:
-        params_n = json.loads((bench_dir / f"params_n{n}.json").read_text(encoding="utf-8"))
-        for family, fname in (("atm", f"atm_txn_2d_n{n}.csv"), ("card", f"card_txn_5d_n{n}.csv")):
-            table = pd.read_csv(bench_dir / fname, encoding="utf-8")
-            d0, upd, p, feats = _bench_frames(family, table, params_n)
-            timing, _ = replay_stream(RefitDBSCAN, d0, upd, p, feats, repeats=repeats)
-            for op, g in timing.groupby("op", sort=False):
-                ms = g["update_seconds"] * 1000
-                rows.append((family, n, op, p["eps"], p["minpts"], len(g), repeats, round(ms.median(), 3),
-                             round(ms.min(), 3), round(ms.max(), 3)))
-            print(f"bench {family} n={n}: " + ", ".join(f"{r[2]} {r[7]} ms" for r in rows[-3:]), flush=True)
-    res = pd.DataFrame(rows, columns=["family", "n", "op", "eps", "minpts", "n_updates", "repeats",
-                                      "median_ms", "min_ms", "max_ms"])
-    out.mkdir(parents=True, exist_ok=True)
-    res.to_csv(out / "bench_timing.csv", index=False, encoding="utf-8", lineterminator="\n")
-    (out / "README.txt").write_text(
-        "Thời gian re-fit của baseline (sklearn) theo n. Phụ thuộc máy, không đưa lên git (xem data/.gitignore).\n"
-        f"Máy: {platform.platform()}, Python {platform.python_version()}, scikit-learn {sklearn.__version__}, numpy {np.__version__}.\n"
-        f"Mỗi update đo {repeats} lần trên bản sao sâu, lấy trung vị; {BENCH_UPDATES} update mỗi (family, n); op fit là lần fit đầu trên D0.\n"
-        "Chạy lại: python -m baseline.sklearn_dbscan --bench\n", encoding="utf-8", newline="\n")
-    return res
-
-
-def main(argv=None):
-    import argparse
-    ap = argparse.ArgumentParser(description="Baseline sklearn: chạy ba stream (mặc định) hoặc benchmark theo n.")
-    ap.add_argument("--bench", action="store_true", help="đo thời gian theo n, ghi data/processed/baseline_bench/ (phụ thuộc máy)")
-    ap.add_argument("--n", type=int, nargs="+", default=list(BENCH_NS), help="các n cho --bench (mặc định 500 1000 2000 4000)")
-    ap.add_argument("--repeats", type=int, default=REPEATS, help="số lần đo mỗi update (trung vị)")
-    a = ap.parse_args(argv)
-    root = Path(__file__).resolve().parents[1]
-    if a.bench:
-        print(run_benchmark(a.n, repeats=a.repeats).to_string(index=False))
-        return
-    for stream in ("bank_geo/atm_stream", "bank_card/card_stream", "bank_card/card_stream_hard"):
-        timing, _ = run_stream(RefitDBSCAN, root / "data/raw" / stream, root / "data/processed/baseline", repeats=a.repeats)
-        print(f"{stream}: {len(timing) - 1} update, trung vị {timing['update_seconds'].iloc[1:].median() * 1000:.2f} ms/update "
-              f"({a.repeats} lần đo mỗi update), số cụm {timing['n_clusters'].min()} đến {timing['n_clusters'].max()}")
-
-
-if __name__ == "__main__":
-    # python -m baseline.sklearn_dbscan  (chạy từ thư mục gốc repo): ba stream, ghi data/processed/baseline/
-    main()

@@ -7,12 +7,10 @@ Hai phương pháp, cùng một công thức  z = (x - center) / scale:
     method='minmax'  : center = min,  scale = max - min     (giống MinMaxScaler)
 Cột có độ lệch bằng 0 (hằng số) nhận scale = 1 để tránh chia cho 0.
 
-Quy tắc cho Incremental DBSCAN: tham số phải ĐỨNG YÊN trong suốt stream. Điểm mới (insert) đi qua transform với đúng tham số đó,
-KHÔNG bao giờ fit lại, nếu không tọa độ của các điểm cũ sẽ đổi và mọi nhãn cụm đã tính bị sai. Có hai nguồn tham số, cần phân biệt:
-  1. fit trên D0 (ManualScaler.fit(D0)): không rò rỉ thông tin tương lai, dùng để minh họa đánh đổi ở notebook D02 (mục 9).
-  2. CỬA SỔ THAM CHIẾU CỐ ĐỊNH (frozen_scaling trong params.json của stream): mean và std tính trên toàn bộ bảng sạch của generator,
-     nên CÓ chứa thông tin từ tương lai (cả các dòng chưa xuất hiện và các điểm bất thường). Dùng nó để phát lại stream, vì mọi thuật toán
-     thấy cùng một tọa độ. Đo trên D0: ARI giữa hai cách là 0.9959 (stream thẻ dễ) và 0.887 (stream thẻ khó). Xem stream_scaling.py.
+Quy tắc cho Incremental DBSCAN: tham số phải đứng yên trong suốt luồng. Điểm mới đi qua transform với đúng tham số đó; không fit lại,
+nếu không tọa độ của các điểm cũ sẽ đổi và nhãn cụm đã tính không còn nhất quán. Luồng benchmark dùng hằng số chuẩn hóa cố định trong
+`params.json`, tính trên toàn bộ luồng mô phỏng để mọi thuật toán nhận cùng tọa độ. Vì hằng số này có dùng dữ liệu ở các bước sau D0,
+nó phục vụ so sánh có kiểm soát, không mô phỏng triển khai online không biết trước dữ liệu tương lai. Xem stream_scaling.py.
 """
 import numpy as np
 

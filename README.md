@@ -1,103 +1,61 @@
 # Incremental DBSCAN
 
-**Công cụ hỗ trợ phân cụm dữ liệu theo mật độ, cập nhật cụm khi thêm hoặc xóa điểm, và đối chiếu kết quả với DBSCAN chuẩn.**
+## Nhóm đang làm gì?
 
-Tự cài đặt **DBSCAN** và **Incremental DBSCAN** bằng Python theo hướng đối tượng, không dùng thư viện cho phần thuật toán. Khi có điểm mới được thêm vào hoặc xóa đi, mô hình chỉ cập nhật vùng bị ảnh hưởng thay vì chạy lại toàn bộ.
+Nhóm tự cài DBSCAN và Incremental DBSCAN theo hướng đối tượng. Khi thêm hoặc xóa một điểm, Incremental DBSCAN cập nhật vùng bị ảnh hưởng thay vì chạy lại DBSCAN trên toàn bộ dữ liệu.
 
-## Ý tưởng chính
+Phần chính của đồ án gồm:
 
-DBSCAN gom cụm theo mật độ với hai tham số `eps` và `MinPts`. Mỗi điểm là core, border hoặc noise. Khi dữ liệu thay đổi, chạy lại từ đầu rất tốn kém. Incremental DBSCAN chỉ xét các điểm nằm trong vùng lân cận của điểm vừa thêm hoặc xóa (tập *affected* và *UpdSeed*), rồi quyết định cụm đó được tạo mới, hấp thụ, gộp hoặc tách.
+1. Cài DBSCAN và các thao tác insert/delete trong `src/`.
+2. Minh họa một lần insert làm gộp cụm và một lần delete làm tách cụm.
+3. Đánh giá chất lượng bằng Silhouette tự cài; đối chiếu tính tương đương với DBSCAN của scikit-learn.
+4. So sánh thời gian với DBSCAN, HDBSCAN và OPTICS của scikit-learn trên cùng luồng dữ liệu.
 
-Dự án cài đặt 4 trường hợp **insert** (noise, creation, absorption, merge) và 3 trường hợp **delete** (removal, reduction, potential split). Sau mỗi lần cập nhật, kết quả được đối chiếu với DBSCAN chạy lại toàn bộ để kiểm tra tính đúng, ưu tiên ARI = 1 trên các kịch bản chuẩn.
+## Dữ liệu chính
 
-## Cấu trúc thư mục
+Toàn bộ dữ liệu là mô phỏng, không lấy từ ngân hàng thật.
 
-```
-INCREMENTAL_DBSCAN_NHOM_1/
-├─ README.md
-├─ requirements.txt
-├─ run_demo.py
-├─ docs/results_discussion.md  # Bản thảo V07 để tích hợp vào báo cáo PDF
-├─ report/figures/             # Hình kết quả dùng trong báo cáo
-├─ src/
-│  ├─ core/            # DataPoint, DistanceMetric
-│  ├─ preprocessing/   # ManualScaler
-│  ├─ clustering/      # DBSCAN, IncrementalDBSCAN
-│  ├─ evaluation/      # Hàm đánh giá Silhouette tự cài và đối chiếu thư viện
-│  ├─ visualization/   # ClusterVisualizer (minh họa 2D trước/sau update)
-│  └─ experiments/     # IncrementalEngine, phân tích update và adapter thực nghiệm
-├─ baseline/           # DBSCAN của thư viện, chỉ dùng để đối chứng
-├─ data/raw/ + data/processed/
-├─ notebooks/Incremental_DBSCAN_Demo.ipynb
-└─ tests/
-```
+| Dữ liệu | Dùng để làm gì? |
+|---|---|
+| `data/raw/atm_txn_2d.csv` | Demo 2D; thuật toán dùng hai cột `x_km`, `y_km`. |
+| `data/raw/card_stream/` | Một luồng thẻ 5D: D0 có 500 điểm, log có 300 cập nhật. Benchmark phát lại 20 cập nhật đầu và lấy 2D/3D/4D từ cùng luồng. |
+| `data/raw/toy/` | Ví dụ nhỏ để giải thích insert/Merge và delete/Split từng bước. |
 
-Phần thuật toán trong `src/clustering` không gọi `sklearn` hay `scipy`. Thư viện chỉ xuất hiện ở `baseline/`, phần đánh giá đối chứng và vẽ hình. Mỗi điểm dữ liệu là vector n chiều, không hard-code x/y; hình minh họa 2D chỉ là một trường hợp riêng.
+Sáu ca biên phục vụ test nằm trong `tests/fixtures/toy_edge/`; chúng không được dùng như bộ dữ liệu demo.
 
-## Cài đặt và chạy
+## Bắt đầu nhanh
 
-Yêu cầu Python 3.10 trở lên. Các phụ thuộc chạy và vẽ hình được khai báo trong `requirements.txt`; DBSCAN tự cài trong `src/clustering` không dùng scikit-learn. Trên Windows PowerShell, chạy 5 lệnh sau từ thư mục gốc repo:
+Từ thư mục gốc repo:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-python run_demo.py --seed 42
+python run_demo.py
 jupyter notebook notebooks/Incremental_DBSCAN_Demo.ipynb
 ```
 
-Trên macOS/Linux, thay lệnh kích hoạt môi trường ở dòng 2 bằng `source .venv/bin/activate`. Demo 2D bắt đầu với hai cụm, insert điểm cầu nối để gộp cụm, rồi delete điểm đó để tách cụm lại. Seed mặc định là 42; có thể truyền seed khác bằng `--seed`.
+### Thứ tự xem khi chuẩn bị báo cáo
 
-Chạy toàn bộ test (4 case insert, 3 case delete, dữ liệu n chiều, tương đương với full DBSCAN):
+1. `notebooks/Incremental_DBSCAN_Demo.ipynb`: insert/Merge, delete/Split, ví dụ ATM 2D, Silhouette và kiểm tra tương đương.
+2. `notebooks/So_sanh_thuat_toan.ipynb`: benchmark 2D/3D/4D trên cùng luồng thẻ và so sánh với DBSCAN, HDBSCAN, OPTICS.
+
+## Mã nguồn
+
+- `src/core/`: điểm dữ liệu và khoảng cách.
+- `src/clustering/`: DBSCAN và Incremental DBSCAN tự cài.
+- `src/evaluation/metrics.py`: Silhouette tự cài.
+- `src/preprocessing/`: chuẩn hóa thủ công và chuyển đặc trưng luồng sang tọa độ phân cụm.
+- `src/visualization/`, `src/experiments/`: hình minh họa và điều phối thí nghiệm.
+- `baseline/`: adapter và thuật toán scikit-learn chỉ dùng làm đối chứng.
+- `tests/`: kiểm tra các thao tác cập nhật, trường hợp biên và phần hỗ trợ.
+
+Thuật toán trong `src/clustering/` không gọi scikit-learn. NumPy và Pandas hỗ trợ dữ liệu; scikit-learn chỉ dùng ở phần đối chứng.
+
+## Chạy kiểm tra
 
 ```bash
 pytest tests/
 ```
 
-Notebook đi theo thứ tự: tiền xử lý, mô hình, kết quả, trực quan hóa, đánh giá, so sánh và chọn lựa. Notebook chỉ import từ `src/`, không chứa logic thuật toán riêng.
-
-Nếu chạy trên Google Colab, thêm cell đầu:
-
-```python
-!git clone https://github.com/hoanganh-kevz/INCREMENTAL_DBSCAN_NHOM_1
-%cd INCREMENTAL_DBSCAN_NHOM_1
-!pip install -r requirements.txt
-```
-
-## Dữ liệu
-
-Dữ liệu gốc nằm ở `data/raw/`, dữ liệu đã xử lý ở `data/processed/`, kèm file mô tả và đường dẫn tương đối. Seed của từng bộ sinh dữ liệu được ghi tại `data/README_data.md`; demo cho phép đặt seed bằng `--seed`, mặc định là 42. Luồng cập nhật (update stream) dùng cho thí nghiệm insert/delete cũng nằm trong thư mục này.
-
-## Đánh giá
-
-Nhóm so sánh Incremental DBSCAN với DBSCAN chạy lại toàn bộ, cùng hai thuật toán dựa trên mật độ là OPTICS và HDBSCAN. Chất lượng cụm được đo bằng Silhouette tự cài cùng thống kê số cụm và số noise. Vì Silhouette không phù hợp hoàn toàn với cụm theo mật độ, báo cáo nêu rõ giới hạn này và cách xử lý noise.
-
-Chạy các phần đánh giá V04 và V05:
-
-```bash
-python -m src.evaluation.equivalence
-python -m src.evaluation.parameter_selection
-```
-
-V04 ghi kết quả đối chiếu từng bước vào `results/equivalence_results.csv`. V05 ghi bảng chọn tham số và profile k-distance vào `results/parameter_selection.csv`, `results/k_distance_moons.csv` và `results/k_distance_moons.png`.
-
-Chạy benchmark V06 để so sánh Incremental DBSCAN OOP với DBSCAN, HDBSCAN và OPTICS của scikit-learn trên cùng các stream insert/delete:
-
-```bash
-python -m baseline.benchmark_density_algorithms --repeats 5 --warmups 1 --max-steps 20 --seed 42
-```
-
-Mặc định chạy 5 lượt trên tối đa 20 cập nhật của cùng stream thẻ, lần lượt dùng 2, 3 và 4 đặc trưng đầu sau chuẩn hóa đóng băng. Cả ba trường hợp dùng chung D0, thứ tự insert/delete, Eps = 0,4 và MinPts = 6; chỉ số chiều thay đổi. Tăng `--max-steps` để phát lại nhiều bước hơn. Ba estimator scikit-learn được fit lại toàn bộ sau mỗi insert/delete; Incremental DBSCAN OOP cập nhật cục bộ. Kết quả từng bước, từng lượt, bảng tổng hợp và biểu đồ lần lượt nằm ở `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`. Tham số từng phương pháp và giới hạn so sánh được ghi trong `docs/algorithm_comparison.md` và file README kết quả.
-
-Phần phân tích kết quả và giới hạn cho báo cáo (V07) được soạn tại `docs/results_discussion.md`; README chỉ giữ hướng dẫn cài đặt và chạy.
-
-## Thành viên
-
-| TV | Họ và tên | Vai trò |
-|---|---|---|
-| TV1 | Nguyễn Hoàng Anh | _Leader / DBSCAN / tích hợp / Evaluation + comparison + QA_ |
-| TV2 | Lý Huỳnh Phương Anh | _Incremental theory + INSERT_ |
-| TV3 | Từ Thiên Gia Bảo | _OOP + DBSCAN + DELETE_ |
-| TV4 | Nguyễn Phạm Gia Bảo | _Data + experiment + visualization_ |
-
-Môn học: _Máy học_ · Giảng viên: _Nguyễn An Tế_ · Trường: _Đại học Kinh tế TPHCM_
+Mở [`data/README.md`](data/README.md) để xem cấu trúc và cách dùng các bộ dữ liệu demo.

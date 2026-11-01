@@ -45,7 +45,7 @@ SUMMARY_CSV = RESULTS / "density_algorithm_benchmark_summary.csv"
 README_TXT = RESULTS / "density_algorithm_benchmark_README.txt"
 FIGURE_PATH = FIGURES / "density_algorithm_benchmark.png"
 
-CARD_STREAM = RAW / "bank_card" / "card_stream"
+CARD_STREAM = RAW / "card_stream"
 STREAMS = {
     "Thẻ 2D": (CARD_STREAM, 2),
     "Thẻ 3D": (CARD_STREAM, 3),

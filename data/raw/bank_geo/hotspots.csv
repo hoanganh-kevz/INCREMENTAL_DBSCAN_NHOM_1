@@ -1,8 +1,0 @@
-hotspot_id,code,name_en,name_vi,meaning_vi,suggested_action_vi
-0,downtown_office_cash,Downtown office cash,Rút tiền khu văn phòng trung tâm,"Cụm dày ở trung tâm, nhân viên văn phòng rút tiền giờ nghỉ trưa và cuối ngày.",Đặt thêm máy ATM và chuẩn bị tiền mặt đủ vào giờ cao điểm.
-1,student_campus,Student campus withdrawals,Rút tiền khu đại học,"Cụm gọn quanh trường đại học, giao dịch nhỏ và đều của sinh viên.","Chạy ưu đãi tài khoản sinh viên, ưu tiên máy ATM nạp tiền mệnh giá nhỏ."
-2,market_ring,Market-edge cash withdrawals,Rút tiền quanh chợ,"Các máy ATM xếp thành vòng quanh khu chợ, khách rút tiền trước khi vào chợ.",Kiểm tra hạn mức tiền trong các máy quanh chợ vào buổi sáng và cuối tuần.
-3,market_plaza,Market plaza traders,Tiểu thương trong khu chợ,"Cụm nhỏ rất dày ở trung tâm chợ, tiểu thương rút và gửi tiền lẻ liên tục.","Đề xuất gói thu tiền QR cho tiểu thương, đặt máy nạp tiền mặt."
-4,riverside_cash,Riverside cash withdrawals,Rút tiền dọc bờ sông,"Dải cong dọc bờ sông (lưỡi liềm), dân cư và quán xá ven sông.","Rà soát độ phủ ATM dọc tuyến ven sông, nhất là hai đầu dải."
-5,highway_travellers,Highway travellers,Người đi đường trên quốc lộ,"Dải dài thẳng dọc quốc lộ, lái xe và khách đi đường rút tiền khi dừng chân.","Đặt ATM ở các trạm dừng chân, theo dõi tiền mặt và an ninh ban đêm."
--1,isolated,Isolated transactions,Giao dịch cô lập hoặc bất thường,"Điểm nằm riêng lẻ ngoài mọi hotspot, DBSCAN coi là nhiễu.",Không mở rộng ATM theo từng điểm lẻ; xem lại nếu cụm lẻ lặp lại nhiều tuần.

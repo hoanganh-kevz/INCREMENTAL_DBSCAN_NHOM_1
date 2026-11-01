@@ -1,19 +1,8 @@
-"""Tọa độ của một stream cập nhật: dùng chung cho baseline/, src/experiments/ (sau này) và notebook.
+"""Dùng chung phép chuẩn hóa cố định cho notebook, benchmark và kiểm tra luồng.
 
-Một hàm thuần: `apply_frozen_scaling(params, frame)` đọc các hằng số trong params.json của stream rồi trả ma trận
-tọa độ (n, d). Stream thẻ: log10 của amount_vnd, rồi z = (x - mean) / std, thứ tự cột lấy từ params["frozen_scaling"]["columns"].
-Stream ATM không có frozen_scaling (tọa độ đã tính theo km), dùng `stream_coordinates` để lấy cột thô.
-
-QUAN TRỌNG, ĐÂY LÀ "CỬA SỔ THAM CHIẾU CỐ ĐỊNH" (fixed reference scaling window), KHÔNG PHẢI "FIT TRÊN D0":
-mean và std trong `frozen_scaling` do generator tính trên TOÀN BỘ bảng sạch (1492 dòng cho stream thẻ, 1592 cho stream khó,
-gồm cả 15 hoặc 16 giao dịch bất thường và cả các dòng sẽ chỉ xuất hiện về sau trong stream), nên chúng chứa thông tin
-từ TƯƠNG LAI so với D0. Đây là quyết định có chủ ý và được ghi rõ, không phải sơ suất:
-  * Lý do giữ: mọi thuật toán (re-fit, Incremental DBSCAN của TV2 và TV3) thấy đúng cùng một tọa độ, nên so sánh nhãn công bằng,
-    và các hằng số này đã bị đóng băng trong data/base_hashes.json (không sinh lại).
-  * Hệ quả đã đo (D0-fit so với frozen, cùng DBSCAN tham chiếu, chỉ trên D0): ARI 0.9959 ở stream thẻ dễ (474 so với 471 điểm lõi),
-    0.887 ở stream thẻ khó (260 so với 240 điểm lõi). Tức là cách chuẩn hóa ảnh hưởng nhỏ ở bản dễ và rõ ở bản khó.
-  * Khuyến nghị cho báo cáo: dùng hằng số cố định này để phát lại stream; chỉ dùng "fit trên D0" (ManualScaler.fit(D0)) ở notebook
-    để minh họa đánh đổi rò rỉ thông tin tương lai. Khi nói với giảng viên, gọi đúng tên: cửa sổ tham chiếu cố định có thông tin tương lai.
+`apply_frozen_scaling` log10-transform amount_vnd rồi áp mean/std trong params.json. Các hằng số được tính từ toàn bộ dữ liệu
+mô phỏng, gồm cả các điểm xuất hiện sau D0. Vì vậy benchmark bảo đảm mọi thuật toán nhận cùng tọa độ nhưng không mô phỏng
+một hệ thống online không biết trước dữ liệu tương lai.
 """
 import numpy as np
 
@@ -22,10 +11,12 @@ from .scaler import ManualScaler
 LOG_PREFIX = "log10_"
 
 
-def feature_columns(d0):
-    """Tên cột đặc trưng của một stream: các cột giữa point_id và ref_label trong d0.csv."""
-    cols = list(d0.columns)
-    return cols[1:cols.index("ref_label")]
+def feature_columns(d0, params=None):
+    """Tên các đặc trưng theo thứ tự chuẩn hóa trong params; hỗ trợ cả D0 chỉ có cột số."""
+    if params and params.get("frozen_scaling"):
+        return frozen_columns(params)
+    excluded = {"point_id", "ref_label", "segment_id"}
+    return [column for column in d0.columns if column not in excluded]
 
 
 def frozen_columns(params):

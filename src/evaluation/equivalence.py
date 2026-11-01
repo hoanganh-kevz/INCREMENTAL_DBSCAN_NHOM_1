@@ -28,9 +28,7 @@ from src.visualization.scenarios import (
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
 STREAMS = (
-    "bank_geo/atm_stream",
-    "bank_card/card_stream",
-    "bank_card/card_stream_hard",
+    "card_stream",
 )
 
 
@@ -171,7 +169,7 @@ def run_equivalence_suite(
     """Compare fit and every selected update in toy scenarios and data streams."""
     rows: list[dict[str, Any]] = []
     if include_scenarios:
-        for kind in ("toy", "toy_edge"):
+        for kind in ("toy",):
             for name in list_scenarios(kind, raw_dir):
                 rows.extend(_scenario_rows(kind, name, raw_dir))
     if include_streams:

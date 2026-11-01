@@ -10,7 +10,7 @@ from src.clustering.dbscan import DBSCAN
 from src.clustering.incremental_dbscan import IncrementalDBSCAN
 from src.core.data_point import PointType
 
-DATA_DIR = Path(__file__).resolve().parents[1] / "data/raw/toy_edge"
+DATA_DIR = Path(__file__).resolve().parent / "fixtures/toy_edge"
 
 @pytest.mark.parametrize("name, expected_type, expected_neighbors",
                          [("e01_insert_at_eps_inclusive", PointType.BORDER, {1,4}),

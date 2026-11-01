@@ -1,4 +1,4 @@
-"""Đọc kịch bản toy, toy_edge và stream rồi chạy trên MỘT engine bất kỳ để lấy snapshot (không sklearn, không scipy).
+"""Đọc kịch bản toy và stream rồi chạy trên MỘT engine bất kỳ để lấy snapshot (không sklearn, không scipy).
 
 Engine được truyền vào dưới dạng hàm tạo `engine_factory(eps, min_pts)` (RefitDBSCAN hôm nay, IncrementalDBSCAN của nhóm sau này), cần các
 phương thức fit(data), insert(coords) -> id, delete(id) và một snapshot lấy được bằng `snapshot_from_model`. Nhờ vậy mọi hình trong
@@ -17,8 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
 
 
-def list_scenarios(kind, raw_dir=RAW):
-    """Tên các thư mục kịch bản (kind là 'toy' hoặc 'toy_edge'), theo thứ tự tên."""
+def list_scenarios(kind="toy", raw_dir=RAW):
+    """Tên các thư mục kịch bản toy, theo thứ tự tên."""
     return sorted(p.name for p in (Path(raw_dir) / kind).iterdir() if p.is_dir())
 
 
@@ -78,7 +78,7 @@ def stream_snapshots(engine_factory, stream_dir, max_steps=None):
     d0 = pd.read_csv(stream_dir / "d0.csv", encoding="utf-8")
     upd = pd.read_csv(stream_dir / "updates.csv", encoding="utf-8").sort_values("step")
     params = json.loads((stream_dir / "params.json").read_text(encoding="utf-8"))
-    feats = feature_columns(d0)
+    feats = feature_columns(d0, params)
     eps, min_pts = params.get("eps", params.get("eps_km")), params["minpts"]
     eng = engine_factory(eps, min_pts)
     eng.fit(stream_coordinates(params, d0, feats))
