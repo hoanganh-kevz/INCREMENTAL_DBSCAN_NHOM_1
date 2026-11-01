@@ -70,7 +70,7 @@ Dữ liệu gốc nằm ở `data/raw/`, dữ liệu đã xử lý ở `data/pro
 
 ## Đánh giá
 
-Nhóm so sánh Incremental DBSCAN với việc chạy lại DBSCAN đầy đủ trên cùng dữ liệu và tham số, về độ tương đương kết quả và thời gian chạy. Chất lượng cụm được đo bằng Silhouette tự cài cùng thống kê số cụm và số noise. Vì Silhouette không phù hợp hoàn toàn với cụm theo mật độ, báo cáo có phần nêu rõ giới hạn này và cách xử lý noise. Phần so sánh rộng hơn gồm OPTICS, HDBSCAN, KMeans và HAC.
+Nhóm so sánh Incremental DBSCAN với DBSCAN chạy lại toàn bộ, cùng hai thuật toán dựa trên mật độ là OPTICS và HDBSCAN. Chất lượng cụm được đo bằng Silhouette tự cài cùng thống kê số cụm và số noise. Vì Silhouette không phù hợp hoàn toàn với cụm theo mật độ, báo cáo nêu rõ giới hạn này và cách xử lý noise.
 
 Chạy các phần đánh giá V04 và V05:
 
