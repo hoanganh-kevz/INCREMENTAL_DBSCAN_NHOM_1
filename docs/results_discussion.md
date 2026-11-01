@@ -50,13 +50,13 @@ Benchmark phát lại cùng D0 gồm 500 điểm và cùng 20 cập nhật đầ
 | 3D | 2D + `distance_from_home_km` |
 | 4D | 3D + `txns_last_7d` |
 
-Cả ba trường hợp dùng Eps = 0,4, MinPts = 6 và khoảng cách Euclidean. Bảng ghi **trung vị ± độ lệch chuẩn** của tổng thời gian 20 thao tác cập nhật, đơn vị ms, qua 5 lượt:
+Cả ba trường hợp dùng Eps = 0,4, MinPts = 6 và khoảng cách Euclidean. OPTICS tính thứ tự reachability rồi dùng `cluster_method='dbscan'` để trích cụm tại cùng Eps; đặt `max_eps=0.400001` để bao phủ ngưỡng trích. HDBSCAN giữ cách chọn cụm phân cấp riêng (`min_cluster_size=6`, `min_samples=6`, `eom`). Bảng ghi **trung vị ± độ lệch chuẩn** của tổng thời gian 20 thao tác cập nhật, đơn vị ms, qua 5 lượt:
 
 | Số chiều | Incremental DBSCAN OOP | sklearn DBSCAN | sklearn HDBSCAN | sklearn OPTICS |
 |---:|---:|---:|---:|---:|
-| 2D | 50,57 ± 1,24 | 92,57 ± 1,52 | 141,83 ± 43,66 | 10.347,68 ± 207,39 |
-| 3D | 51,93 ± 0,58 | 109,70 ± 10,30 | 153,12 ± 7,90 | 10.352,66 ± 111,07 |
-| 4D | 52,28 ± 20,50 | 71,09 ± 41,21 | 107,76 ± 49,15 | 6.851,29 ± 2.077,25 |
+| 2D | 31,33 ± 0,62 | 60,24 ± 4,03 | 87,52 ± 3,15 | 6.486,10 ± 116,33 |
+| 3D | 34,25 ± 1,61 | 67,65 ± 1,81 | 99,35 ± 3,44 | 6.543,71 ± 112,52 |
+| 4D | 54,10 ± 1,39 | 72,35 ± 4,75 | 103,87 ± 2,88 | 6.392,64 ± 26,54 |
 
 Các tham số cụ thể trong từng chiều:
 
@@ -65,11 +65,11 @@ Các tham số cụ thể trong từng chiều:
 | Incremental DBSCAN OOP | `eps=0.4`, `min_pts=6`, Euclidean; cập nhật vùng ảnh hưởng |
 | sklearn DBSCAN | `eps=0.4`, `min_samples=6`, Euclidean; fit lại toàn bộ sau mỗi cập nhật |
 | sklearn HDBSCAN | `min_cluster_size=6`, `min_samples=6`, `cluster_selection_method='eom'`, Euclidean; fit lại toàn bộ |
-| sklearn OPTICS | `min_samples=6`, `max_eps=inf`, `cluster_method='xi'`, `xi=0.05`, Euclidean; fit lại toàn bộ |
+| sklearn OPTICS | `min_samples=6`, `eps=0.4`, `max_eps=0.400001`, `cluster_method='dbscan'`, Euclidean; fit lại toàn bộ |
 
-Ở 20 bước này, OOP có tổng thời gian cập nhật thấp hơn ba cách còn lại. Tuy nhiên, fit D0 ban đầu của OOP có trung vị khoảng 643–950 ms, trong khi DBSCAN của sklearn khoảng 4–6 ms và HDBSCAN khoảng 6–8 ms. Tính cả fit D0, tổng trung vị OOP khoảng 694–1.002 ms; sklearn DBSCAN khoảng 75–116 ms. Vì vậy kết quả chỉ cho thấy chi phí cập nhật cục bộ thấp hơn trong prefix này, không cho thấy bản OOP nhanh hơn toàn bộ từ lúc huấn luyện.
+Trong 20 bước này, tổng thời gian cập nhật OOP thấp hơn cả ba cách fit lại ở cả ba số chiều. Riêng OPTICS tốn khoảng 6,4–6,5 giây cho 20 lần fit lại; cách trích cụm DBSCAN ở Eps chung giúp so sánh nhãn rõ ràng hơn nhưng không biến OPTICS thành thuật toán tăng dần. Fit D0 ban đầu của OOP có trung vị khoảng 552–659 ms, trong khi DBSCAN của sklearn khoảng 3,6–4,1 ms, HDBSCAN khoảng 4,9–5,7 ms và OPTICS khoảng 314–334 ms. Vì vậy kết quả cho thấy lợi thế về thời gian cập nhật trong prefix này, không cho thấy bản OOP nhanh hơn toàn bộ từ lúc fit ban đầu.
 
-ARI trung bình qua 20 bước so với nhãn Incremental DBSCAN OOP là 1,000 cho cả OOP, sklearn DBSCAN và sklearn HDBSCAN ở cả ba số chiều. Với OPTICS, ARI lần lượt là −0,011, 0,038 và 0,011; cấu hình `xi` cho ra số cụm và tỷ lệ noise khác nhiều. HDBSCAN/OPTICS có tham số và mục tiêu trích cụm riêng; `MinPts` ở đây là giá trị tham chiếu, còn điểm số đo mức đồng thuận với OOP chứ không phải chất lượng tối ưu của từng thuật toán. Cấu hình OPTICS được công bố để kết quả có thể lặp lại, chưa được tinh chỉnh riêng.
+ARI trung bình qua 20 bước so với nhãn Incremental DBSCAN OOP là 1,000 cho cả bốn phương pháp ở cả ba số chiều; tỷ lệ khớp tập noise cũng là 1,000. Kết quả này phù hợp với cấu hình đã chọn: DBSCAN và OPTICS dùng cùng Eps/MinPts và cách trích DBSCAN; HDBSCAN tình cờ cho cùng nhãn trên stream này với tham số phân cấp đã công bố. Không suy ra rằng HDBSCAN luôn tương đương DBSCAN hoặc rằng các thuật toán sẽ cho nhãn giống nhau trên dữ liệu khác. ARI/noise đo mức đồng thuận với OOP, không phải chất lượng tối ưu riêng của mỗi thuật toán.
 
 Kết quả từng bước, từng lượt, bảng tổng hợp, cấu hình môi trường và biểu đồ nằm tại `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_summary.csv`, `results/density_algorithm_benchmark_README.txt` và `report/figures/density_algorithm_benchmark.png`. CSV theo lượt có một dòng cho mỗi lần lặp và chứa đầy đủ cấu hình. Các trường hợp 2D/3D/4D là các tập đặc trưng lồng nhau của cùng dữ liệu, không phải ba bộ dữ liệu độc lập; chỉ dùng prefix 20 bước nên không suy rộng kết quả này ra toàn bộ 300 bước.
 

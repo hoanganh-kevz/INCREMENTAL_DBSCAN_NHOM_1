@@ -18,9 +18,9 @@ Benchmark cập nhật chạy cùng D0, thứ tự insert/delete, tọa độ, m
 | Incremental DBSCAN OOP | `eps` và `min_pts` theo `params.json`; Euclidean | Insert/delete vùng ảnh hưởng |
 | scikit-learn DBSCAN | `eps` theo `params.json`, `min_samples=MinPts`, Euclidean | Fit lại toàn bộ |
 | scikit-learn HDBSCAN | `min_cluster_size=MinPts`, `min_samples=MinPts`, `cluster_selection_method='eom'`, Euclidean | Fit lại toàn bộ |
-| scikit-learn OPTICS | `min_samples=MinPts`, `max_eps=inf`, `cluster_method='xi'`, `xi=0.05`, Euclidean | Fit lại toàn bộ |
+| scikit-learn OPTICS | `min_samples=MinPts`, `eps=Eps`, `max_eps=Eps+1e-6`, `cluster_method='dbscan'`, Euclidean | Fit lại toàn bộ |
 
-`MinPts` của DBSCAN được ánh xạ sang `min_samples`; với HDBSCAN và OPTICS đây là tham số gần tương ứng chứ không làm cho các thuật toán có cùng định nghĩa cụm. HDBSCAN và OPTICS không dùng `eps` DBSCAN theo cùng cách. Vì vậy benchmark so sánh thời gian cập nhật trên cùng dữ liệu và cấu hình đã công bố, còn ARI/noise là mức đồng thuận với Incremental DBSCAN, không phải khẳng định chất lượng tối ưu của HDBSCAN/OPTICS.
+`MinPts` được ánh xạ sang `min_samples`. HDBSCAN vẫn dùng tham số phân cấp riêng. OPTICS trong benchmark tính thứ tự reachability rồi dùng cách trích cụm kiểu DBSCAN tại cùng `eps`; `max_eps` đặt nhỉnh hơn `eps` một lượng nhỏ theo yêu cầu của cách trích này. Nhờ vậy DBSCAN và OPTICS có thể đối chiếu nhãn trực tiếp hơn; HDBSCAN vẫn được đánh giá theo cấu hình riêng. Cách này đồng bộ ngưỡng trích nhãn, không làm cho quy trình nội bộ của hai thuật toán giống nhau. ARI/noise là mức đồng thuận với Incremental DBSCAN, không phải khẳng định cấu hình HDBSCAN tối ưu. Tham số và cách trích OPTICS được mô tả trong [tài liệu scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.OPTICS.html).
 
 Mặc định benchmark chạy 5 lượt trên prefix tối đa 20 cập nhật, cùng một stream thẻ với 2D, 3D và 4D bằng cách lấy lần lượt 2, 3 và 4 đặc trưng đầu sau chuẩn hóa đóng băng. Cả ba trường hợp dùng chung D0, thứ tự cập nhật, `eps=0.4`, `MinPts=6` và seed dữ liệu; chỉ số chiều đổi. Mỗi lượt gồm một lần fit D0 được ghi riêng và tổng thời gian insert/delete. Warm-up không được tính vào số liệu. CSV theo lượt, theo từng bước, bảng tổng hợp và hình được lưu tại `results/density_algorithm_benchmark_repeats.csv`, `results/density_algorithm_benchmark_runs.csv`, `results/density_algorithm_benchmark_summary.csv` và `report/figures/density_algorithm_benchmark.png`.
 
@@ -33,7 +33,7 @@ python -m baseline.benchmark_density_algorithms --repeats 5 --warmups 1 --max-st
 ## Cách đọc kết quả
 
 - Chọn DBSCAN/Incremental DBSCAN khi cần cụm theo mật độ, hình dạng tùy ý và phát hiện noise; cần kiểm tra độ nhạy của `eps` và `MinPts`.
-- Chọn OPTICS khi cần xem thứ tự cấu trúc mật độ qua nhiều ngưỡng thay vì chỉ một `eps`.
+- OPTICS có thể xem cấu trúc mật độ qua nhiều ngưỡng; benchmark này cố định cách trích cụm DBSCAN để đối chiếu với cùng `eps`.
 - Cân nhắc HDBSCAN khi mật độ thay đổi giữa các cụm và có thể chấp nhận bước dựng phân cấp.
 - Incremental DBSCAN có lợi khi thay đổi dữ liệu cục bộ; nếu một cập nhật ảnh hưởng phần lớn dữ liệu thì chi phí có thể gần với chạy lại DBSCAN đầy đủ.
 

@@ -6,7 +6,8 @@ Danh sách đặc trưng: log10_amount_vnd, hour_of_day; thêm distance_from_hom
 Cả bốn phương pháp trong từng trường hợp nhận cùng D0, tọa độ, metric Euclidean và MinPts tham chiếu. Incremental DBSCAN chỉ cập nhật vùng ảnh hưởng;
 ba estimator sklearn không có insert/delete nên adapter cập nhật tập điểm rồi fit lại toàn bộ ở từng step.
 DBSCAN dùng Eps/MinPts trong params.json; HDBSCAN dùng min_cluster_size=min_samples=MinPts và EOM;
-OPTICS dùng min_samples=MinPts, xi=0.05 và cluster_method='xi'. OPTICS/HDBSCAN có ngữ nghĩa tham số riêng, không dùng Eps DBSCAN.
+OPTICS dùng min_samples=MinPts, eps=Eps và cluster_method='dbscan'; max_eps=Eps+1e-6 để trích cụm tại cùng ngưỡng.
+HDBSCAN có tham số phân cấp riêng; OPTICS vẫn tính thứ tự reachability trước khi trích cụm kiểu DBSCAN.
 CSV repeats có một dòng cho mỗi stream/phương pháp/lượt chạy; CSV runs lưu từng step/lượt; CSV summary tổng hợp median/mean/std/min/max thời gian qua các lượt.
 Các CSV có cả cấu hình tham số, số cụm/noise, ARI trung bình/cuối và tỷ lệ noise khớp Incremental DBSCAN OOP.
 Thời gian phụ thuộc máy; kết quả trên prefix stream không đại diện toàn bộ 300 bước.

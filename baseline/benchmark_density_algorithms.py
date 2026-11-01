@@ -79,10 +79,10 @@ def _make_sklearn_estimator(method: str, eps: float, min_pts: int):
     if method == "sklearn OPTICS (re-fit)":
         return OPTICS(
             min_samples=min_pts,
-            max_eps=np.inf,
+            max_eps=eps + 1e-6,
             metric="euclidean",
-            cluster_method="xi",
-            xi=0.05,
+            cluster_method="dbscan",
+            eps=eps,
             n_jobs=1,
         )
     raise ValueError(f"Không phải estimator sklearn: {method}")
@@ -110,9 +110,9 @@ def _parameters(method: str, eps: float, min_pts: int, features: list[str]) -> s
         config = {
             **common,
             "min_samples": min_pts,
-            "max_eps": "inf",
-            "cluster_method": "xi",
-            "xi": 0.05,
+            "eps": eps,
+            "max_eps": eps + 1e-6,
+            "cluster_method": "dbscan",
             "n_jobs": 1,
             "update": "full refit",
         }
@@ -496,7 +496,8 @@ def main(argv=None) -> None:
         "Cả bốn phương pháp trong từng trường hợp nhận cùng D0, tọa độ, metric Euclidean và MinPts tham chiếu. Incremental DBSCAN chỉ cập nhật vùng ảnh hưởng;\n"
         "ba estimator sklearn không có insert/delete nên adapter cập nhật tập điểm rồi fit lại toàn bộ ở từng step.\n"
         "DBSCAN dùng Eps/MinPts trong params.json; HDBSCAN dùng min_cluster_size=min_samples=MinPts và EOM;\n"
-        "OPTICS dùng min_samples=MinPts, xi=0.05 và cluster_method='xi'. OPTICS/HDBSCAN có ngữ nghĩa tham số riêng, không dùng Eps DBSCAN.\n"
+        "OPTICS dùng min_samples=MinPts, eps=Eps và cluster_method='dbscan'; max_eps=Eps+1e-6 để trích cụm tại cùng ngưỡng.\n"
+        "HDBSCAN có tham số phân cấp riêng; OPTICS vẫn tính thứ tự reachability trước khi trích cụm kiểu DBSCAN.\n"
         "CSV repeats có một dòng cho mỗi stream/phương pháp/lượt chạy; CSV runs lưu từng step/lượt; CSV summary tổng hợp median/mean/std/min/max thời gian qua các lượt.\n"
         "Các CSV có cả cấu hình tham số, số cụm/noise, ARI trung bình/cuối và tỷ lệ noise khớp Incremental DBSCAN OOP.\n"
         "Thời gian phụ thuộc máy; kết quả trên prefix stream không đại diện toàn bộ 300 bước.\n",
