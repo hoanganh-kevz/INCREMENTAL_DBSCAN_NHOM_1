@@ -80,21 +80,18 @@ class IncrementalDBSCAN(DBSCAN):
         """
         return self.insert(point)
 
-    def _update_neighborhood_after_insert(self, new_point_id: int) -> Set[int]:
+    def _update_neighborhood_after_insert(self, new_point_id: int) -> None:
         """Cập nhật cache lân cận hai chiều sau khi thêm điểm.
 
         Args:
             new_point_id: ID của điểm vừa được thêm vào ``points``.
 
-        Returns:
-            Tập ID nằm trong epsilon-lân cận của điểm mới, bao gồm chính nó.
         """
         neighbor_ids = self._region_query(new_point_id)
         self.points[new_point_id].set_neighborhood(neighbor_ids)
 
         for neighbor_id in sorted(neighbor_ids - {new_point_id}):
             self.points[neighbor_id].neighbor_ids.add(new_point_id)
-        return neighbor_ids
 
     def _find_new_core_points(self, new_point_id: int) -> Set[int]:
         """Tìm điểm mới và điểm cũ vừa đạt ngưỡng ``min_pts``.

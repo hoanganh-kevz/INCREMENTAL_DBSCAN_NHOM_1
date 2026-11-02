@@ -139,11 +139,7 @@ class RefitDBSCAN:
         self._coords = np.delete(self._coords, pos, axis=0)
         self._refit()
 
-    # bí danh tạm thời, xem docstring lớp
-    fit_initial = fit
-    insert_point = insert
-    delete_point = delete
-
+    # Baseline dùng trực tiếp giao diện fit/insert/delete, không cần bí danh riêng.
     def get_labels(self):
         """Nhãn theo thứ tự id hiện tại (list int; -1 là nhiễu)."""
         return self._labels.tolist()
