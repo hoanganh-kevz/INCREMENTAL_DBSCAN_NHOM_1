@@ -1,4 +1,4 @@
-"""Đọc kịch bản toy và stream rồi chạy trên MỘT engine bất kỳ để lấy snapshot (không sklearn, không scipy).
+"""Đọc ví dụ cập nhật và stream rồi chạy trên MỘT engine bất kỳ để lấy snapshot (không sklearn, không scipy).
 
 Engine được truyền vào dưới dạng hàm tạo `engine_factory(eps, min_pts)` (RefitDBSCAN hôm nay, IncrementalDBSCAN của nhóm sau này), cần các
 phương thức fit(data), insert(coords) -> id, delete(id) và một snapshot lấy được bằng `snapshot_from_model`. Nhờ vậy mọi hình trong
@@ -17,8 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
 
 
-def list_scenarios(kind="toy", raw_dir=RAW):
-    """Tên các thư mục kịch bản toy, theo thứ tự tên."""
+def list_scenarios(kind="incremental_examples", raw_dir=RAW):
+    """Tên các thư mục ví dụ cập nhật, theo thứ tự tên."""
     return sorted(p.name for p in (Path(raw_dir) / kind).iterdir() if p.is_dir())
 
 

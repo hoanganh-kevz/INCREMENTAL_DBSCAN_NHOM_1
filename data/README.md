@@ -8,7 +8,7 @@ Toàn bộ dữ liệu dưới đây là mô phỏng. Phần demo chỉ dùng m�
 data/raw/
 ├── atm_txn_2d.csv       # tọa độ ATM 2D
 ├── card_stream/         # một luồng thẻ 5D: D0, các cập nhật, tham số
-└── toy/                 # 8 ví dụ nhỏ, gồm Merge và Split
+└── incremental_examples/ # 8 ví dụ nhỏ, gồm Merge và Split
 
 tests/fixtures/toy_edge/ # 6 ca biên chỉ phục vụ test
 ```
@@ -19,7 +19,7 @@ tests/fixtures/toy_edge/ # 6 ca biên chỉ phục vụ test
 |---|---|---|
 | ATM 2D | `raw/atm_txn_2d.csv` | Hình minh họa cụm trên mặt phẳng, chỉ dùng `x_km`, `y_km`. |
 | Luồng thẻ | `raw/card_stream/d0.csv`, `updates.csv`, `params.json` | Demo insert/delete và benchmark. D0 có 500 điểm, luồng có 300 bước. |
-| Toy | `raw/toy/` | Ví dụ nhỏ để theo dõi từng bước Merge, Split và các thao tác cơ bản. |
+| Ví dụ cập nhật | `raw/incremental_examples/` | Theo dõi từng bước Merge, Split và các thao tác cơ bản. |
 
 Benchmark 2D/3D/4D lấy lần lượt 2, 3, 4 đặc trưng từ cùng luồng thẻ 5D; không có các bộ CSV riêng cho từng số chiều. Notebook benchmark phát lại 20 cập nhật đầu. Các trường hợp edge chỉ nằm trong `tests/fixtures`, không thuộc dữ liệu demo.
 

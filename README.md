@@ -19,7 +19,7 @@ Toàn bộ dữ liệu là mô phỏng, không lấy từ ngân hàng thật.
 |---|---|
 | `data/raw/atm_txn_2d.csv` | Demo 2D; thuật toán dùng hai cột `x_km`, `y_km`. |
 | `data/raw/card_stream/` | Một luồng thẻ 5D: D0 có 500 điểm, log có 300 cập nhật. Benchmark phát lại 20 cập nhật đầu và lấy 2D/3D/4D từ cùng luồng. |
-| `data/raw/toy/` | Ví dụ nhỏ để giải thích insert/Merge và delete/Split từng bước. |
+| `data/raw/incremental_examples/` | Ví dụ nhỏ để giải thích insert/Merge và delete/Split từng bước. |
 
 Sáu ca biên phục vụ test nằm trong `tests/fixtures/toy_edge/`; chúng không được dùng như bộ dữ liệu demo.
 

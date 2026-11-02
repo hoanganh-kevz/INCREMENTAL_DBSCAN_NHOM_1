@@ -166,10 +166,10 @@ def run_equivalence_suite(
     include_streams: bool = True,
     max_stream_steps: int | None = None,
 ) -> pd.DataFrame:
-    """Compare fit and every selected update in toy scenarios and data streams."""
+    """Compare fit and every selected update in incremental examples and data streams."""
     rows: list[dict[str, Any]] = []
     if include_scenarios:
-        for kind in ("toy",):
+        for kind in ("incremental_examples",):
             for name in list_scenarios(kind, raw_dir):
                 rows.extend(_scenario_rows(kind, name, raw_dir))
     if include_streams:

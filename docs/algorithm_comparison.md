@@ -18,7 +18,7 @@ Bảng này phục vụ lựa chọn phương pháp và diễn giải kết qu�
 - `metric=Euclidean` được dùng xuyên suốt để bán kính có ý nghĩa nhất quán trong 2D và các không gian nhiều chiều. Với ATM, tọa độ có đơn vị km. Với luồng thẻ, các đặc trưng được chuẩn hóa trước để một đặc trưng có thang đo lớn không lấn át các đặc trưng khác.
 - Bản DBSCAN OOP nhận `eps` và `min_pts`; bản Incremental DBSCAN kế thừa đúng hai tham số này. Incremental không có thêm ngưỡng mật độ riêng: nó lưu cache lân cận theo ID để khi insert/delete chỉ xác định và cập nhật vùng bị ảnh hưởng. Insert có thể làm điểm thành core, hấp thụ noise hoặc nối cụm; delete có thể làm điểm mất tính core và tách cụm.
 
-Các cấu hình mẫu là `Eps=0.5 km, MinPts=4` cho minh họa ATM 2D, `Eps=1.1, MinPts=4` cho bộ toy R02, và `Eps=0.4, MinPts=6` cho benchmark luồng thẻ sau chuẩn hóa. Chúng phục vụ các dữ liệu và mục tiêu minh họa khác nhau, không được xem là cùng một cấu hình hay kết quả tối ưu. Benchmark lấy `Eps`/`MinPts` từ `data/raw/card_stream/params.json` rồi giữ nguyên cho cả bốn phương pháp để không tinh chỉnh riêng cho một thuật toán.
+Các cấu hình mẫu là `Eps=0.5 km, MinPts=4` cho minh họa ATM 2D, `Eps=1.1, MinPts=4` cho ví dụ R02, và `Eps=0.4, MinPts=6` cho benchmark luồng thẻ sau chuẩn hóa. Chúng phục vụ các dữ liệu và mục tiêu minh họa khác nhau, không được xem là cùng một cấu hình hay kết quả tối ưu. Benchmark lấy `Eps`/`MinPts` từ `data/raw/card_stream/params.json` rồi giữ nguyên cho cả bốn phương pháp để không tinh chỉnh riêng cho một thuật toán.
 
 ### Kiểm tra độ nhạy tham số trên D0
 
