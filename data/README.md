@@ -9,8 +9,6 @@ data/raw/
 ├── atm_txn_2d.csv       # tọa độ ATM 2D
 ├── card_stream/         # một luồng thẻ 5D: D0, các cập nhật, tham số
 └── incremental_examples/ # 8 ví dụ nhỏ, gồm Merge và Split
-
-tests/fixtures/toy_edge/ # 6 ca biên chỉ phục vụ test
 ```
 
 ## Dùng trong notebook
