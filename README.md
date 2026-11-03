@@ -21,7 +21,7 @@ Toàn bộ dữ liệu là mô phỏng, không lấy từ ngân hàng thật.
 | `data/raw/card_stream/` | Một luồng thẻ 5D: D0 có 500 điểm, log có 300 cập nhật. Benchmark phát lại 20 cập nhật đầu và lấy 2D/3D/4D từ cùng luồng. |
 | `data/raw/incremental_examples/` | Ví dụ nhỏ để giải thích insert/Merge và delete/Split từng bước. |
 
-Sáu ca biên phục vụ test nằm trong `tests/fixtures/toy_edge/`; chúng không được dùng như bộ dữ liệu demo.
+Các ca biên của INSERT và DELETE được kiểm tra trực tiếp trong `tests/test_incremental_insert.py` và `tests/test_incremental_delete.py`; không còn thư mục fixture test riêng.
 
 ## Bắt đầu nhanh
 
