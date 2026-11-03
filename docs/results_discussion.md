@@ -8,11 +8,11 @@ Các số dưới đây là trung vị ± độ lệch chuẩn của tổng th�
 
 | Số chiều | Incremental DBSCAN OOP | sklearn DBSCAN | sklearn HDBSCAN | sklearn OPTICS |
 |---:|---:|---:|---:|---:|
-| 2D | 16,52 ± 0,50 | 54,48 ± 3,78 | 87,41 ± 1,63 | 6.189,28 ± 165,49 |
-| 3D | 16,87 ± 0,14 | 64,82 ± 1,97 | 93,89 ± 1,78 | 6.150,01 ± 81,80 |
-| 4D | 18,60 ± 0,23 | 71,39 ± 0,97 | 100,45 ± 2,67 | 6.093,78 ± 27,38 |
+| 2D | 321,08 ± 25,53 | 136,72 ± 14,81 | 198,41 ± 18,84 | 14.571,56 ± 238,01 |
+| 3D | 288,78 ± 20,95 | 148,09 ± 6,57 | 194,18 ± 19,08 | 13.824,08 ± 373,53 |
+| 4D | 194,56 ± 9,98 | 152,03 ± 8,23 | 208,37 ± 22,12 | 13.485,85 ± 232,03 |
 
-Trong prefix được đo, Incremental DBSCAN có tổng thời gian cập nhật thấp hơn các estimator sklearn fit lại. Tuy nhiên, thời gian fit D0 ban đầu của bản OOP cao hơn sklearn DBSCAN; vì vậy không kết luận bản OOP nhanh hơn từ lúc bắt đầu huấn luyện.
+Trong prefix được đo, sklearn DBSCAN fit lại nhanh hơn bản OOP ở cả ba số chiều. HDBSCAN nhanh hơn ở 2D/3D, còn bản OOP thấp hơn một chút ở 4D; OPTICS chậm nhất. Thời gian fit D0 ban đầu của bản OOP cũng cao hơn các estimator sklearn. Vì vậy kết quả này chưa cho thấy lợi thế tốc độ của bản OOP trên prefix 20 thao tác.
 
 ## Chất lượng cụm và giới hạn
 

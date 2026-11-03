@@ -1,0 +1,55 @@
+\chapter{TỔNG QUAN ĐỀ TÀI}
+
+\section{Bối cảnh và lý do chọn đề tài}
+
+Trong thực tế, dữ liệu có thể thay đổi theo thời gian: có đối tượng mới được ghi nhận hoặc một số đối tượng cũ bị xóa. Nếu mỗi lần thay đổi đều chạy lại toàn bộ thuật toán gom cụm, chương trình sẽ phải xử lý lại cả những phần dữ liệu không bị ảnh hưởng.
+
+Vì vậy, nhóm chọn tìm hiểu Incremental DBSCAN. Thuật toán này dựa trên kết quả DBSCAN đã có để cập nhật các cụm sau khi dữ liệu thay đổi. Qua đề tài, nhóm muốn hiểu cách DBSCAN tạo cụm và cách cập nhật đó hoạt động trong các trường hợp thêm, xóa điểm.
+
+\section{Bài toán cần giải quyết}
+
+Đầu vào gồm một tập dữ liệu đã được gom cụm bằng DBSCAN. Sau đó, chương trình lần lượt thêm hoặc xóa một điểm. Với \(\varepsilon\), \(\mathrm{MinPts}\) và khoảng cách Euclidean được giữ cố định, chương trình cần cập nhật nhãn cụm, trạng thái lõi, biên và nhiễu cho dữ liệu mới.
+
+Kết quả cập nhật được đối chiếu với DBSCAN chạy lại từ đầu trên cùng tập dữ liệu. Nhờ vậy, nhóm kiểm tra được thuật toán cập nhật có cho kết quả tương ứng hay không.
+
+\section{Mục tiêu nghiên cứu}
+
+Mục tiêu của đề tài là tự cài đặt và tìm hiểu Incremental DBSCAN qua một chương trình có thể chạy, minh họa và kiểm tra. Các việc chính gồm:
+
+\begin{itemize}
+    \item Tìm hiểu cách DBSCAN xác định điểm lõi, điểm biên, điểm nhiễu và mở rộng cụm.
+    \item Tự cài DBSCAN và Incremental DBSCAN bằng Python theo hướng đối tượng. Phần thuật toán của nhóm không gọi DBSCAN từ thư viện; NumPy và Pandas được dùng để hỗ trợ dữ liệu, còn scikit-learn được dùng làm đối chứng.
+    \item Cài đặt hai thao tác cập nhật: thêm một điểm (INSERT) và xóa một điểm (DELETE).
+    \item Kiểm tra kết quả cập nhật bằng cách đối chiếu với DBSCAN chạy lại trên dữ liệu sau cập nhật.
+    \item Minh họa các bước trên ví dụ 2D và khảo sát dữ liệu nhiều chiều; đánh giá chất lượng cụm chủ yếu bằng Silhouette, đồng thời xem số cụm, tỷ lệ nhiễu và thời gian chạy.
+\end{itemize}
+
+\section{Phạm vi nghiên cứu}
+
+Đề tài tập trung vào một điểm được thêm hoặc xóa trong mỗi lần cập nhật. Trong các luồng thí nghiệm, nhóm giữ cố định khoảng cách Euclidean, \(\varepsilon\) và \(\mathrm{MinPts}\). Việc tự chọn lại tham số sau mỗi cập nhật và cập nhật nhiều điểm cùng lúc không nằm trong phạm vi thực hiện.
+
+Dữ liệu đều là dữ liệu mô phỏng, không phải giao dịch thật. Nhóm dùng một tập tọa độ ATM 2D để minh họa, một luồng giao dịch thẻ 5D cho các cập nhật và benchmark, cùng một số ví dụ nhỏ để trình bày từng trường hợp INSERT và DELETE. Các phép so sánh với DBSCAN, HDBSCAN và OPTICS của scikit-learn chỉ dùng phiên bản thư viện làm đối chứng; nhóm không tự cài lại ba đối chứng đó.
+
+\section{Phương pháp thực hiện}
+
+Nhóm thực hiện đề tài theo các bước sau:
+
+\begin{enumerate}
+    \item Đọc tài liệu về DBSCAN và Incremental DBSCAN, sau đó tóm tắt các bước cần cài đặt.
+    \item Chuẩn bị dữ liệu mô phỏng: tập 2D, luồng thẻ và các ví dụ nhỏ có kết quả kỳ vọng.
+    \item Cài đặt DBSCAN và các thao tác INSERT, DELETE theo hướng đối tượng.
+    \item Chạy ví dụ minh họa, đối chiếu kết quả cập nhật với DBSCAN chạy lại, rồi đánh giá chất lượng cụm và thời gian trên các cấu hình đã chọn.
+\end{enumerate}
+
+\section{Bố cục báo cáo}
+
+Báo cáo gồm sáu chương:
+
+\begin{itemize}
+    \item \textbf{Chương 1 – Tổng quan đề tài:} Giới thiệu bài toán, mục tiêu, phạm vi và cách nhóm thực hiện.
+    \item \textbf{Chương 2 – Cơ sở lý thuyết:} Trình bày DBSCAN, Incremental DBSCAN, các bước cập nhật và các thuật toán, chỉ số dùng để đối chiếu.
+    \item \textbf{Chương 3 – Tổng quan bộ dữ liệu:} Mô tả dữ liệu ATM, luồng thẻ và các ví dụ kiểm thử.
+    \item \textbf{Chương 4 – Tiền xử lý và cài đặt:} Trình bày việc chuẩn bị dữ liệu, tham số và cách tổ chức chương trình.
+    \item \textbf{Chương 5 – Thực nghiệm và đánh giá:} Minh họa các cập nhật, kiểm tra kết quả và phân tích các phép so sánh.
+    \item \textbf{Chương 6 – Kết luận và hướng phát triển:} Tóm tắt kết quả và nêu những điểm còn hạn chế.
+\end{itemize}

@@ -1,7 +1,7 @@
 """Cập nhật cụm DBSCAN cục bộ sau mỗi lần chèn hoặc xóa điểm."""
 
 from collections import deque
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Set, Union
 
 import numpy as np
 
@@ -9,14 +9,12 @@ from src.clustering.dbscan import DBSCAN
 from src.clustering.utils import ClusterUtils
 from src.core.data_point import DataPoint, PointType
 
-GraphNode = Tuple[str, int]
-
 
 class IncrementalDBSCAN(DBSCAN):
-    """Cập nhật DBSCAN theo UpdSeedIns và UpdSeedDel của Ester et al. (1998).
+    """Cập nhật DBSCAN theo thuật toán IncrementalDBSCAN của Ester et al. (1998).
 
-    Insert nhóm các thay đổi cụm do UpdSeedIns; delete kiểm tra Reduction,
-    Removal và Potential Split, dùng BFS từ UpdSeedDel khi cần tìm đường nối.
+    Insert mở rộng từ UpdSeedIns bằng stack; delete xử lý Removal, Reduction
+    và Potential Split bằng BFS bắt đầu từ UpdSeedDel.
     """
 
     def insert(self, point: Union[DataPoint, Iterable[float]]) -> int:
@@ -157,134 +155,109 @@ class IncrementalDBSCAN(DBSCAN):
             new_point.cluster_id = -1
             new_point.point_type = PointType.NOISE
 
-    def _build_insert_graph(
-        self,
-        new_core_ids: Set[int],
-        update_seed_ids: Set[int],
-    ) -> Dict[GraphNode, Set[GraphNode]]:
-        """Lập đồ thị rút gọn giữa core mới và các cụm cũ liên quan.
-
-        Args:
-            new_core_ids: ID các điểm vừa trở thành core.
-            update_seed_ids: ID các core thuộc ``UpdSeedIns``.
-
-        Returns:
-            Đồ thị vô hướng có đỉnh dạng ``("new", point_id)`` hoặc
-            ``("cluster", cluster_id)``.
-
-        Raises:
-            RuntimeError: Nếu một update seed cũ không có trạng thái core hợp lệ.
-        """
-        graph: Dict[GraphNode, Set[GraphNode]] = {
-            ("new", core_id): set() for core_id in new_core_ids
-        }
-        for core_id in sorted(new_core_ids):
-            core_node = ("new", core_id)
-            for neighbor_id in sorted(self.points[core_id].neighbor_ids):
-                if neighbor_id not in update_seed_ids:
-                    continue
-
-                if neighbor_id in new_core_ids:
-                    neighbor_node = ("new", neighbor_id)
-                else:
-                    old_core = self.points[neighbor_id]
-                    if old_core.point_type != PointType.CORE:
-                        raise RuntimeError("UpdSeedIns chứa điểm cũ không phải Core.")
-                    if old_core.cluster_id is None or old_core.cluster_id < 0:
-                        raise RuntimeError("Core cũ không có nhãn cụm hợp lệ.")
-                    neighbor_node = ("cluster", old_core.cluster_id)
-
-                if core_node != neighbor_node:
-                    graph[core_node].add(neighbor_node)
-                    graph.setdefault(neighbor_node, set()).add(core_node)
-        return graph
-
-    def _get_connected_insert_groups(
-        self,
-        graph: Dict[GraphNode, Set[GraphNode]],
-    ) -> List[Set[GraphNode]]:
-        """Tìm các thành phần liên thông trong đồ thị cập nhật insert.
-
-        Args:
-            graph: Đồ thị do :meth:`_build_insert_graph` tạo.
-
-        Returns:
-            Danh sách các tập đỉnh liên thông.
-        """
-        groups: List[Set[GraphNode]] = []
-        visited: Set[GraphNode] = set()
-        for start_node in sorted(graph):
-            if start_node in visited:
-                continue
-
-            group: Set[GraphNode] = set()
-            queue = deque([start_node])
-            visited.add(start_node)
-            while queue:
-                node = queue.popleft()
-                group.add(node)
-                for neighbor_node in sorted(graph[node]):
-                    if neighbor_node not in visited:
-                        visited.add(neighbor_node)
-                        queue.append(neighbor_node)
-            groups.append(group)
-        return groups
-
     def _expand_new_connections(
         self,
         new_core_ids: Set[int],
         update_seed_ids: Set[int],
     ) -> None:
-        """Cập nhật nhãn cụm, core và border sau khi phát sinh update seed.
+        """Mở rộng DBSCAN trong vùng bị ảnh hưởng, bắt đầu từ UpdSeedIns."""
+        components = self._get_insert_core_components(new_core_ids, update_seed_ids)
+        parents = list(range(len(components)))
 
-        Args:
-            new_core_ids: ID các điểm vừa trở thành core.
-            update_seed_ids: ID các core trong ``UpdSeedIns``.
-        """
-        graph = self._build_insert_graph(new_core_ids, update_seed_ids)
-        groups = self._get_connected_insert_groups(graph)
-        cluster_relabels, new_core_labels = self._get_insert_cluster_labels(groups)
+        def find(component_id: int) -> int:
+            while parents[component_id] != component_id:
+                parents[component_id] = parents[parents[component_id]]
+                component_id = parents[component_id]
+            return component_id
 
-        for source_id, target_id in cluster_relabels.items():
-            ClusterUtils.merge_clusters(self.points, source_id, target_id)
+        def union(first_id: int, second_id: int) -> None:
+            first_root = find(first_id)
+            second_root = find(second_id)
+            if first_root != second_root:
+                parents[max(first_root, second_root)] = min(first_root, second_root)
 
-        for core_id, cluster_id in new_core_labels.items():
-            core = self.points[core_id]
-            core.cluster_id = cluster_id
-            core.point_type = PointType.CORE
+        old_clusters_by_component: Dict[int, Set[int]] = {}
+        component_by_old_cluster: Dict[int, int] = {}
+        for component_id, component in enumerate(components):
+            old_cluster_ids: Set[int] = set()
+            for core_id in component:
+                previous_cluster_id = self.points[core_id].cluster_id
+                if previous_cluster_id is not None and previous_cluster_id >= 0:
+                    old_cluster_ids.add(previous_cluster_id)
 
-        self._relabel_borders_near_new_cores(new_core_ids)
+                old_core_seed_ids = (
+                    self.points[core_id].neighbor_ids & update_seed_ids
+                ) - new_core_ids
+                for seed_id in old_core_seed_ids:
+                    old_seed = self.points[seed_id]
+                    if (
+                        old_seed.is_core
+                        and old_seed.cluster_id is not None
+                        and old_seed.cluster_id >= 0
+                    ):
+                        old_cluster_ids.add(old_seed.cluster_id)
 
-    def _get_insert_cluster_labels(
-        self,
-        groups: List[Set[GraphNode]],
-    ) -> Tuple[Dict[int, int], Dict[int, int]]:
-        """Tính ánh xạ nhãn cụm cũ và nhãn cho core mới sau insert.
+            old_clusters_by_component[component_id] = old_cluster_ids
+            for cluster_id in sorted(old_cluster_ids):
+                previous_component = component_by_old_cluster.setdefault(
+                    cluster_id, component_id
+                )
+                # Các nhóm lõi mới cùng nối vào một cụm cũ thuộc cùng một cụm sau cập nhật.
+                union(component_id, previous_component)
 
-        Args:
-            groups: Các thành phần liên thông trong đồ thị insert.
-
-        Returns:
-            Cặp ``(cluster_relabels, new_core_labels)``.
-        """
-        cluster_relabels: Dict[int, int] = {}
-        new_core_labels: Dict[int, int] = {}
-        for group in groups:
-            old_cluster_ids = sorted(
-                node_id for kind, node_id in group if kind == "cluster"
+        core_ids_by_group: Dict[int, Set[int]] = {}
+        old_cluster_ids_by_group: Dict[int, Set[int]] = {}
+        for component_id, component in enumerate(components):
+            root_id = find(component_id)
+            core_ids_by_group.setdefault(root_id, set()).update(component)
+            old_cluster_ids_by_group.setdefault(root_id, set()).update(
+                old_clusters_by_component[component_id]
             )
+
+        for group_id in sorted(core_ids_by_group):
+            old_cluster_ids = old_cluster_ids_by_group[group_id]
             if old_cluster_ids:
-                target_cluster_id = old_cluster_ids[0]
-                for source_cluster_id in old_cluster_ids[1:]:
-                    cluster_relabels[source_cluster_id] = target_cluster_id
+                target_cluster_id = min(old_cluster_ids)
+                # Absorption giữ một cụm cũ; Merge hợp nhất các cụm cũ được nối.
+                for source_cluster_id in sorted(old_cluster_ids - {target_cluster_id}):
+                    ClusterUtils.merge_clusters(
+                        self.points, source_cluster_id, target_cluster_id
+                    )
             else:
+                # Creation: nhóm lõi mới chưa nối với cụm nào trước đó.
                 target_cluster_id = self._next_cluster_id
                 self._next_cluster_id += 1
 
-            for node_type, node_id in group:
-                if node_type == "new":
-                    new_core_labels[node_id] = target_cluster_id
-        return cluster_relabels, new_core_labels
+            for core_id in core_ids_by_group[group_id]:
+                self.points[core_id].cluster_id = target_cluster_id
+                self.points[core_id].point_type = PointType.CORE
+
+        self._relabel_borders_near_new_cores(new_core_ids)
+
+    def _get_insert_core_components(
+        self,
+        new_core_ids: Set[int],
+        update_seed_ids: Set[int],
+    ) -> List[Set[int]]:
+        """Duyệt các điểm NewCore trong UpdSeedIns bằng stack LIFO."""
+        remaining_ids = set(new_core_ids) & set(update_seed_ids)
+        components: List[Set[int]] = []
+        while remaining_ids:
+            start_id = min(remaining_ids)
+            remaining_ids.remove(start_id)
+            stack = [start_id]
+            component: Set[int] = set()
+            while stack:
+                current_id = stack.pop()
+                component.add(current_id)
+                for neighbor_id in sorted(
+                    self.points[current_id].neighbor_ids & remaining_ids,
+                    reverse=True,
+                ):
+                    remaining_ids.remove(neighbor_id)
+                    stack.append(neighbor_id)
+            components.append(component)
+        return components
 
     def _relabel_borders_near_new_cores(self, new_core_ids: Set[int]) -> None:
         """Gán nhãn cho border mới và noise được core mới hấp thụ.
@@ -387,7 +360,7 @@ class IncrementalDBSCAN(DBSCAN):
                 # Reduction: các seed trực tiếp nối nhau nên cụm không thể tách.
                 continue
 
-            components = self._find_delete_components(seed_ids)
+            components = self._find_delete_components(seed_ids, cluster_id)
             if components is None:
                 # BFS tìm được đường nối qua các Core trung gian: Non-split.
                 continue
@@ -453,56 +426,49 @@ class IncrementalDBSCAN(DBSCAN):
     def _find_delete_components(
         self,
         seed_ids: Set[int],
+        cluster_id: int,
     ) -> Optional[List[Set[int]]]:
-        """Dò BFS từ UpdSeedDel để quyết định Split hay Non-split.
+        """Chạy BFS song song từ UpdSeedDel để phân loại Split/Non-split.
 
-        Trả ``None`` khi tìm thấy đường Core nối toàn bộ seed. Nếu BFS từ seed
-        đầu cạn trước khi gặp các seed còn lại, trả các thành phần Core để gán
-        lại nhãn cụm sau khi tách.
+        Trả None khi các seed đã nối được với nhau; nếu không, trả các thành
+        phần lõi tìm được trong cụm cũ.
         """
-        first_seed = min(seed_ids)
-        visited = {first_seed}
-        queue = deque([first_seed])
+        parents = {seed_id: seed_id for seed_id in seed_ids}
+        owner = {seed_id: seed_id for seed_id in seed_ids}
+        queue = deque(sorted(seed_ids))
 
-        # Có thể dừng ngay khi tất cả seed đã gặp, như mô tả BFS cho Non-split.
-        while queue and not seed_ids <= visited:
+        def find(seed_id: int) -> int:
+            while parents[seed_id] != seed_id:
+                parents[seed_id] = parents[parents[seed_id]]
+                seed_id = parents[seed_id]
+            return seed_id
+
+        def union(first_seed: int, second_seed: int) -> None:
+            first_root = find(first_seed)
+            second_root = find(second_seed)
+            if first_root != second_root:
+                parents[max(first_root, second_root)] = min(first_root, second_root)
+
+        while queue:
             current_id = queue.popleft()
-            for neighbor_id in sorted(
-                neighbor_id
-                for neighbor_id in self.points[current_id].neighbor_ids
-                if self.points[neighbor_id].is_core
-            ):
-                if neighbor_id in visited:
+            current_seed = find(owner[current_id])
+            for neighbor_id in sorted(self.points[current_id].neighbor_ids):
+                neighbor = self.points[neighbor_id]
+                if not neighbor.is_core or neighbor.cluster_id != cluster_id:
                     continue
-                visited.add(neighbor_id)
-                queue.append(neighbor_id)
-                if seed_ids <= visited:
-                    return None
 
-        if seed_ids <= visited:
-            return None
+                if neighbor_id not in owner:
+                    owner[neighbor_id] = current_seed
+                    queue.append(neighbor_id)
+                else:
+                    union(current_seed, owner[neighbor_id])
+                    if len({find(seed_id) for seed_id in seed_ids}) == 1:
+                        return None
 
-        # BFS đầu tiên đã cạn và xác định một phần bị tách. Dò các phần seed còn lại.
-        components = [visited]
-        for start_id in sorted(seed_ids - visited):
-            if start_id in visited:
-                continue
-            component = {start_id}
-            queue = deque([start_id])
-            visited.add(start_id)
-            while queue:
-                current_id = queue.popleft()
-                for neighbor_id in sorted(
-                    neighbor_id
-                    for neighbor_id in self.points[current_id].neighbor_ids
-                    if self.points[neighbor_id].is_core
-                ):
-                    if neighbor_id not in visited:
-                        visited.add(neighbor_id)
-                        component.add(neighbor_id)
-                        queue.append(neighbor_id)
-            components.append(component)
-        return components
+        components_by_seed: Dict[int, Set[int]] = {}
+        for point_id, seed_id in owner.items():
+            components_by_seed.setdefault(find(seed_id), set()).add(point_id)
+        return list(components_by_seed.values())
 
     def _relabel_after_delete(self, affected_point_ids: Set[int]) -> None:
         """Đồng bộ border/noise và loại bỏ nhãn cụm không còn core.
