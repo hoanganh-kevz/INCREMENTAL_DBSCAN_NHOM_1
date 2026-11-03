@@ -8,9 +8,9 @@ Các số dưới đây là trung vị ± độ lệch chuẩn của tổng th�
 
 | Số chiều | Incremental DBSCAN OOP | sklearn DBSCAN | sklearn HDBSCAN | sklearn OPTICS |
 |---:|---:|---:|---:|---:|
-| 2D | 31,42 ± 0,61 | 58,05 ± 1,41 | 88,79 ± 3,93 | 6.244,42 ± 46,72 |
-| 3D | 34,03 ± 0,50 | 66,86 ± 2,66 | 95,17 ± 3,47 | 6.304,60 ± 32,60 |
-| 4D | 53,12 ± 1,07 | 78,98 ± 4,64 | 104,79 ± 5,13 | 6.295,19 ± 28,36 |
+| 2D | 16,52 ± 0,50 | 54,48 ± 3,78 | 87,41 ± 1,63 | 6.189,28 ± 165,49 |
+| 3D | 16,87 ± 0,14 | 64,82 ± 1,97 | 93,89 ± 1,78 | 6.150,01 ± 81,80 |
+| 4D | 18,60 ± 0,23 | 71,39 ± 0,97 | 100,45 ± 2,67 | 6.093,78 ± 27,38 |
 
 Trong prefix được đo, Incremental DBSCAN có tổng thời gian cập nhật thấp hơn các estimator sklearn fit lại. Tuy nhiên, thời gian fit D0 ban đầu của bản OOP cao hơn sklearn DBSCAN; vì vậy không kết luận bản OOP nhanh hơn từ lúc bắt đầu huấn luyện.
 

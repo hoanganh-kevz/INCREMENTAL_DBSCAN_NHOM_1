@@ -98,3 +98,11 @@ Sơ đồ chỉ thể hiện các class Python đang có trong source. Đánh gi
 Phần đánh giá dùng các hàm trong `src/evaluation/metrics.py` và `src/evaluation/evaluation_library.py`. Việc chạy kịch bản được chia giữa `IncrementalEngine`, các hàm trong `src/visualization/scenarios.py` và notebook benchmark. Không thêm lớp bao bọc riêng vì hiện chưa cần một bộ đánh giá hay bộ điều phối có trạng thái dùng chung.
 
 DBSCAN và IncrementalDBSCAN dùng chung `fit()` và `get_labels()`; lớp incremental bổ sung thao tác insert/delete. Mỗi class chịu trách nhiệm cho một phần riêng, còn phần đánh giá và chạy kịch bản được tổ chức theo module hàm.
+
+## Đối chiếu thuật toán với paper
+
+- DBSCAN nền dùng điều kiện `distance <= Eps`, tính cả điểm đang xét trong lân cận và mở rộng cụm bằng danh sách seeds FIFO, tương ứng giả mã DBSCAN 1996 dùng `first`/`append`. Paper Incremental DBSCAN 1998 có một hình phác thảo DBSCAN dùng stack; phần gán nguồn của nhóm lấy định nghĩa và DBSCAN nền từ paper 1996.
+- Insert tính các điểm vừa thành Core và `UpdSeedIns`. Đồ thị trong code là cách biểu diễn các Core mới và cụm cũ được `UpdSeedIns` nối tới; các thành phần liên thông tương ứng các trường hợp tạo cụm, hấp thụ hoặc gộp cụm trong paper 1998.
+- Delete tính `UpdSeedDel` từ điểm vừa mất tính Core. Nếu tập seed rỗng thì xử lý Removal; nếu các seed trực tiếp nối nhau thì Reduction; các trường hợp còn lại chạy BFS để tìm đường nối qua Core trung gian. Nếu BFS không nối được các seed thì xác định các thành phần sau tách và cập nhật Border/Noise.
+
+Paper 1998 trình bày các định nghĩa và trường hợp cập nhật, không cung cấp mã nguồn Python/OOP hoàn chỉnh. Vì vậy các class, cache lân cận và đồ thị là cách hiện thực hóa trong dự án; phần cần đối chiếu là tiêu chí mật độ, tập seed và logic cập nhật cụm.
