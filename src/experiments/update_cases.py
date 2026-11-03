@@ -62,8 +62,11 @@ def changed_points(before, after):
 
 
 def delete_scope(before, point_id, eps):
-    """Số điểm IncrementalDBSCAN.delete_point của nhóm gán lại nhãn: mọi điểm thuộc các cụm có điểm nằm trong Eps của điểm bị xóa
-    (kể cả cụm của chính nó). Cách cài này đi lại cả cụm bị ảnh hưởng chứ không chỉ quanh UpdSeed."""
+    """Ước lượng số điểm thuộc cụm cũ giao với vùng ảnh hưởng của điểm xóa.
+
+    Đây là quy mô cụm có thể bị tác động theo định nghĩa Affected Objects của
+    paper, không phải số điểm thực tế được duyệt trong bước BFS UpdSeedDel.
+    """
     labels = dict(zip(_ids(before), np.asarray(before["labels"]).tolist()))
     near = within_eps(before, _coords_of(before, [point_id]), eps)
     touched = {labels[i] for i in near if labels[i] >= 0}
@@ -71,9 +74,9 @@ def delete_scope(before, point_id, eps):
 
 
 def describe_update(before, after, op, point_id, eps):
-    """Một dòng mô tả update: n_before, n_after, n_updseed, n_core_changed, n_changed (không tính điểm vừa chèn hay xóa), n_reprocessed (chỉ delete)."""
+    """Tóm tắt kích thước dữ liệu, UpdSeed, điểm đổi và vùng có thể bị ảnh hưởng."""
     seeds, changed_core = update_seeds(before, after, op, eps)
     row = {"n_before": len(_ids(before)), "n_after": len(_ids(after)), "n_updseed": len(seeds), "n_core_changed": len(changed_core),
            "n_changed": len(changed_points(before, after) - {point_id})}
-    row["n_reprocessed"] = delete_scope(before, point_id, eps) if op == "delete" else np.nan
+    row["n_potentially_affected"] = delete_scope(before, point_id, eps) if op == "delete" else np.nan
     return row

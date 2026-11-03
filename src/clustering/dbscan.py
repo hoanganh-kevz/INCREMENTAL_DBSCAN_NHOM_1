@@ -8,7 +8,10 @@ from src.core.distance import DistanceMetric
 
 
 class DBSCAN:
-    """DBSCAN tự cài đặt, lưu cache lân cận để hỗ trợ cập nhật cục bộ.
+    """DBSCAN tự cài đặt theo giả mã DBSCAN 1996.
+
+    Dùng hàng đợi FIFO cho danh sách seeds như giả mã nguồn gốc mô tả bằng
+    ``first``/``append``; cache lân cận được giữ để lớp IncrementalDBSCAN dùng.
 
     Attributes:
         points: Các điểm, được tra cứu theo ID ổn định.

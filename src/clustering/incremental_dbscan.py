@@ -13,7 +13,11 @@ GraphNode = Tuple[str, int]
 
 
 class IncrementalDBSCAN(DBSCAN):
-    """DBSCAN hỗ trợ chèn và xóa điểm mà không chạy lại ``fit`` toàn bộ."""
+    """Cập nhật DBSCAN theo UpdSeedIns và UpdSeedDel của Ester et al. (1998).
+
+    Insert nhóm các thay đổi cụm do UpdSeedIns; delete kiểm tra Reduction,
+    Removal và Potential Split, dùng BFS từ UpdSeedDel khi cần tìm đường nối.
+    """
 
     def insert(self, point: Union[DataPoint, Iterable[float]]) -> int:
         """Chèn một điểm và cập nhật các điểm nằm trong vùng ảnh hưởng.
@@ -315,7 +319,7 @@ class IncrementalDBSCAN(DBSCAN):
             border.point_type = PointType.BORDER
 
     def delete(self, point_id: int) -> None:
-        """Xóa điểm theo ID và phân cụm lại các vùng có thể bị ảnh hưởng.
+        """Xóa một điểm và cập nhật cụm theo tập ``UpdSeedDel``.
 
         Args:
             point_id: ID ổn định của điểm cần xóa.
@@ -326,45 +330,80 @@ class IncrementalDBSCAN(DBSCAN):
         if point_id not in self.points:
             raise ValueError(f"Không tìm thấy DataPoint có ID = {point_id}")
 
-        deleted_point = self.points.pop(point_id)
-        affected_cluster_ids = self._find_affected_cluster_ids(deleted_point)
+        deleted_point = self.points[point_id]
+        deleted_neighbor_ids = deleted_point.neighbor_ids - {point_id}
+        lost_core_ids = {point_id} if deleted_point.is_core else set()
+
+        # Một Core kề p mất tính Core khi số láng giềng trước khi xóa đúng MinPts.
+        for neighbor_id in deleted_neighbor_ids:
+            neighbor = self.points[neighbor_id]
+            if neighbor.is_core and neighbor.neighbor_count == self.min_pts:
+                lost_core_ids.add(neighbor_id)
+
+        affected_cluster_ids = {
+            self.points[lost_id].cluster_id
+            for lost_id in lost_core_ids - {point_id}
+            if self.points[lost_id].cluster_id is not None
+            and self.points[lost_id].cluster_id >= 0
+        }
+        if (
+            deleted_point.is_core
+            and deleted_point.cluster_id is not None
+            and deleted_point.cluster_id >= 0
+        ):
+            affected_cluster_ids.add(deleted_point.cluster_id)
+
+        self.points.pop(point_id)
         self._remove_from_neighbor_caches(point_id, deleted_point.neighbor_ids)
-        if not affected_cluster_ids:
+        if not lost_core_ids:
             return
 
-        affected_point_ids = self._find_affected_point_ids(affected_cluster_ids)
-        previous_cluster_by_point = {
-            affected_id: self.points[affected_id].cluster_id
-            for affected_id in affected_point_ids
-        }
-        self._reset_affected_points(affected_point_ids)
+        for lost_id in lost_core_ids - {point_id}:
+            self.points[lost_id].point_type = PointType.BORDER
 
-        components = self._find_core_components(affected_point_ids)
-        self._assign_component_cluster_ids(components, previous_cluster_by_point)
+        update_seed_ids = self._get_delete_update_seeds(deleted_point, lost_core_ids)
+        seeds_by_cluster: Dict[int, Set[int]] = {}
+        for seed_id in update_seed_ids:
+            cluster_id = self.points[seed_id].cluster_id
+            if cluster_id is not None and cluster_id >= 0:
+                seeds_by_cluster.setdefault(cluster_id, set()).add(seed_id)
+
+        # N_Eps(p) và N_Eps(q') là các điểm có thể đổi Core/Border/Noise.
+        affected_point_ids = set(deleted_neighbor_ids)
+        for lost_id in lost_core_ids:
+            if lost_id == point_id:
+                affected_point_ids.update(deleted_neighbor_ids)
+            else:
+                affected_point_ids.add(lost_id)
+                affected_point_ids.update(self.points[lost_id].neighbor_ids)
+
+        for cluster_id in sorted(affected_cluster_ids):
+            seed_ids = seeds_by_cluster.get(cluster_id, set())
+            if not seed_ids:
+                # Removal: không còn Core nào trong UpdSeedDel.
+                continue
+
+            if self._are_seeds_directly_connected(seed_ids):
+                # Reduction: các seed trực tiếp nối nhau nên cụm không thể tách.
+                continue
+
+            components = self._find_delete_components(seed_ids)
+            if components is None:
+                # BFS tìm được đường nối qua các Core trung gian: Non-split.
+                continue
+
+            # Potential Split: giữ ID cũ cho thành phần đầu tiên, cấp ID mới
+            # cho các thành phần còn lại.
+            components.sort(key=min)
+            for index, component in enumerate(components):
+                new_cluster_id = cluster_id if index == 0 else self._next_cluster_id
+                if index > 0:
+                    self._next_cluster_id += 1
+                for core_id in component:
+                    self.points[core_id].cluster_id = new_cluster_id
+                    affected_point_ids.update(self.points[core_id].neighbor_ids)
+
         self._relabel_after_delete(affected_point_ids)
-
-    def _find_affected_cluster_ids(self, deleted_point: DataPoint) -> Set[int]:
-        """Lấy các cụm cũ có điểm nằm trong lân cận điểm bị xóa.
-
-        Args:
-            deleted_point: Điểm đã được gỡ khỏi mô hình nhưng còn cache lân cận.
-
-        Returns:
-            ID các cụm cần cập nhật sau khi xóa.
-        """
-        affected_cluster_ids: Set[int] = set()
-        for neighbor_id in deleted_point.neighbor_ids:
-            neighbor = self.points.get(neighbor_id)
-            if (
-                neighbor is not None
-                and neighbor.cluster_id is not None
-                and neighbor.cluster_id >= 0
-            ):
-                affected_cluster_ids.add(neighbor.cluster_id)
-
-        if deleted_point.cluster_id is not None and deleted_point.cluster_id >= 0:
-            affected_cluster_ids.add(deleted_point.cluster_id)
-        return affected_cluster_ids
 
     def _remove_from_neighbor_caches(
         self,
@@ -382,102 +421,88 @@ class IncrementalDBSCAN(DBSCAN):
             if neighbor is not None:
                 neighbor.neighbor_ids.discard(deleted_point_id)
 
-    def _find_affected_point_ids(self, cluster_ids: Set[int]) -> Set[int]:
-        """Lấy thành viên của những cụm cần tái cấu trúc.
-
-        Args:
-            cluster_ids: ID các cụm chịu ảnh hưởng.
-
-        Returns:
-            ID điểm hiện thuộc các cụm đã cho.
-        """
-        return {
-            point_id
-            for point_id, point in self.points.items()
-            if point.cluster_id in cluster_ids
-        }
-
-    def _reset_affected_points(self, point_ids: Set[int]) -> None:
-        """Xóa nhãn cũ và xác định lại core/border theo cache đã cập nhật.
-
-        Args:
-            point_ids: ID các điểm thuộc cụm đang tái cấu trúc.
-        """
-        for point_id in point_ids:
-            point = self.points[point_id]
-            point.cluster_id = None
-            point.point_type = (
-                PointType.CORE
-                if point.neighbor_count >= self.min_pts
-                else PointType.BORDER
+    def _get_delete_update_seeds(
+        self,
+        deleted_point: DataPoint,
+        lost_core_ids: Set[int],
+    ) -> Set[int]:
+        """Tính UpdSeedDel từ các Core vừa mất tính Core."""
+        update_seed_ids: Set[int] = set()
+        for lost_core_id in lost_core_ids:
+            neighbor_ids = (
+                deleted_point.neighbor_ids - {deleted_point.id}
+                if lost_core_id == deleted_point.id
+                else self.points[lost_core_id].neighbor_ids
             )
+            update_seed_ids.update(
+                neighbor_id
+                for neighbor_id in neighbor_ids
+                if self.points[neighbor_id].is_core
+            )
+        return update_seed_ids
 
-    def _find_core_components(self, point_ids: Set[int]) -> List[Set[int]]:
-        """Tìm các thành phần liên thông của core trong vùng bị ảnh hưởng.
+    def _are_seeds_directly_connected(self, seed_ids: Set[int]) -> bool:
+        """Kiểm tra trường hợp Reduction: các seed đôi một kề trực tiếp."""
+        ordered_seeds = sorted(seed_ids)
+        return all(
+            second_id in self.points[first_id].neighbor_ids
+            for index, first_id in enumerate(ordered_seeds)
+            for second_id in ordered_seeds[index + 1 :]
+        )
 
-        Args:
-            point_ids: ID điểm thuộc các cụm cần tái cấu trúc.
+    def _find_delete_components(
+        self,
+        seed_ids: Set[int],
+    ) -> Optional[List[Set[int]]]:
+        """Dò BFS từ UpdSeedDel để quyết định Split hay Non-split.
 
-        Returns:
-            Các nhóm core còn kết nối với nhau; mỗi nhóm tương ứng một cụm.
+        Trả ``None`` khi tìm thấy đường Core nối toàn bộ seed. Nếu BFS từ seed
+        đầu cạn trước khi gặp các seed còn lại, trả các thành phần Core để gán
+        lại nhãn cụm sau khi tách.
         """
-        core_ids = {
-            point_id for point_id in point_ids if self.points[point_id].is_core
-        }
-        components: List[Set[int]] = []
-        visited: Set[int] = set()
+        first_seed = min(seed_ids)
+        visited = {first_seed}
+        queue = deque([first_seed])
 
-        for start_id in sorted(core_ids):
+        # Có thể dừng ngay khi tất cả seed đã gặp, như mô tả BFS cho Non-split.
+        while queue and not seed_ids <= visited:
+            current_id = queue.popleft()
+            for neighbor_id in sorted(
+                neighbor_id
+                for neighbor_id in self.points[current_id].neighbor_ids
+                if self.points[neighbor_id].is_core
+            ):
+                if neighbor_id in visited:
+                    continue
+                visited.add(neighbor_id)
+                queue.append(neighbor_id)
+                if seed_ids <= visited:
+                    return None
+
+        if seed_ids <= visited:
+            return None
+
+        # BFS đầu tiên đã cạn và xác định một phần bị tách. Dò các phần seed còn lại.
+        components = [visited]
+        for start_id in sorted(seed_ids - visited):
             if start_id in visited:
                 continue
-
-            component: Set[int] = set()
+            component = {start_id}
             queue = deque([start_id])
             visited.add(start_id)
             while queue:
                 current_id = queue.popleft()
-                component.add(current_id)
-                core_neighbors = self.points[current_id].neighbor_ids & core_ids
-                for neighbor_id in sorted(core_neighbors):
+                for neighbor_id in sorted(
+                    neighbor_id
+                    for neighbor_id in self.points[current_id].neighbor_ids
+                    if self.points[neighbor_id].is_core
+                ):
                     if neighbor_id not in visited:
                         visited.add(neighbor_id)
+                        component.add(neighbor_id)
                         queue.append(neighbor_id)
             components.append(component)
         return components
-
-    def _assign_component_cluster_ids(
-        self,
-        components: List[Set[int]],
-        previous_cluster_by_point: Dict[int, Optional[int]],
-    ) -> None:
-        """Giữ nhãn cũ khi có thể và cấp nhãn mới cho thành phần tách ra.
-
-        Args:
-            components: Các thành phần core còn lại sau xóa.
-            previous_cluster_by_point: Nhãn trước khi tái cấu trúc theo ID điểm.
-        """
-        used_cluster_ids: Set[int] = set()
-        for component in components:
-            previous_cluster_ids: Set[int] = set()
-            for point_id in component:
-                previous_cluster_id = previous_cluster_by_point[point_id]
-                if previous_cluster_id is not None and previous_cluster_id >= 0:
-                    previous_cluster_ids.add(previous_cluster_id)
-            cluster_id = next(
-                (
-                    old_cluster_id
-                    for old_cluster_id in sorted(previous_cluster_ids)
-                    if old_cluster_id not in used_cluster_ids
-                ),
-                None,
-            )
-            if cluster_id is None:
-                cluster_id = self._next_cluster_id
-                self._next_cluster_id += 1
-
-            used_cluster_ids.add(cluster_id)
-            for point_id in component:
-                self.points[point_id].cluster_id = cluster_id
 
     def _relabel_after_delete(self, affected_point_ids: Set[int]) -> None:
         """Đồng bộ border/noise và loại bỏ nhãn cụm không còn core.
