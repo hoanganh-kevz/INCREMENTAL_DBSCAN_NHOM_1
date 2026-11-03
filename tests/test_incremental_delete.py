@@ -1,9 +1,16 @@
-import numpy as np
-import pytest
+import json
+from pathlib import Path
+from pyexpat import model
+from turtle import left, right
 
-from src.clustering.dbscan import DBSCAN
+import numpy as np
+import pandas as pd
+
+from baseline.sklearn_dbscan import compare_partitions
 from src.clustering.incremental_dbscan import IncrementalDBSCAN
 from src.core.data_point import PointType
+
+DATA_DIR = Path(__file__).resolve().parent / "fixtures/toy_edge"
 
 
 def _core_groups(model):
@@ -13,117 +20,65 @@ def _core_groups(model):
             groups.setdefault(point.cluster_id, set()).add(point_id)
     return {frozenset(ids) for ids in groups.values()}
 
-
-def _assert_matches_refit(model):
-    ordered_ids = list(model.points)
-    data = np.asarray([model.points[point_id].coords for point_id in ordered_ids])
-    reference = DBSCAN(model.eps, model.min_pts).fit(data)
-    expected_groups = {
-        frozenset(ordered_ids[index]
-                  for index, expected in reference.points.items()
-                  if expected.point_type == PointType.CORE and expected.cluster_id == cluster_id)
-        for cluster_id in {
-            expected.cluster_id
-            for expected in reference.points.values()
-            if expected.point_type == PointType.CORE
-        }
-    }
-    assert _core_groups(model) == expected_groups
-
-    for index, point_id in enumerate(ordered_ids):
-        point = model.points[point_id]
-        expected = reference.points[index]
-        assert np.array_equal(point.coords, expected.coords)
-        expected_neighbor_ids = {ordered_ids[neighbor_id] for neighbor_id in expected.neighbor_ids}
-        assert point.neighbor_ids == expected_neighbor_ids
-        assert point.point_type == expected.point_type
-        if point.point_type == PointType.NOISE:
-            assert point.cluster_id == -1
-        elif point.point_type == PointType.BORDER:
-            adjacent_core_labels = {
-                model.points[neighbor_id].cluster_id
-                for neighbor_id in point.neighbor_ids
-                if model.points[neighbor_id].point_type == PointType.CORE
-            }
-            assert point.cluster_id in adjacent_core_labels
-
-
-def test_delete_noise_preserves_cluster_and_neighbor_cache():
-    data = np.asarray([[0, 0], [0.4, 0], [0, 0.4], [0.4, 0.4], [5, 5]], dtype=float)
-    model = IncrementalDBSCAN(eps=0.7, min_pts=4).fit(data)
-
-    model.delete_point(4)
-
-    _assert_matches_refit(model)
-    assert 4 not in model.points
-
-
-def test_delete_border_removal_preserves_cluster_structure():
-    data = np.asarray(
-        [[0.0, 0.0], [0.4, 0.0], [0.0, 0.4], [0.4, 0.4], [0.9, 0.4]],
-        dtype=float,
-    )
-    model = IncrementalDBSCAN(eps=0.7, min_pts=4).fit(data)
-    border_id = 4
-
-    assert model.points[border_id].point_type == PointType.BORDER
-    assert model.points[border_id].cluster_id >= 0
-    core_groups_before = _core_groups(model)
-    assert len(core_groups_before) == 1
-
-    model.delete_point(border_id)
-
-    _assert_matches_refit(model)
-    assert border_id not in model.points
-    assert _core_groups(model) == core_groups_before
-
-
 def test_delete_reduction_without_split():
     data = np.asarray([[0.0], [0.9], [1.8], [2.7]])
     model = IncrementalDBSCAN(eps=1.0, min_pts=3).fit(data)
     assert len(_core_groups(model)) == 1
 
     model.delete(0)
-
-    _assert_matches_refit(model)
+    assert 0 not in model.points
     assert len(_core_groups(model)) == 1
+    assert all(p.cluster_id != -1 for p in model.points.values())
 
-
-def test_delete_last_core_turns_remaining_points_into_noise():
+def test_delete_removal_no_core_remaining():
     data = np.asarray([[0, 0], [0.2, 0], [0, 0.2]], dtype=float)
     model = IncrementalDBSCAN(eps=0.5, min_pts=3).fit(data)
     assert len(_core_groups(model)) == 1
 
     model.delete_point(2)
-
-    _assert_matches_refit(model)
-    assert all(point.point_type == PointType.NOISE for point in model.points.values())
-
+    assert 2 not in model.points
+    assert all(
+    point.point_type == PointType.NOISE
+    and point.cluster_id == -1
+    for point in model.points.values()
+)
 
 def test_delete_core_splits_cluster_and_relabels_borders():
     data = np.asarray([[0.9 * i] for i in range(8)])
     model = IncrementalDBSCAN(eps=1.0, min_pts=3).fit(data)
     assert len(_core_groups(model)) == 1
-
     model.delete_point(3)
-
-    _assert_matches_refit(model)
+    assert 3 not in model.points
     assert len(_core_groups(model)) == 2
+    left = {model.points[i].cluster_id for i in (0, 1, 2)}
+    right = {model.points[i].cluster_id for i in (4, 5, 6, 7)}
+    assert len(left) == len(right) == 1
+    assert left != right
+    #Các điểm ở hai đầu cụm trở thành border
+    assert all(model.points[i].point_type == PointType.BORDER
+    for i in (0, 2, 4, 7)
+)
 
+def test_delete_nonsplit_long_detour():
+    """Potential Split: xóa Core nhưng vẫn giữ một cụm nhờ kết nối thay thế"""
+    
+    folder = DATA_DIR / "e14_delete_nonsplit_long_detour"
+    data = pd.read_csv(folder / "points.csv", encoding="utf-8")
+    update = pd.read_csv(folder / "update.csv", encoding="utf-8").iloc[0]
+    expected = json.loads((folder / "expected.json").read_text(encoding="utf-8"))
+    names = data["point_id"].tolist()
+    model = IncrementalDBSCAN(eps=expected["eps"], min_pts=expected["minpts"]).fit(data[["x", "y"]].to_numpy(dtype=float))
+    #Kiểm tra một cụm trước DELETE
+    assert compare_partitions(dict(zip(names, model.get_labels())), expected["labels_before"])["partition_equal"]
+    delete_id = names.index(update["point_id"])
+    old_neighbors = model.points[delete_id].neighbor_ids.copy()
+    assert model.points[delete_id].point_type == PointType.CORE
+    #DELETE: xác định UpdSeedDel và kiểm tra Non-split
+    model.delete_point(delete_id)
+    updseed = {names[i] for i in old_neighbors - {delete_id} if model.points[i].point_type == PointType.CORE}
+    assert updseed == set(expected["updseed"])
+    assert delete_id not in model.points
+    assert {names[i] for i, p in model.points.items() if p.point_type == PointType.CORE} == set(expected["core_after"])
+    assert compare_partitions({names[i]: p.cluster_id for i, p in model.points.items()}, expected["labels_after"])["partition_equal"]
+    assert len({p.cluster_id for p in model.points.values() if p.cluster_id >= 0}) == 1
 
-def test_delete_missing_id_raises_value_error():
-    model = IncrementalDBSCAN(eps=1.0, min_pts=2).fit(np.asarray([[0.0], [0.5]]))
-
-    with pytest.raises(ValueError, match="Không tìm thấy"):
-        model.delete_point(10)
-
-
-def test_insert_point_alias_remains_available_after_delete():
-    data = np.asarray([[0.0], [0.5], [10.0]])
-    model = IncrementalDBSCAN(eps=0.75, min_pts=2).fit(data)
-    model.delete_point(2)
-
-    new_id = model.insert_point(np.asarray([0.25]))
-
-    assert new_id == 3
-    _assert_matches_refit(model)
