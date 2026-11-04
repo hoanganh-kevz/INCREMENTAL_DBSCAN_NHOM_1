@@ -20,7 +20,7 @@ Pandas & Đọc CSV và quản lý dữ liệu dạng bảng. \\
 Matplotlib & Trực quan hóa cụm, điểm lõi, điểm biên và điểm nhiễu. \\
 scikit-learn & Chạy DBSCAN, HDBSCAN và OPTICS làm đối chứng; không được gọi trong mã thuật toán tự cài. \\
 Jupyter & Trình bày demo từng bước và notebook so sánh thuật toán. \\
-pytest & Chạy kiểm thử tự động cho khoảng cách, INSERT/DELETE, xử lý nhãn cụm và đánh giá. \\
+pytest & Chạy kiểm thử tự động cho các thao tác INSERT/DELETE, bao gồm các trường hợp cập nhật cụm, trạng thái lõi/biên/nhiễu và tính nhất quán của kết quả phân cụm. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -82,14 +82,18 @@ Eps là bán kính xác định lân cận; MinPts là số điểm tối thiể
 \toprule
 \textbf{Dữ liệu / mục đích} & \textbf{Eps} & \textbf{MinPts} & \textbf{Lý do sử dụng} \\
 \midrule
-Ví dụ cập nhật 2D & 1,1 & 4 & Được chọn để tạo rõ các trường hợp Noise, Creation, Absorption, Merge, Removal, Reduction và Split. \\
+Ví dụ cập nhật 2D & 1,1 & 4 & Được chọn để tạo rõ các trường hợp Noise, Creation, Absorption, Merge, Removal, Reduction, Split và Non-Split \\
 ATM 2D & 0,5 km & 4 & Dùng với tọa độ tính bằng kilômét để minh họa các cụm trên mặt phẳng. \\
 Luồng thẻ 2D/3D/4D & 0,4 sau chuẩn hóa & 6 & Lấy từ \texttt{params.json} và giữ nguyên giữa các thuật toán, số chiều và các lượt benchmark. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Trên D0 đã chuẩn hóa, nhóm thử DBSCAN OOP với Eps = 0,25; 0,30; 0,35; 0,40; 0,45; 0,50; 0,60 và MinPts = 4, 6, 8, rồi xem Silhouette cùng số cụm và tỷ lệ nhiễu. Eps = 0,25 có Silhouette nhỉnh hơn nhưng tạo nhiều nhiễu hơn; Eps = 0,60 làm các nhóm nhập lại ở lát 2D và 3D. Trong vùng Eps từ 0,35 đến 0,50, kết quả ổn định hơn. Khi giữ Eps = 0,40, cả ba giá trị MinPts đều cho kết quả gần nhau; nhóm chọn MinPts = 6 làm mức tham chiếu ở giữa. Vì vậy, Eps = 0,40 và MinPts = 6 là cấu hình phù hợp với dữ liệu mô phỏng đang dùng, không phải bộ tham số tối ưu cho mọi dữ liệu.
+Trên tập \(D_0\) gồm 500 điểm đã chuẩn hóa, nhóm thử DBSCAN tự cài đặt với Eps = 0,25; 0,30; 0,35; 0,40; 0,45; 0,50; 0,60 và MinPts = 4, 6, 8. Kết quả được đánh giá dựa trên Silhouette, số cụm và tỷ lệ điểm nhiễu. 
+
+Với MinPts = 6, Eps = 0,25 cho Silhouette cao hơn một chút so với Eps = 0,40, nhưng tạo nhiều nhiễu hơn. Ngược lại, khi tăng Eps lên 0,60, số cụm trong cấu hình 2D và 3D giảm từ 3 xuống 2 do các nhóm được hợp nhất. Trong khoảng Eps từ 0,35 đến 0,50, kết quả phân cụm tương đối ổn định về số cụm, tỷ lệ nhiễu và Silhouette.
+
+Khi cố định Eps = 0,40, ba giá trị MinPts = 4, 6, 8 cho kết quả gần nhau. Vì vậy, nhóm sử dụng Eps = 0,40 và MinPts = 6 làm cấu hình tham chiếu thống nhất cho các thực nghiệm. Đây là lựa chọn phù hợp với dữ liệu mô phỏng đang xét, không đồng nghĩa với bộ tham số tối ưu cho mọi tập dữ liệu.
 
 Khi so sánh, các thuật toán dùng chung dữ liệu, khoảng cách Euclidean và mốc MinPts = 6, nhưng tên và ý nghĩa tham số không hoàn toàn giống nhau. Bảng~\ref{tab:comparison_parameters} ghi cấu hình thực tế trong mã benchmark. HDBSCAN không dùng Eps; OPTICS tạo thứ tự theo mật độ rồi trích cụm theo kiểu DBSCAN tại Eps = 0,40. Do đó, đây là cách đặt tham số tham chiếu để so sánh trên cùng đầu vào, không có nghĩa các thuật toán được cấu hình tương đương hoàn toàn.
 

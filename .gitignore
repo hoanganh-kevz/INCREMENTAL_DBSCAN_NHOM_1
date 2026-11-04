@@ -29,3 +29,22 @@ htmlcov/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+
+# LaTeX build files
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Chỉ bỏ qua PDF được build từ báo cáo
+May_Hoc_Report/main.pdf

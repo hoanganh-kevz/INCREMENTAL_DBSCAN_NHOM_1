@@ -3,9 +3,9 @@
 \section{Tổng quan về gom cụm dữ liệu}
 \subsection{Khái niệm và mục tiêu của gom cụm dữ liệu}
 
-Gom cụm là cách chia dữ liệu thành các nhóm có đặc điểm gần nhau. Đây là học không giám sát vì dữ liệu ban đầu chưa có nhãn; thuật toán tự tìm cấu trúc nhóm.
+Gom cụm (Clustering) là một phương pháp học không giám sát (Unsupervised Learning). Gom cụm không sử dụng nhãn lớp có sẵn để xác định các nhóm mà tìm kiếm cấu trúc nhóm dựa trên đặc trưng của các đối tượng và tiêu chí gom cụm được lựa chọn
 
-Trong DBSCAN, mỗi điểm sau khi chạy thuộc một cụm hoặc được đánh dấu là nhiễu. Điểm nhiễu không được ép vào cụm gần nhất. Nhóm tập trung vào DBSCAN và Incremental DBSCAN, trong đó cụm được tìm qua mật độ và các kết nối giữa những điểm lõi.
+Nhóm tập trung vào DBSCAN và Incremental DBSCAN, trong đó cụm được tìm qua mật độ và các kết nối giữa những điểm lõi. Thuật toán này cho phép những đối tượng không đáp ứng điều kiện thuộc cụm được xác định là nhiễu. Tuy nhiên, tập nhiễu không nhất thiết phải có phần tử nếu tất cả đối tượng đều được đưa vào các cụm.
 
 \subsection{Các phương pháp gom cụm phổ biến}
 
@@ -17,15 +17,15 @@ Phương pháp gom cụm theo phân hoạch chia dữ liệu thành số cụm �
 
 \textbf{Gom cụm phân cấp (Hierarchical Clustering)}
 
-Gom cụm phân cấp kết tụ (HAC) bắt đầu bằng cách xem mỗi điểm là một cụm riêng, rồi gộp dần các cụm theo tiêu chí khoảng cách đã chọn. Kết quả thường được biểu diễn bằng cây để thấy thứ tự các cụm được gộp \parencite{instructorclusteringnotebooks}.
+Phương pháp gom cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. Gom cụm phân cấp kết tụ (HAC) bắt đầu bằng cách xem mỗi điểm là một cụm riêng, rồi gộp dần các cụm theo tiêu chí khoảng cách đã chọn. Kết quả thường được biểu diễn bằng cây để thấy thứ tự các cụm được gộp \parencite{instructorclusteringnotebooks}.
 
 \textbf{Gom cụm dựa trên mật độ (Density-Based Clustering)}
 
-Phương pháp dựa trên mật độ tìm vùng có nhiều điểm gần nhau. Những vùng nối được qua các điểm lõi được xem là một cụm; điểm nằm ngoài vùng đó có thể thành nhiễu. DBSCAN thuộc nhóm này, không cần biết trước số cụm và có thể tìm cụm không tròn. Kết quả phụ thuộc vào bán kính lân cận và ngưỡng số điểm.
+Phương pháp dựa trên mật độ xét sự phân bố của các đối tượng trong những vùng lân cận. Các vùng có đủ mật độ và có quan hệ kết nối với nhau được xác định thuộc cùng một cụm, còn các đối tượng không đáp ứng điều kiện tham gia cụm có thể được nhận diện là nhiễu. DBSCAN thuộc nhóm này, thuật toán có thể phát hiện các cụm có hình dạng không nhất thiết tập trung quanh một tâm và không yêu cầu khai báo trước số lượng cụm và kết quả của thuật toán sẽ phụ thuộc vào các tham số xác định vùng lân cận và ngưỡng mật độ.
 
 \section{Thuật toán DBSCAN}
 
-DBSCAN (Density-Based Spatial Clustering of Applications with Noise) là thuật toán gom cụm dựa trên mật độ do Ester và cộng sự đề xuất. Thuật toán đếm các điểm ở gần nhau để tìm vùng đủ mật độ, mở rộng cụm từ các điểm lõi và đánh dấu các điểm không thuộc cụm là nhiễu \parencite{ester1996dbscan}.
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) là thuật toán gom cụm dựa trên mật độ do Ester và cộng sự đề xuất. Thuật toán xét số lượng đối tượng trong vùng lân cận, mở rộng cụm từ các điểm lõi và đánh dấu các điểm không thuộc cụm là nhiễu \parencite{ester1996dbscan}.
 
 Để thực hiện quá trình gom cụm, DBSCAN sử dụng hai tham số chính là \(\varepsilon\) (Eps) và \(\mathrm{MinPts}\). Hai tham số này quyết định điều kiện để một đối tượng có thể làm điểm bắt đầu mở rộng cụm, cũng như phạm vi các đối tượng được liên kết với nhau.
 
@@ -129,7 +129,7 @@ Như vậy, việc một đối tượng không thỏa mãn điều kiện lõi 
 
 \textbf{Khả đạt trực tiếp theo mật độ (Directly Density-Reachable)}
 
-Nói đơn giản, \(q\) khả đạt trực tiếp từ \(p\) khi \(p\) là lõi và \(q\) nằm trong bán kính \(\varepsilon\) của \(p\):
+Đối tượng \(q\) được gọi là khả đạt trực tiếp theo mật độ từ đối tượng \(p\) nếu \(q\) nằm trong lân cận \(\varepsilon\) của \(p\) và \(p\) là đối tượng lõi:
 
 \begin{equation}
 \begin{cases}
@@ -138,21 +138,35 @@ Nói đơn giản, \(q\) khả đạt trực tiếp từ \(p\) khi \(p\) là lõ
 \end{cases}
 \end{equation}
 
-Quan hệ này có thể chỉ đi theo một chiều. Nếu \(p\) là lõi còn \(q\) là biên, \(q\) có thể được mở rộng từ \(p\), nhưng không thể dùng \(q\) để mở rộng ngược lại. Nếu cả hai đều là lõi và ở gần nhau, chúng kết nối được theo cả hai chiều.
+Quan hệ khả đạt trực tiếp theo mật độ không có tính đối xứng trong mọi trường hợp. Ví dụ, nếu \(p\) là lõi và \(q\) là biên thì \(q\) có thể khả đạt trực tiếp từ \(p\). Tuy nhiên, \(p\) không khả đạt trực tiếp từ \(q\) vì \(q\) không đáp ứng điều kiện lõi. Ngược lại, nếu cả hai đối tượng đều là lõi và cách nhau không vượt quá \(\varepsilon\) thì quan hệ khả đạt trực tiếp tồn tại theo cả hai chiều.
 
 \textbf{Khả đạt theo mật độ (Density-Reachable)}
 
-\(q\) khả đạt theo mật độ từ \(p\) nếu có thể đi từ \(p\) đến \(q\) qua một chuỗi điểm, trong đó hai điểm liên tiếp nằm trong bán kính \(\varepsilon\) và mỗi điểm dùng để đi tiếp là lõi.
+Một đối tượng \(q\) được gọi là khả đạt theo mật độ từ đối tượng \(p\) nếu có thể đi từ \(p\) đến \(q\) thông qua một chuỗi các đối tượng. Trong chuỗi này, mỗi đối tượng tiếp theo phải khả đạt trực tiếp theo mật độ từ đối tượng đứng ngay trước nó.
 
 Ví dụ, xét ba đối tượng \(p\), \(r\) và \(q\), trong đó \(p\) và \(r\) đều là lõi. Nếu \(r\) nằm trong lân cận \(\varepsilon\) của \(p\), đồng thời \(q\) nằm trong lân cận \(\varepsilon\) của \(r\), thì \(q\) khả đạt theo mật độ từ \(p\). Khi đó, \(p\) và \(q\) không nhất thiết phải nằm trong lân cận \(\varepsilon\) của nhau.
 
-Điểm cuối cùng có thể là lõi hoặc biên. Điểm biên không thể làm điểm trung gian để mở rộng chuỗi.
+Điểm cuối cùng có thể là lõi hoặc biên nhưng điểm biên không thể làm điểm trung gian để mở rộng chuỗi.
 
 \textbf{Kết nối theo mật độ (Density-Connected)}
 
-Hai điểm được xem là kết nối theo mật độ nếu có thể lần theo các điểm lõi để nối chúng vào cùng một vùng cụm. Hai điểm biên không tự nối đường đi, nhưng vẫn có thể thuộc cùng cụm nếu mỗi điểm nằm cạnh một điểm lõi trong vùng đó.
+Hai đối tượng \(p\) và \(q\) được gọi là kết nối theo mật độ nếu tồn tại một đối tượng \(o\) sao cho cả \(p\) và \(q\) đều khả đạt theo mật độ từ \(o\).
 
-Nói gọn lại, DBSCAN bắt đầu từ một điểm lõi, đi qua các điểm lõi kề nhau, rồi đưa các điểm biên gần những lõi này vào cụm. Khi không còn lõi nào mở rộng được, cụm đã tìm xong. Cách hiểu này cũng giải thích vì sao cụm có thể dài hoặc cong: hai đầu cụm không cần nằm cách nhau dưới Eps, miễn là còn một đường nối qua các điểm lõi.
+Hai đối tượng biên có thể không khả đạt theo mật độ từ nhau nhưng vẫn thuộc cùng một cụm nếu chúng đều khả đạt theo mật độ từ một đối tượng lõi chung. Do đó, các đối tượng trong cùng một cụm không nhất thiết phải nằm trong lân cận \(\varepsilon\) của nhau mà có thể được liên kết thông qua các chuỗi đối tượng lõi trung gian.
+
+\textbf{Điều kiện hình thành cụm}
+
+Dựa trên các quan hệ trên, một cụm trong DBSCAN được xác định bởi hai điều kiện:
+
+\begin{itemize}
+    \item \textbf{Tính kết nối (Connectivity):} Mọi cặp đối tượng thuộc cùng một cụm phải kết nối theo mật độ với nhau.
+
+    \item \textbf{Tính tối đa (Maximality):} Nếu một đối tượng thuộc cụm thì mọi đối tượng khả đạt theo mật độ từ đối tượng đó cũng phải thuộc cụm.
+\end{itemize}
+
+Hai điều kiện này bảo đảm rằng mỗi cụm bao gồm các đối tượng liên kết với nhau theo mật độ và được mở rộng tối đa theo quan hệ khả đạt.
+
+Nói gọn lại, DBSCAN bắt đầu từ một điểm lõi, đi qua các điểm lõi kề nhau, rồi đưa các điểm biên gần những lõi này vào cụm. Khi không còn lõi nào mở rộng được, cụm đã tìm xong. Từ đó có thể giải thích được vì sao cụm có thể dài hoặc cong: hai đầu cụm không cần nằm cách nhau dưới \(\varepsilon\), miễn là còn một đường nối qua các điểm lõi.
 
 Khi dữ liệu thay đổi, Incremental DBSCAN dựa vào các lõi và đường nối đã lưu để kiểm tra phần cụm bị ảnh hưởng, thay vì bắt đầu lại từ đầu.
 
@@ -353,7 +367,7 @@ Từ đó, phạm vi ảnh hưởng cục bộ được phân biệt thành ba v
 \midrule
 \(N_{\varepsilon}(p)\) &
 Số lượng đối tượng lân cận thay đổi, một số đối tượng có thể chuyển giữa trạng thái lõi và không lõi. \\
-\(N_{2\varepsilon}(p)\setminus N_{\varepsilon}(p)\) &
+\(N_{2\varepsilon}(p)\setminus N_{\varepsilon}(p)\) (vùng nằm giữa hai bán kính \(\varepsilon\) và \(2\varepsilon\)) &
 Tính chất lõi không thay đổi, nhưng đối tượng không lõi có thể chuyển giữa biên và nhiễu. \\
 Ngoài \(N_{2\varepsilon}(p)\) &
 Tính chất lõi và trạng thái biên hoặc nhiễu không thay đổi trực tiếp do phép cập nhật. Tuy nhiên, nhãn cụm vẫn có thể thay đổi nếu các cụm liên quan bị hợp nhất hoặc tách. \\
@@ -465,36 +479,14 @@ Creation &
 Các kết nối do lõi mới tạo ra không liên hệ với cụm đã tồn tại. &
 Hình thành một cụm mới. \\
 Absorption &
-Các kết nối mới chỉ liên hệ với một cụm cũ. &
-Đối tượng mới và có thể một số đối tượng nhiễu được bổ sung vào cụm đó. \\
+Đối tượng mới nằm trong lân cận của ít nhất một lõi thuộc cụm cũ mà không tạo ra lõi mới, hoặc các kết nối do lõi mới hình thành chỉ liên hệ với một cụm cũ. &
+Đối tượng mới và có thể một số đối tượng nhiễu được bổ sung vào một cụm hiện có, không làm hợp nhất các cụm cũ. \\
 Merge &
 Các kết nối mới liên hệ những lõi thuộc ít nhất hai cụm cũ. &
 Các cụm liên quan được hợp nhất. \\
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\textbf{Quy trình INSERT trong chương trình của nhóm}
-
-Phương thức \texttt{insert()}  được cài đặt dựa trên việc xác định những đối tượng vừa trở thành lõi và các cụm có kết nối với chúng. Quy trình được tóm tắt qua các bước sau:
-
-\begin{enumerate}[label=\textbf{Bước \arabic*.}, leftmargin=*, itemsep=4pt]
-    \item Thêm \(p\) vào tập dữ liệu với ID duy nhất. Truy vấn \(N_{\varepsilon}(p)\), lưu lân cận của \(p\) và bổ sung ID của \(p\) vào lân cận đã lưu của các đối tượng liên quan.
-
-    \item Xác định \(\mathrm{NewCore}\) từ các đối tượng có số lượng lân cận vừa đạt ngưỡng \(\mathrm{MinPts}\), đồng thời xét điều kiện lõi của chính \(p\).
-
-    \item Tạo \(\mathrm{UpdSeed}_{Ins}\) từ các đối tượng lõi nằm trong lân cận của \(\mathrm{NewCore}\).
-
-    \item Nếu không có lõi mới, kiểm tra các lõi cũ trong lân cận của \(p\). Nếu có lõi cũ, gán \(p\) thành biên của một cụm hợp lệ, ngược lại, gán \(p\) là nhiễu.
-
-    \item Nếu có lõi mới, dùng stack LIFO để mở rộng từ các lõi mới thuộc \(\mathrm{UpdSeed}_{Ins}\). Những lõi cũ trong tập seed cho biết các cụm đã tồn tại có kết nối với phần vừa cập nhật.
-
-    \item Dựa vào nhãn cụm cũ trong nhóm seed, tạo cụm mới khi chưa nối với cụm cũ, hấp thụ vào một cụm nếu chỉ nối với một cụm, hoặc hợp nhất các cụm nếu có kết nối qua lõi mới. Sau đó, cập nhật lõi mới và phân loại lại các đối tượng không lõi nằm gần chúng.
-\end{enumerate}
-
-Phần mở rộng chỉ đi qua các lõi vừa phát sinh. Khi gặp lõi cũ trong \(\mathrm{UpdSeed}_{Ins}\), chương trình dùng nhãn cụm đã có để xác định cụm cần giữ hoặc hợp nhất, không phân cụm lại toàn bộ dữ liệu.
-
-Riêng một đối tượng biên nằm gần lõi của nhiều cụm không đủ điều kiện để hợp nhất các cụm. Việc hợp nhất chỉ được thực hiện khi xuất hiện kết nối thông qua các đối tượng lõi.
 
 \begin{figure}[H]
     \centering
@@ -507,7 +499,14 @@ Riêng một đối tượng biên nằm gần lõi của nhiều cụm không �
     \label{fig:insert_cases}
 \end{figure}
 
-Bảng và hình phía trên đã tóm tắt Noise, Creation và Absorption. Để tránh lặp lại cùng một quy trình ba lần, ví dụ chi tiết dưới đây tập trung vào Merge, trường hợp cần theo dõi rõ các điểm mới thành lõi và hai cụm cũ được nối với nhau.
+Trong trường hợp Noise, đối tượng mới không đủ điều kiện trở thành lõi và không nằm trong lân cận của bất kỳ đối tượng lõi nào, do đó được xác định là nhiễu và không làm thay đổi các cụm hiện có.
+
+Trong trường hợp Creation, phép chèn khiến một hoặc nhiều đối tượng trở thành lõi, hình thành các kết nối theo mật độ giữa những đối tượng trước đó chưa thuộc cụm nào. Kết quả là một cụm mới được tạo thành mà không ảnh hưởng đến các cụm đã tồn tại.
+
+Trong trường hợp Absorption, đối tượng mới được bổ sung vào một cụm hiện có mà không làm hợp nhất các cụm khác nhau. Điều này có thể xảy ra khi đối tượng mới trở thành biên của một cụm đã tồn tại, hoặc khi các đối tượng lõi mới chỉ thiết lập thêm kết nối với một cụm cũ.
+
+Để tránh lặp lại cùng một quy trình ba lần, ví dụ chi tiết dưới đây tập trung vào Merge, trường hợp cần theo dõi rõ các điểm mới thành lõi và hai cụm cũ được nối với nhau.
+
 \textbf{Trường hợp 4 - Merge (Hợp nhất cụm)}
 
 Merge xảy ra khi các kết nối thông qua lõi mới liên hệ những đối tượng lõi thuộc ít nhất hai cụm khác nhau trước cập nhật. Khi đó, các cụm liên quan trở thành một cụm sau khi chèn.
@@ -577,6 +576,28 @@ Vì vậy, thuật toán hợp nhất \(C_1\), \(C_2\) và \(p\) thành một c�
 
 Trong chương trình của nhóm, việc hợp nhất được thực hiện bằng cách giữ lại một nhãn cụm và cập nhật nhãn của các thành viên thuộc cụm còn lại. Thuật toán xác định những cụm cần hợp nhất dựa trên các kết nối mới giữa những đối tượng lõi, thay vì tính lại lân cận của toàn bộ 13 đối tượng. Tuy nhiên, chương trình vẫn cần duyệt các đối tượng đang lưu để cập nhật nhãn của những đối tượng thuộc cụm bị hợp nhất.
 
+\textbf{Quy trình INSERT trong chương trình của nhóm}
+
+Phương thức \texttt{insert()}  được cài đặt dựa trên việc xác định những đối tượng vừa trở thành lõi và các cụm có kết nối với chúng. Quy trình được tóm tắt qua các bước sau:
+
+\begin{enumerate}[label=\textbf{Bước \arabic*.}, leftmargin=*, itemsep=4pt]
+    \item Thêm \(p\) vào tập dữ liệu với ID duy nhất. Truy vấn \(N_{\varepsilon}(p)\), lưu lân cận của \(p\) và bổ sung ID của \(p\) vào lân cận đã lưu của các đối tượng liên quan.
+
+    \item Xác định \(\mathrm{NewCore}\) từ các đối tượng có số lượng lân cận vừa đạt ngưỡng \(\mathrm{MinPts}\), đồng thời xét điều kiện lõi của chính \(p\).
+
+    \item Tạo \(\mathrm{UpdSeed}_{Ins}\) từ các đối tượng lõi nằm trong lân cận của \(\mathrm{NewCore}\).
+
+    \item Nếu không có lõi mới, kiểm tra các lõi cũ trong lân cận của \(p\). Nếu có lõi cũ, gán \(p\) thành biên của một cụm hợp lệ, ngược lại, gán \(p\) là nhiễu.
+
+    \item Nếu có lõi mới, dùng stack LIFO để mở rộng từ các lõi mới thuộc \(\mathrm{UpdSeed}_{Ins}\). Những lõi cũ trong tập seed cho biết các cụm đã tồn tại có kết nối với phần vừa cập nhật.
+
+    \item Dựa vào nhãn cụm cũ trong nhóm seed, tạo cụm mới khi chưa nối với cụm cũ, hấp thụ vào một cụm nếu chỉ nối với một cụm, hoặc hợp nhất các cụm nếu có kết nối qua lõi mới. Sau đó, cập nhật lõi mới và phân loại lại các đối tượng không lõi nằm gần chúng.
+\end{enumerate}
+
+Phần mở rộng chỉ đi qua các lõi vừa phát sinh. Khi gặp lõi cũ trong \(\mathrm{UpdSeed}_{Ins}\), chương trình dùng nhãn cụm đã có để xác định cụm cần giữ hoặc hợp nhất, không phân cụm lại toàn bộ dữ liệu.
+
+Một đối tượng biên có thể nằm trong lân cận của các đối tượng lõi thuộc nhiều cụm khác nhau, nhưng bản thân nó không có khả năng mở rộng quan hệ khả đạt theo mật độ. Vì vậy, sự xuất hiện của đối tượng biên này không làm hợp nhất các cụm. Việc hợp nhất chỉ xảy ra khi hình thành kết nối theo mật độ giữa các đối tượng lõi thuộc những cụm tách biệt trước đó.
+
 \subsection{Các trường hợp khi xóa điểm}
 
 \textbf{Nguyên tắc cập nhật khi xóa}
@@ -604,28 +625,11 @@ Reduction &
 Các đối tượng thuộc UpdSeedDel đều khả đạt trực tiếp theo mật độ từ nhau sau phép xóa. &
 Cụm vẫn được duy trì nhưng có thể giảm số thành viên hoặc thay đổi tính chất của một số đối tượng. \\
 Potential Split &
-Các đối tượng thuộc UpdSeedDel trước đó thuộc cùng một cụm nhưng không còn khả đạt trực tiếp theo mật độ từ nhau. &
-Cần kiểm tra xem các đối tượng còn kết nối thông qua những lõi khác hay không, từ đó xác định Split hoặc Non-split. \\
+Các đối tượng thuộc UpdSeedDel trước đó thuộc cùng một cụm, nhưng sau phép xóa không phải mọi cặp đối tượng đều kết nối trực tiếp theo mật độ. &
+Cần kiểm tra xem các đối tượng còn kết nối thông qua những lõi trung gian hay không, từ đó xác định Split hoặc Non-split. \\
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\textbf{Quy trình DELETE trong chương trình của nhóm}
-
-Phương thức \texttt{delete()} cập nhật cụm quanh điểm bị xóa. Quy trình dưới đây theo các bước mà nhóm đã cài đặt:
-
-\begin{enumerate}[label=\textbf{Bước \arabic*.}, leftmargin=*, itemsep=4pt]
-    \item Tìm điểm \(p\) cần xóa và lưu thông tin lân cận, nhãn cụm, trạng thái lõi của các điểm liên quan.
-    \item Xóa \(p\) và bỏ ID của nó khỏi danh sách lân cận của các điểm còn lại.
-    \item Tìm các điểm lõi bị mất trạng thái lõi. Từ các điểm này, tạo tập \(\mathrm{UpdSeed}_{Del}\), gồm các điểm lõi còn lại cần kiểm tra.
-    \item Xét từng cụm liên quan. Nếu không có seed thì đó là Removal. Nếu các seed kề trực tiếp với nhau thì đó là Reduction và cụm không cần tách.
-    \item Nếu các seed không kề trực tiếp, dùng BFS để lần theo các điểm lõi. Nếu BFS nối được các seed thì cụm không tách (Non-split); nếu không, các phần lõi bị rời nhau được gán thành các cụm riêng (Split).
-    \item Cập nhật nhãn của các điểm lõi thuộc cụm bị tách, rồi phân loại lại các điểm không lõi liên quan thành biên hoặc nhiễu.
-\end{enumerate}
-
-Các điểm biên không được dùng làm cầu nối giữa hai cụm. Vì vậy, chương trình xác định kết nối giữa các điểm lõi trước, rồi mới gán lại trạng thái và nhãn cho những điểm biên hoặc nhiễu bị ảnh hưởng.
-
-Cách làm này cũng xử lý được trường hợp xóa một điểm biên hoặc xóa điểm mà không làm điểm lõi nào mất trạng thái lõi.
 
 \begin{figure}[H]
     \centering
@@ -638,7 +642,10 @@ Cách làm này cũng xử lý được trường hợp xóa một điểm biên
     \label{fig:delete_cases}
 \end{figure}
 
-Bảng và hình phía trên đã tóm tắt Removal và Reduction. Với Removal, không còn seed lõi cần giữ cụm; với Reduction, các seed còn nối trực tiếp nên không cần tìm đường thay thế. Phần ví dụ chi tiết dưới đây tập trung vào Potential Split, vì cần dùng BFS để phân biệt cụm thật sự bị tách với trường hợp vẫn còn đường nối.
+Trong trường hợp Removal, tập \(\mathrm{UpdSeed}_{Del}\) rỗng nên không cần thực hiện tìm kiếm kết nối giữa các đối tượng lõi khởi đầu. Đối với Reduction, các đối tượng thuộc tập này vẫn kết nối trực tiếp với nhau sau phép xóa, do đó không cần tìm đường nối thay thế.
+
+Ngược lại, Potential Split xảy ra khi các đối tượng lõi khởi đầu không còn kết nối trực tiếp đầy đủ. Khi đó, thuật toán sử dụng tìm kiếm theo chiều rộng (BFS) để xác định xem các đối tượng này còn kết nối thông qua những lõi trung gian hay không. Nếu tồn tại đường nối thay thế, cụm được duy trì (Non-split), nếu không, cụm bị tách thành các thành phần riêng biệt (Split). Phần ví dụ chi tiết tập trung vào Potential Split để minh họa hai kết quả này.
+
 \textbf{Trường hợp 3 - Potential Split (Khả năng tách cụm)}
 
 Potential Split xảy ra khi phép xóa làm mất những kết nối trực tiếp cần thiết giữa các đối tượng lõi. Tuy nhiên, việc mất kết nối trực tiếp chưa đủ để kết luận cụm bị tách, bởi vẫn có thể tồn tại đường kết nối thông qua những lõi khác.
@@ -725,6 +732,23 @@ Vì vậy, hai phía của cụm vẫn có quan hệ kết nối theo mật đ�
 Hai ví dụ Split và Non-split cho thấy việc mất một đối tượng lõi không tự động dẫn đến tách cụm. Yếu tố quyết định là sau phép xóa có còn tồn tại đường kết nối thông qua những đối tượng lõi khác hay không.
 
 Trong code, BFS bắt đầu từ các điểm trong \(\mathrm{UpdSeed}_{Del}\) và chỉ đi qua những điểm lõi còn kề nhau. Nếu đã tìm thấy đường nối giữa các seed thì chương trình dừng việc kiểm tra tách cụm. Nếu không tìm thấy đường nối, chương trình xác định các phần lõi bị tách và cập nhật nhãn của chúng. Như vậy, phần cài đặt có dùng \(\mathrm{UpdSeed}_{Del}\); BFS là bước kiểm tra kết nối sau khi tạo tập seed.
+
+\textbf{Quy trình DELETE trong chương trình của nhóm}
+
+Phương thức \texttt{delete()} cập nhật cụm quanh điểm bị xóa. Quy trình dưới đây theo các bước mà nhóm đã cài đặt:
+
+\begin{enumerate}[label=\textbf{Bước \arabic*.}, leftmargin=*, itemsep=4pt]
+    \item Tìm điểm \(p\) cần xóa và lưu thông tin lân cận, nhãn cụm, xác định các đối tượng lõi sẽ mất tính chất lõi sau khi xóa p.
+    \item Xóa \(p\) và bỏ ID của nó khỏi danh sách lân cận của các điểm còn lại.
+    \item Cập nhật trạng thái của các đối tượng vừa mất tính chất lõi, sau đó xác định tập \(\mathrm{UpdSeed}_{Del}\) gồm những đối tượng vẫn là lõi và nằm trong lân cận của ít nhất một đối tượng vừa mất tính chất lõi.
+    \item Xét từng cụm liên quan. Nếu không có seed thì đó là Removal. Nếu các seed kề trực tiếp với nhau thì đó là Reduction và cụm không cần tách.
+    \item Nếu các seed không kề trực tiếp, dùng BFS để lần theo các điểm lõi. Nếu BFS nối được các seed thì cụm không tách (Non-split); nếu không, các phần lõi bị rời nhau được gán thành các cụm riêng (Split).
+    \item Cập nhật nhãn của các điểm lõi thuộc cụm bị tách, rồi phân loại lại các điểm không lõi liên quan thành biên hoặc nhiễu.
+\end{enumerate}
+
+Các điểm biên không được dùng làm cầu nối giữa hai cụm. Vì vậy, chương trình xác định kết nối giữa các điểm lõi trước, rồi mới gán lại trạng thái và nhãn cho những điểm biên hoặc nhiễu bị ảnh hưởng.
+
+Cách làm này cũng xử lý được trường hợp xóa một điểm biên hoặc xóa điểm mà không làm điểm lõi nào mất trạng thái lõi.
 
 \subsection{Khác biệt giữa Incremental DBSCAN và chạy lại DBSCAN}
 
@@ -846,7 +870,7 @@ Nhóm chọn DBSCAN, OPTICS và HDBSCAN để so sánh vì cả ba đều dựa 
 
 DBSCAN sử dụng hai tham số \(\varepsilon\) và \(\mathrm{MinPts}\) để xác định các đối tượng lõi và mở rộng cụm. OPTICS xây dựng thứ tự xử lý cùng khoảng cách khả đạt (Reachability Distance), qua đó hỗ trợ xem xét cấu trúc cụm ở nhiều ngưỡng mật độ. Trong khi đó, HDBSCAN xây dựng cấu trúc phân cấp dựa trên mật độ và lựa chọn những cụm có mức ổn định phù hợp, giúp nhận diện các cụm có mật độ khác nhau trong nhiều trường hợp \parencite{ankerst1999optics,campello2013hdbscan,sklearnClusteringGuide}.
 
-Trong benchmark, DBSCAN, HDBSCAN và OPTICS được lấy từ scikit-learn; sau mỗi cập nhật, các bản này được chạy lại trên toàn bộ dữ liệu hiện có. scikit-learn không cung cấp thao tác INSERT/DELETE tăng dần cho DBSCAN. Vì vậy, phép đo thời gian đối chiếu cập nhật cục bộ của chương trình nhóm với cách chạy lại toàn bộ, chứ không phải so sánh bốn thuật toán incremental.
+Trong benchmark, DBSCAN, HDBSCAN và OPTICS được lấy từ scikit-learn; sau mỗi cập nhật, các bản này được chạy lại trên toàn bộ dữ liệu hiện có. scikit-learn không cung cấp thao tác INSERT/DELETE tăng dần cho DBSCAN. Vì vậy, chỉ Incremental DBSCAN thực hiện cập nhật cục bộ, còn ba thuật toán đối chứng được chạy lại sau mỗi lần dữ liệu thay đổi, chứ không phải so sánh bốn thuật toán incremental.
 
 Incremental DBSCAN vẫn dùng nguyên tắc mật độ của DBSCAN, nhưng tận dụng thông tin lân cận và cụm đã lưu để cập nhật sau INSERT hoặc DELETE.
 

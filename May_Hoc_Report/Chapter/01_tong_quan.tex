@@ -8,7 +8,7 @@ Vì vậy, nhóm chọn tìm hiểu Incremental DBSCAN. Thuật toán này dựa
 
 \section{Bài toán cần giải quyết}
 
-Đầu vào gồm một tập dữ liệu đã được gom cụm bằng DBSCAN. Sau đó, chương trình lần lượt thêm hoặc xóa một điểm. Với \(\varepsilon\), \(\mathrm{MinPts}\) và khoảng cách Euclidean được giữ cố định, chương trình cần cập nhật nhãn cụm, trạng thái lõi, biên và nhiễu cho dữ liệu mới.
+Đầu vào gồm một tập dữ liệu đã được gom cụm bằng DBSCAN. Sau đó, chương trình lần lượt thêm hoặc xóa một điểm. Với \(\varepsilon\), \(\mathrm{MinPts}\) và cách tính khoảng cách giữa các đối tượng bằng khoảng cách Euclidean được giữ cố định, chương trình cần cập nhật nhãn cụm, trạng thái lõi, biên và nhiễu cho dữ liệu mới.
 
 Kết quả cập nhật được đối chiếu với DBSCAN chạy lại từ đầu trên cùng tập dữ liệu. Nhờ vậy, nhóm kiểm tra được thuật toán cập nhật có cho kết quả tương ứng hay không.
 
@@ -26,7 +26,7 @@ Mục tiêu của đề tài là tự cài đặt và tìm hiểu Incremental DB
 
 \section{Phạm vi nghiên cứu}
 
-Đề tài tập trung vào một điểm được thêm hoặc xóa trong mỗi lần cập nhật. Trong các luồng thí nghiệm, nhóm giữ cố định khoảng cách Euclidean, \(\varepsilon\) và \(\mathrm{MinPts}\). Việc tự chọn lại tham số sau mỗi cập nhật và cập nhật nhiều điểm cùng lúc không nằm trong phạm vi thực hiện.
+Đề tài tập trung vào một điểm được thêm hoặc xóa trong mỗi lần cập nhật. Trong các luồng thí nghiệm, nhóm giữ cố định cách tính khoảng cách giữa cách đối tượng bằng khoảng cách Euclidean, \(\varepsilon\) và \(\mathrm{MinPts}\). Việc tự chọn lại tham số sau mỗi cập nhật và cập nhật nhiều điểm cùng lúc không nằm trong phạm vi thực hiện.
 
 Dữ liệu đều là dữ liệu mô phỏng, không phải giao dịch thật. Nhóm dùng một tập tọa độ ATM 2D để minh họa, một luồng giao dịch thẻ 5D cho các cập nhật và benchmark, cùng một số ví dụ nhỏ để trình bày từng trường hợp INSERT và DELETE. Các phép so sánh với DBSCAN, HDBSCAN và OPTICS của scikit-learn chỉ dùng phiên bản thư viện làm đối chứng; nhóm không tự cài lại ba đối chứng đó.
 
