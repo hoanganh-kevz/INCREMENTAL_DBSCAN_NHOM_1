@@ -13,18 +13,15 @@ Dữ liệu chính gồm tập tọa độ ATM 2D và luồng giao dịch thẻ 
 \caption{Các bộ dữ liệu được dùng trong đề tài}
 \label{tab:dataset_overview}
 \normalsize
-\begin{tabularx}{\textwidth}{|Y|P{4cm}|P{2.5cm}|}
-\hline
+\begin{tabularx}{\textwidth}{@{}YP{4cm}P{2.5cm}@{}}
+\toprule
 \textbf{Bộ dữ liệu} & \textbf{Quy mô} & \textbf{Số chiều} \\
-\hline
+\midrule
 ATM 2D & 1.200 điểm & 2 \\
-\hline
 Luồng thẻ & 500 điểm ban đầu, 300 cập nhật & 5 thuộc tính gốc \\
-\hline
 Ví dụ cập nhật & 8 kịch bản & 2 \\
-\hline
 Ca biên kiểm thử & 6 kịch bản & 2 \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -37,20 +34,16 @@ Ca biên kiểm thử & 6 kịch bản & 2 \\
 \caption{Các thuộc tính của luồng giao dịch thẻ}
 \label{tab:card_features}
 \normalsize
-\begin{tabularx}{\textwidth}{|P{5cm}|Y|P{1.7cm}|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{5cm}YP{1.7cm}@{}}
+\toprule
 \textbf{Thuộc tính} & \textbf{Ý nghĩa mô phỏng} & \textbf{Đơn vị} \\
-\hline
+\midrule
 \texttt{amount\_vnd} & Giá trị giao dịch & VNĐ \\
-\hline
 \texttt{hour\_of\_day} & Giờ thực hiện giao dịch trong ngày & Giờ \\
-\hline
 \texttt{distance\_from\_home\_km} & Khoảng cách từ nơi giao dịch đến nhà & km \\
-\hline
 \texttt{txns\_last\_7d} & Số giao dịch trong bảy ngày trước đó & Lần \\
-\hline
 \texttt{merchant\_risk\_score} & Điểm rủi ro mô phỏng, từ 0 đến 1 & Điểm \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 

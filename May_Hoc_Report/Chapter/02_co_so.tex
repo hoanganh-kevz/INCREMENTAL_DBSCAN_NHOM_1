@@ -37,11 +37,11 @@ Các thuật toán gom cụm có thể được phân biệt dựa trên cách x
 
 \textbf{Gom cụm theo phân hoạch (Partitioning Clustering)}
 
-Phương pháp gom cụm theo phân hoạch chia tập dữ liệu thành một số cụm xác định. Ví dụ là K-means, trong đó mỗi đối tượng được cho vào cụm có tâm gần nhất và các tâm cụm được cập nhật qua nhiều lần lặp. Phương pháp này yêu cầu xác định trước số lượng cụm \(k\) và thường phù hợp với các nhóm dữ liệu phân bố tập trung quanh một tâm, nhưng có thể gặp hạn chế khi các cụm có hình dạng phức tạp.
+Phương pháp gom cụm theo phân hoạch chia tập dữ liệu thành một số cụm xác định. Ví dụ là K-means, trong đó mỗi đối tượng được cho vào cụm có tâm gần nhất và các tâm cụm được cập nhật qua nhiều lần lặp. Phương pháp này yêu cầu xác định trước số lượng cụm \(k\) và thường phù hợp với các nhóm dữ liệu phân bố tập trung quanh một tâm, nhưng có thể gặp hạn chế khi các cụm có hình dạng phức tạp \parencite{machinelearningcoban,andrewngnotebooks}.
 
 \textbf{Gom cụm phân cấp (Hierarchical Clustering)}
 
-Phương pháp gom cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. Ví dụ như trong thuật toán gom cụm phân cấp kết tụ (Hierarchical Agglomerative Clustering – HAC), ban đầu mỗi đối tượng được xem là một cụm riêng, sau đó các cụm được hợp nhất dần dựa trên tiêu chí liên kết đã chọn. Quá trình này được biểu diễn bằng cấu trúc cây cho phép quan sát thứ tự và mức khoảng cách mà các cụm được hợp nhất.
+Phương pháp gom cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. Ví dụ như trong thuật toán gom cụm phân cấp kết tụ (Hierarchical Agglomerative Clustering - HAC), ban đầu mỗi đối tượng được xem là một cụm riêng, sau đó các cụm được hợp nhất dần dựa trên tiêu chí liên kết đã chọn. Quá trình này được biểu diễn bằng cấu trúc cây cho phép quan sát thứ tự và mức khoảng cách mà các cụm được hợp nhất \parencite{instructorclusteringnotebooks}.
 
 \textbf{Gom cụm dựa trên mật độ (Density-Based Clustering)}
 
@@ -72,7 +72,7 @@ Trong phạm vi cài đặt của nhóm, khoảng cách giữa hai đối tượ
 
 \begin{equation}
     d(p,q)
-    = \sqrt{\sum_{j=1}^{d}(p_j-q_j)^2}.
+    = \sqrt{\sum_{j=1}^{d}(p_j\;\text{-}\;q_j)^2}.
 \end{equation}
 
 Trong đó, \(p_j\) và \(q_j\) lần lượt là giá trị thuộc tính thứ \(j\) của hai đối tượng, còn \(d\) là số chiều của dữ liệu. Công thức tính khoảng cách Euclid dựa trên độ chênh lệch giữa các thuộc tính tương ứng. Vì vậy, khi các thuộc tính có đơn vị hoặc thang đo khác nhau, những thuộc tính có giá trị số lớn có thể chi phối khoảng cách, từ đó ảnh hưởng đến kết quả xác định lân cận.
@@ -80,7 +80,7 @@ Trong đó, \(p_j\) và \(q_j\) lần lượt là giá trị thuộc tính thứ
 Ví dụ, trong không gian hai chiều, xét hai đối tượng \(p=(1;2)\) và \(q=(4;6)\):
 
 \begin{equation}
-    d(p,q)=\sqrt{(1-4)^2+(2-6)^2}=5.
+    d(p,q)=\sqrt{(1\;\text{-}\;4)^2+(2\;\text{-}\;6)^2}=5.
 \end{equation}
 
 Nếu \(\varepsilon=5\) thì \(q\in N_{\varepsilon}(p)\). Ngược lại, nếu \(\varepsilon=4\) thì \(q\) không thuộc lân cận \(\varepsilon\) của \(p\). Như vậy, việc thay đổi \(\varepsilon\) có thể làm thay đổi số lượng đối tượng lân cận ngay cả khi dữ liệu không thay đổi.
@@ -241,6 +241,7 @@ Xét tập dữ liệu gồm 13 đối tượng trong không gian hai chiều. S
     \varepsilon=1{,}5,\qquad \mathrm{MinPts}=4.
 \end{equation}
 
+\Needspace{3\baselineskip}
 Tọa độ và kết quả xác định lân cận của từng đối tượng được trình bày trong Bảng~\ref{tab:dbscan_example}.
 
 \begin{table}[H]
@@ -248,37 +249,25 @@ Tọa độ và kết quả xác định lân cận của từng đối tượng
 \caption{Lân cận \(\varepsilon\) và phân loại đối tượng trong ví dụ DBSCAN}
 \label{tab:dbscan_example}
 \normalsize
-\begin{tabular}{|c|c|l|c|c|}
-\hline
+\begin{tabular}{@{}cclcc@{}}
+\toprule
 \textbf{Điểm} & \textbf{Tọa độ} & \(N_{\varepsilon}(p)\) &
 \(|N_{\varepsilon}(p)|\) & \textbf{Loại} \\
-\hline
+\midrule
 \(P_1\) & \((1;1)\) & \(\{P_1,P_2,P_3,P_4\}\) & 4 & Lõi \\
-\hline
 \(P_2\) & \((2;1)\) & \(\{P_1,P_2,P_3,P_4,P_5\}\) & 5 & Lõi \\
-\hline
 \(P_3\) & \((1;2)\) & \(\{P_1,P_2,P_3,P_4\}\) & 4 & Lõi \\
-\hline
 \(P_4\) & \((2;2)\) & \(\{P_1,P_2,P_3,P_4,P_5\}\) & 5 & Lõi \\
-\hline
 \(P_5\) & \((3;2)\) & \(\{P_2,P_4,P_5,P_6\}\) & 4 & Lõi \\
-\hline
 \(P_6\) & \((4;3)\) & \(\{P_5,P_6\}\) & 2 & Biên \\
-\hline
 \(P_7\) & \((7;7)\) & \(\{P_7,P_8,P_9,P_{10}\}\) & 4 & Lõi \\
-\hline
 \(P_8\) & \((8;7)\) & \(\{P_7,P_8,P_9,P_{10},P_{11}\}\) & 5 & Lõi \\
-\hline
 \(P_9\) & \((7;8)\) & \(\{P_7,P_8,P_9,P_{10}\}\) & 4 & Lõi \\
-\hline
 \(P_{10}\) & \((8;8)\) & \(\{P_7,P_8,P_9,P_{10},P_{11}\}\) & 5 & Lõi \\
-\hline
 \(P_{11}\) & \((9;8)\) & \(\{P_8,P_{10},P_{11}\}\) & 3 & Biên \\
-\hline
 \(P_{12}\) & \((5;5)\) & \(\{P_{12}\}\) & 1 & Nhiễu \\
-\hline
 \(P_{13}\) & \((11;3)\) & \(\{P_{13}\}\) & 1 & Nhiễu \\
-\hline
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -289,7 +278,7 @@ Với \(\varepsilon=1{,}5\), hai đối tượng được xem là lân cận n�
 Ví dụ, đối tượng \(P_1=(1;1)\) có khoảng cách đến \(P_4=(2;2)\) là:
 
 \begin{equation}
-    d(P_1,P_4)=\sqrt{(1-2)^2+(1-2)^2}
+    d(P_1,P_4)=\sqrt{(1\;\text{-}\;2)^2+(1\;\text{-}\;2)^2}
     =\sqrt{2}\approx 1{,}41 < 1{,}5.
 \end{equation}
 
@@ -369,7 +358,7 @@ Trong trường hợp dữ liệu thay đổi thường xuyên, DBSCAN thông th
 
 \section{Thuật toán Incremental DBSCAN}
 
-Incremental DBSCAN mở rộng DBSCAN để cập nhật kết quả khi thêm hoặc xóa điểm. Thay vì gom cụm lại từ đầu sau mỗi thay đổi, thuật toán dùng thông tin đã lưu để tìm những điểm và kết nối cần cập nhật. Phần này dựa trên bài báo của Ester và cộng sự (1998) \parencite{ester1998incrementaldbscan}.
+Incremental DBSCAN mở rộng DBSCAN để cập nhật kết quả khi thêm hoặc xóa điểm. Thay vì gom cụm lại từ đầu sau mỗi thay đổi, thuật toán dùng thông tin đã lưu để tìm những điểm và kết nối cần cập nhật. Phần này dựa trên bài báo gốc về Incremental DBSCAN năm 1998, \textit{Incremental Clustering for Mining in a Data Warehousing Environment} \parencite{ester1998incrementaldbscan}.
 
 \subsection{Nhu cầu cập nhật cụm khi dữ liệu thay đổi}
 
@@ -387,9 +376,9 @@ Trong đồ án, nhóm xét từng phép chèn (INSERT) hoặc xóa (DELETE) m�
 
 \textbf{Phạm vi thay đổi sau một phép cập nhật}
 
-Xét đối tượng \(p\) được chèn vào hoặc xóa khỏi tập dữ liệu. Để phân biệt hai trạng thái, ký hiệu \(D^{-}\) là tập dữ liệu không chứa \(p\) và \(D^{+}=D^{-}\cup\{p\}\) là tập dữ liệu có chứa \(p\).
+Xét đối tượng \(p\) được chèn vào hoặc xóa khỏi tập dữ liệu. Để phân biệt hai trạng thái, ký hiệu \(D^{\text{-}}\) là tập dữ liệu không chứa \(p\) và \(D^{+}=D^{\text{-}}\cup\{p\}\) là tập dữ liệu có chứa \(p\).
 
-Như vậy, phép chèn làm tập dữ liệu chuyển từ \(D^{-}\) sang \(D^{+}\), còn phép xóa thực hiện theo chiều ngược lại.
+Như vậy, phép chèn làm tập dữ liệu chuyển từ \(D^{\text{-}}\) sang \(D^{+}\), còn phép xóa thực hiện theo chiều ngược lại.
 
 Vì điều kiện lõi phụ thuộc vào số phần tử trong lân cận \(\varepsilon\), những đối tượng có thể thay đổi tính chất lõi phải nằm trong \(N_{\varepsilon}(p)\). Đối với các đối tượng nằm ngoài vùng này, số lượng phần tử trong lân cận của chúng không thay đổi khi chèn hoặc xóa \(p\).
 
@@ -404,19 +393,17 @@ Từ đó, phạm vi ảnh hưởng cục bộ được phân biệt thành ba v
 \caption{Ảnh hưởng cục bộ của phép chèn hoặc xóa đối tượng}
 \label{tab:incremental_local_effect}
 \normalsize
-\begin{tabularx}{\textwidth}{|P{3.5cm}|Y|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{3.5cm}Y@{}}
+\toprule
 \textbf{Vùng} & \textbf{Khả năng thay đổi} \\
-\hline
+\midrule
 \(N_{\varepsilon}(p)\) &
 Số lượng đối tượng lân cận thay đổi, một số đối tượng có thể chuyển giữa trạng thái lõi và không lõi. \\
-\hline
 \(N_{2\varepsilon}(p)\setminus N_{\varepsilon}(p)\) &
 Tính chất lõi không thay đổi, nhưng đối tượng không lõi có thể chuyển giữa biên và nhiễu. \\
-\hline
 Ngoài \(N_{2\varepsilon}(p)\) &
 Tính chất lõi và trạng thái biên hoặc nhiễu không thay đổi trực tiếp do phép cập nhật. Tuy nhiên, nhãn cụm vẫn có thể thay đổi nếu các cụm liên quan bị hợp nhất hoặc tách. \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -438,7 +425,7 @@ Việc xác định tập Affected Objects giúp nhóm tập trung kiểm tra ph
 
 Để xác định các đối tượng thay đổi tính chất lõi khi thêm hoặc xóa điểm \(p\), thuật toán chỉ cần kiểm tra những đối tượng nằm trong lân cận \(\varepsilon\) của \(p\), thay vì tính toán lại số lượng lân cận của toàn bộ dữ liệu.
 
-Đối với thao tác INSERT, việc thêm \(p\) làm tăng số lượng đối tượng lân cận của mỗi điểm nằm trong phạm vi \(\varepsilon\) của \(p\) thêm một đơn vị. Vì vậy, những đối tượng trước đó có đúng \(\mathrm{MinPts}-1\) phần tử trong lân cận sẽ trở thành đối tượng lõi sau khi thêm \(p\). Bản thân điểm \(p\) cũng được kiểm tra để xác định xem nó có đủ điều kiện trở thành lõi hay không.
+Đối với thao tác INSERT, việc thêm \(p\) làm tăng số lượng đối tượng lân cận của mỗi điểm nằm trong phạm vi \(\varepsilon\) của \(p\) thêm một đơn vị. Vì vậy, những đối tượng trước đó có đúng \(\mathrm{MinPts}\;\text{-}\;1\) phần tử trong lân cận sẽ trở thành đối tượng lõi sau khi thêm \(p\). Bản thân điểm \(p\) cũng được kiểm tra để xác định xem nó có đủ điều kiện trở thành lõi hay không.
 
 Ngược lại, đối với thao tác DELETE, việc xóa \(p\) làm giảm số lượng đối tượng lân cận của các điểm nằm trong phạm vi \(\varepsilon\) của \(p\) đi một đơn vị. Do đó, những đối tượng trước đó có đúng \(\mathrm{MinPts}\) phần tử trong lân cận sẽ mất tính chất lõi sau khi xóa \(p\).
 
@@ -456,7 +443,7 @@ Affected Objects xác định phạm vi có thể thay đổi, nhưng việc duy
 q\in D^{+}\ \middle|\
 \begin{array}{l}
 q\text{ là lõi trong }D^{+},\\
-q\text{ không là lõi trong }D^{-}
+q\text{ không là lõi trong }D^{\text{-}}
 \end{array}
 \right\}.
 \end{equation}
@@ -478,7 +465,7 @@ q\in N_{\varepsilon}^{D^{+}}(r)
 
 Như vậy, \(\mathrm{UpdSeed}_{Ins}\) gồm những đối tượng lõi nằm trong lân cận của ít nhất một đối tượng vừa trở thành lõi. Các đối tượng này được sử dụng để xác định xem những kết nối mới có tạo cụm, mở rộng cụm hay nối các cụm cũ với nhau hay không.
 
-Đối với phép xóa, gọi \(\mathrm{LostCore}\) là tập những đối tượng từng là lõi trong \(D^{+}\) nhưng không còn là lõi trong \(D^{-}\). Tập này bao gồm \(p\) nếu đối tượng bị xóa vốn là lõi.
+Đối với phép xóa, gọi \(\mathrm{LostCore}\) là tập những đối tượng từng là lõi trong \(D^{+}\) nhưng không còn là lõi trong \(D^{\text{-}}\). Tập này bao gồm \(p\) nếu đối tượng bị xóa vốn là lõi.
 
 Tập khởi đầu cập nhật khi xóa được xác định:
 
@@ -486,9 +473,9 @@ Tập khởi đầu cập nhật khi xóa được xác định:
 \mathrm{UpdSeed}_{Del}
 =
 \left\{
-q\in D^{-}\ \middle|\
+q\in D^{\text{-}}\ \middle|\
 \begin{array}{l}
-q\text{ là lõi trong }D^{-},\\
+q\text{ là lõi trong }D^{\text{-}},\\
 \exists r\in\mathrm{LostCore}:\
 q\in N_{\varepsilon}^{D^{+}}(r)
 \end{array}
@@ -502,7 +489,7 @@ Tập này gồm những đối tượng vẫn là lõi sau phép xóa và nằm
 
 \textbf{Nguyên tắc cập nhật khi chèn}
 
-Giả sử tập \(D^{-}\) đã được gom cụm và một đối tượng mới \(p\) được chèn vào, tạo thành tập \(D^{+}=D^{-}\cup\{p\}\).
+Giả sử tập \(D^{\text{-}}\) đã được gom cụm và một đối tượng mới \(p\) được chèn vào, tạo thành tập \(D^{+}=D^{\text{-}}\cup\{p\}\).
 
 Phép chèn chỉ làm tăng hoặc giữ nguyên số lượng đối tượng trong các lân cận. Vì vậy, những đối tượng cũ đã là lõi vẫn tiếp tục là lõi, trong khi một số đối tượng không lõi có thể trở thành lõi. Các kết nối theo mật độ có thể được tạo thêm nhưng không bị mất đi.
 
@@ -513,26 +500,23 @@ Về kết quả gom cụm, có thể xảy ra bốn trường hợp: Noise, Cre
 \caption{Các trường hợp cập nhật khi chèn đối tượng}
 \label{tab:incremental_insert_cases}
 \normalsize
-\begin{tabularx}{\textwidth}{|P{2.5cm}|Y|Y|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{2.5cm}YY@{}}
+\toprule
 \textbf{Trường hợp} & \textbf{Điều kiện nhận biết} & \textbf{Kết quả} \\
-\hline
+\midrule
 Noise &
 Không có lõi mới và \(p\) không nằm trong lân cận của lõi cũ. &
 \(p\) là nhiễu, các cụm cũ giữ nguyên. \\
-\hline
 Creation &
 Các kết nối do lõi mới tạo ra không liên hệ với cụm đã tồn tại. &
 Hình thành một cụm mới. \\
-\hline
 Absorption &
 Các kết nối mới chỉ liên hệ với một cụm cũ. &
 Đối tượng mới và có thể một số đối tượng nhiễu được bổ sung vào cụm đó. \\
-\hline
 Merge &
 Các kết nối mới liên hệ những lõi thuộc ít nhất hai cụm cũ. &
 Các cụm liên quan được hợp nhất. \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -674,8 +658,8 @@ Cụm thứ nhất gồm sáu đối tượng:
 \begin{equation}
 \begin{aligned}
 C_1=\{&
-A_1=(-1;0),A_2=(0;0),A_3=(1;0),\\
-&A_4=(-1;1),A_5=(0;1),A_6=(1;1)\}.
+A_1=(\text{-}1;0),A_2=(0;0),A_3=(1;0),\\
+&A_4=(\text{-}1;1),A_5=(0;1),A_6=(1;1)\}.
 \end{aligned}
 \end{equation}
 
@@ -747,23 +731,21 @@ Ba trường hợp chính khi xóa là Removal, Reduction và Potential Split. R
 \caption{Các trường hợp cập nhật khi xóa đối tượng}
 \label{tab:incremental_delete_cases}
 \normalsize
-\begin{tabularx}{\textwidth}{|P{2.8cm}|Y|Y|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{2.8cm}YY@{}}
+\toprule
 \textbf{Trường hợp} & \textbf{Đặc điểm} & \textbf{Kết quả} \\
-\hline
+\midrule
 Removal &
 Tập UpdSeedDel rỗng, không có đối tượng lõi còn lại nằm trong lân cận của những đối tượng vừa mất tính chất lõi. &
 Đối tượng bị xóa, một số đối tượng có thể trở thành nhiễu. Cụm có thể biến mất nếu không còn lõi.
 \\
-\hline
 Reduction &
 Các đối tượng thuộc UpdSeedDel đều khả đạt trực tiếp theo mật độ từ nhau sau phép xóa. &
 Cụm vẫn được duy trì nhưng có thể giảm số thành viên hoặc thay đổi tính chất của một số đối tượng. \\
-\hline
 Potential Split &
 Các đối tượng thuộc UpdSeedDel trước đó thuộc cùng một cụm nhưng không còn khả đạt trực tiếp theo mật độ từ nhau. &
 Cần kiểm tra xem các đối tượng còn kết nối thông qua những lõi khác hay không, từ đó xác định Split hoặc Non-split. \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -803,8 +785,8 @@ Xét năm đối tượng:
 
 \begin{equation}
 \begin{aligned}
-A&=(-1;0), & B&=(1;0),\\
-C&=(0;-1), & D&=(0;1),\\
+A&=(\text{-}1;0), & B&=(1;0),\\
+C&=(0;\text{-}1), & D&=(0;1),\\
 p&=(0;0).
 \end{aligned}
 \end{equation}
@@ -895,9 +877,9 @@ Xét mười đối tượng trong không gian hai chiều với \(\varepsilon=1
 \begin{equation}
 \begin{aligned}
 A&=(1;0), & B&=(0{,}2;0),\\
-C&=(0{,}6;0{,}6), & D&=(0{,}6;-0{,}6),\\
+C&=(0{,}6;0{,}6), & D&=(0{,}6;\text{-}0{,}6),\\
 E&=(3;0), & F&=(3{,}8;0),\\
-G&=(3{,}4;0{,}6), & H&=(3{,}4;-0{,}6),\\
+G&=(3{,}4;0{,}6), & H&=(3{,}4;\text{-}0{,}6),\\
 I&=(2;1), & p&=(2;0).
 \end{aligned}
 \end{equation}
@@ -977,30 +959,26 @@ Trong khi đó, Incremental DBSCAN giữ lại thông tin về đối tượng, 
 \caption{So sánh cách cập nhật kết quả gom cụm}
 \label{tab:incremental_vs_refit}
 \normalsize
-\begin{tabularx}{\textwidth}{|P{3.1cm}|Y|Y|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{3.1cm}YY@{}}
+\toprule
 \textbf{Tiêu chí} & \textbf{Chạy lại DBSCAN} & \textbf{Incremental DBSCAN của nhóm} \\
-\hline
+\midrule
 Thông tin ban đầu &
 Gom cụm lại tập dữ liệu hiện tại. &
 Sử dụng kết quả gom cụm và lân cận đã lưu. \\
-\hline
 Phép chèn &
 Tính lại lân cận và mở rộng cụm trên toàn bộ dữ liệu. &
 Cập nhật lân cận của điểm mới và những đối tượng liên quan, sau đó xử lý các kết nối mới. \\
-\hline
 Phép xóa &
 Gom cụm lại toàn bộ dữ liệu còn lại. &
 Xác định các cụm liên quan, kiểm tra lại các thành phần lõi và gán lại nhãn. \\
-\hline
 Bộ nhớ &
 Phụ thuộc cách cài đặt và lưu trữ lân cận. &
 Cần duy trì tập lân cận và trạng thái của từng đối tượng. \\
-\hline
 Chi phí cập nhật &
 Phụ thuộc quy mô toàn bộ tập dữ liệu sau thay đổi. &
 Phụ thuộc phạm vi các cụm liên quan, chi phí duy trì trạng thái và những thao tác duyệt dữ liệu cần thiết để cập nhật nhãn cụm.\\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -1016,7 +994,7 @@ Nhóm cũng ghi nhận thời gian chạy, số cụm và tỷ lệ nhiễu đ�
 
 \subsection{Adjusted Rand Index (ARI)}
 
-Adjusted Rand Index (ARI) là chỉ số đo mức độ tương đồng giữa hai kết quả phân cụm trên cùng một tập dữ liệu. Chỉ số này dựa trên việc xem xét các cặp đối tượng có được xếp vào cùng nhóm hoặc khác nhóm trong cả hai kết quả hay không, đồng thời hiệu chỉnh mức độ tương đồng có thể xuất hiện do ngẫu nhiên.
+Adjusted Rand Index (ARI) là chỉ số đo mức độ tương đồng giữa hai kết quả phân cụm trên cùng một tập dữ liệu. Chỉ số này dựa trên việc xem xét các cặp đối tượng có được xếp vào cùng nhóm hoặc khác nhóm trong cả hai kết quả hay không, đồng thời hiệu chỉnh mức độ tương đồng có thể xuất hiện do ngẫu nhiên \parencite{hubertArabie1985}.
 
 Giá trị ARI được diễn giải như sau:
 
@@ -1026,18 +1004,18 @@ Giá trị ARI được diễn giải như sau:
     \item ARI < 0: Mức độ tương đồng thấp hơn giá trị kỳ vọng nói trên.
 \end{itemize}
 
-Trong đồ án, ARI chỉ dùng để kiểm tra kết quả Incremental DBSCAN có gần với DBSCAN chạy lại trên cùng dữ liệu, khoảng cách và tham số hay không. Các điểm nhiễu vẫn được giữ lại; nhãn \(-1\) được xem là một nhãn riêng trong phép đối chiếu. ARI không phải chỉ số chính để đánh giá chất lượng cụm.
+Trong đồ án, ARI chỉ dùng để kiểm tra kết quả Incremental DBSCAN có gần với DBSCAN chạy lại trên cùng dữ liệu, khoảng cách và tham số hay không. Các điểm nhiễu vẫn được giữ lại; nhãn \(\text{-}1\) được xem là một nhãn riêng trong phép đối chiếu. ARI không phải chỉ số chính để đánh giá chất lượng cụm.
 
 Tuy nhiên, ARI không phân biệt trực tiếp đối tượng lõi và đối tượng biên. Ngoài ra, một đối tượng biên có thể được gán hợp lệ vào nhiều cụm khác nhau. Vì vậy, nhóm còn kiểm tra riêng tính chất lõi, trạng thái nhiễu và các trường hợp gán cụm của đối tượng biên, thay vì chỉ dựa vào ARI.
 
 \subsection{Silhouette}
 
-Silhouette cho biết một điểm gần với cụm của nó đến mức nào và cách các cụm khác bao xa. Chỉ số này không cần nhãn đáp án có sẵn.
+Silhouette cho biết một điểm gần với cụm của nó đến mức nào và cách các cụm khác bao xa. Chỉ số này không cần nhãn đáp án có sẵn \parencite{rousseeuw1987silhouette}.
 
 Với mỗi điểm \(i\), gọi \(a(i)\) là khoảng cách trung bình đến các điểm khác trong cùng cụm, còn \(b(i)\) là khoảng cách trung bình nhỏ nhất đến một cụm khác. Silhouette của điểm đó được tính như sau:
 
 \begin{equation}
-    s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}}.
+    s(i)=\frac{b(i)\;\text{-}\;a(i)}{\max\{a(i),b(i)\}}.
 \end{equation}
 
 Giá trị gần 1 thường có nghĩa điểm nằm gần cụm của mình và xa cụm khác; gần 0 là điểm nằm giữa các cụm; giá trị âm cho thấy điểm có thể gần cụm khác hơn cụm đang được gán.
@@ -1054,7 +1032,7 @@ Silhouette của toàn bộ kết quả gom cụm được xác định bằng c
 
 \textbf{Cách nhóm tính Silhouette}
 
-Nhóm tự cài phép tính Silhouette theo công thức trên. Các điểm nhiễu có nhãn \(-1\) được bỏ khỏi phép tính, còn các điểm thuộc cụm được giữ lại.
+Nhóm tự cài phép tính Silhouette theo công thức trên. Các điểm nhiễu có nhãn \(\text{-}1\) được bỏ khỏi phép tính, còn các điểm thuộc cụm được giữ lại.
 
 Chỉ tính điểm tổng hợp khi sau khi bỏ nhiễu còn ít nhất hai cụm. Nếu điều kiện này không đạt, kết quả được ghi là chưa xác định. Nếu một cụm chỉ có một điểm, Silhouette của điểm đó được quy ước bằng 0. Vì bỏ nhiễu có thể làm điểm trung bình tăng, nhóm đọc Silhouette cùng số cụm và tỷ lệ nhiễu.
 
@@ -1090,7 +1068,7 @@ Tương tự, số đối tượng nhiễu tăng hoặc giảm có thể phản 
 
 Nhóm chọn DBSCAN, OPTICS và HDBSCAN để so sánh vì cả ba đều dựa trên mật độ nhưng tìm cụm theo những cách khác nhau. DBSCAN là đối chứng gần nhất với thuật toán nhóm tự cài. OPTICS và HDBSCAN giúp xem kết quả của hai cách phân cụm mật độ khác. Nhóm không đưa K-Means vào bảng so sánh chính vì K-Means thuộc cách phân cụm khác và không xử lý nhiễu như DBSCAN.
 
-DBSCAN sử dụng hai tham số \(\varepsilon\) và \(\mathrm{MinPts}\) để xác định các đối tượng lõi và mở rộng cụm. OPTICS xây dựng thứ tự xử lý cùng khoảng cách khả đạt (Reachability Distance), qua đó hỗ trợ xem xét cấu trúc cụm ở nhiều ngưỡng mật độ. Trong khi đó, HDBSCAN xây dựng cấu trúc phân cấp dựa trên mật độ và lựa chọn những cụm có mức ổn định phù hợp, giúp nhận diện các cụm có mật độ khác nhau trong nhiều trường hợp \parencite{sklearnClusteringGuide}.
+DBSCAN sử dụng hai tham số \(\varepsilon\) và \(\mathrm{MinPts}\) để xác định các đối tượng lõi và mở rộng cụm. OPTICS xây dựng thứ tự xử lý cùng khoảng cách khả đạt (Reachability Distance), qua đó hỗ trợ xem xét cấu trúc cụm ở nhiều ngưỡng mật độ. Trong khi đó, HDBSCAN xây dựng cấu trúc phân cấp dựa trên mật độ và lựa chọn những cụm có mức ổn định phù hợp, giúp nhận diện các cụm có mật độ khác nhau trong nhiều trường hợp \parencite{ankerst1999optics,campello2013hdbscan,sklearnClusteringGuide}.
 
 Trong benchmark, DBSCAN, HDBSCAN và OPTICS được lấy từ scikit-learn; sau mỗi cập nhật, các bản này được chạy lại trên toàn bộ dữ liệu hiện có. scikit-learn không cung cấp thao tác INSERT/DELETE tăng dần cho DBSCAN. Vì vậy, phép đo thời gian đối chiếu cập nhật cục bộ của chương trình nhóm với cách chạy lại toàn bộ, chứ không phải so sánh bốn thuật toán incremental.
 
@@ -1103,30 +1081,27 @@ Bảng~\ref{tab:clustering_algorithm_comparison} tổng hợp những đặc đi
 \caption{So sánh đặc điểm của các thuật toán gom cụm}
 \label{tab:clustering_algorithm_comparison}
 \normalsize
-\begin{tabularx}{\textwidth}{|P{2.6cm}|Y|Y|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{2.6cm}YY@{}}
+\toprule
 \textbf{Thuật toán} &
 \textbf{Nguyên tắc gom cụm} &
 \textbf{Đặc điểm chính} \\
-\hline
+\midrule
 DBSCAN &
 Kết nối các đối tượng theo mật độ với \(\varepsilon\) và \(\mathrm{MinPts}\). &
 Nhận diện cụm không lồi và nhiễu; khó xử lý các cụm có mật độ chênh lệch lớn. \\
-\hline
 
 Incremental DBSCAN &
 Tận dụng kết quả DBSCAN đã có để cập nhật cấu trúc cụm sau INSERT hoặc DELETE. &
 Hỗ trợ chèn, xóa và sử dụng lại trạng thái, vẫn có thể cần duyệt nhiều đối tượng khi cập nhật nhãn cụm. \\
-\hline
 
 OPTICS &
 Sắp xếp các đối tượng theo cấu trúc mật độ và khoảng cách khả đạt. &
 Hỗ trợ phân tích cấu trúc cụm ở nhiều ngưỡng mật độ. \\
-\hline
 
 HDBSCAN &
 Xây dựng và lựa chọn cụm từ cấu trúc phân cấp theo mật độ. &
 Có thể nhận diện các cụm có mật độ khác nhau và xác định nhiễu. \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
