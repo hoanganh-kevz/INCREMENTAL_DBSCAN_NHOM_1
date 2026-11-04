@@ -89,7 +89,27 @@ Luồng thẻ 2D/3D/4D & 0,4 sau chuẩn hóa & 6 & Lấy từ \texttt{params.js
 \end{tabularx}
 \end{table}
 
-Trên D0 của luồng thẻ, nhóm đã thử một lưới nhỏ các giá trị Eps và MinPts rồi xem Silhouette cùng số cụm và tỷ lệ nhiễu. Eps = 0,4 và MinPts = 6 cho kết quả ổn định trong các lát 2D, 3D và 4D của thí nghiệm; đây là cấu hình tham chiếu dễ giải thích, không phải tham số tối ưu cho mọi dữ liệu. Các cấu hình của ví dụ 2D, ATM và benchmark phục vụ những mục tiêu khác nhau nên không dùng để so trực tiếp giá trị Eps với nhau.
+Trên D0 đã chuẩn hóa, nhóm thử DBSCAN OOP với Eps = 0,25; 0,30; 0,35; 0,40; 0,45; 0,50; 0,60 và MinPts = 4, 6, 8, rồi xem Silhouette cùng số cụm và tỷ lệ nhiễu. Eps = 0,25 có Silhouette nhỉnh hơn nhưng tạo nhiều nhiễu hơn; Eps = 0,60 làm các nhóm nhập lại ở lát 2D và 3D. Trong vùng Eps từ 0,35 đến 0,50, kết quả ổn định hơn. Khi giữ Eps = 0,40, cả ba giá trị MinPts đều cho kết quả gần nhau; nhóm chọn MinPts = 6 làm mức tham chiếu ở giữa. Vì vậy, Eps = 0,40 và MinPts = 6 là cấu hình phù hợp với dữ liệu mô phỏng đang dùng, không phải bộ tham số tối ưu cho mọi dữ liệu.
+
+Khi so sánh, các thuật toán dùng chung dữ liệu, khoảng cách Euclidean và mốc MinPts = 6, nhưng tên và ý nghĩa tham số không hoàn toàn giống nhau. Bảng~\ref{tab:comparison_parameters} ghi cấu hình thực tế trong mã benchmark. HDBSCAN không dùng Eps; OPTICS tạo thứ tự theo mật độ rồi trích cụm theo kiểu DBSCAN tại Eps = 0,40. Do đó, đây là cách đặt tham số tham chiếu để so sánh trên cùng đầu vào, không có nghĩa các thuật toán được cấu hình tương đương hoàn toàn.
+
+\begin{table}[H]
+\centering
+\caption{Cấu hình thuật toán trong benchmark}
+\label{tab:comparison_parameters}
+\begin{tabularx}{\textwidth}{@{}P{3.2cm}P{6.2cm}Y@{}}
+\toprule
+\textbf{Thuật toán} & \textbf{Tham số được dùng} & \textbf{Lý do cấu hình} \\
+\midrule
+Incremental DBSCAN OOP & \texttt{eps=0.4}, \texttt{min\_pts=6}, Euclidean & Tham số tham chiếu trong \texttt{params.json}; cập nhật trên trạng thái đã lưu. \\
+scikit-learn DBSCAN & \texttt{eps=0.4}, \texttt{min\_samples=6}, Euclidean & Dùng cùng ngưỡng lân cận và mốc số điểm với bản OOP; fit lại toàn bộ sau mỗi cập nhật. \\
+scikit-learn HDBSCAN & \makecell[l]{\texttt{min\_cluster\_size=6},\\\texttt{min\_samples=6},\\\texttt{cluster\_selection\_}\\\texttt{method=eom}} & HDBSCAN không có Eps. Hai giá trị 6 làm mốc tham chiếu về kích thước cụm và mật độ; chúng không tương đương hoàn toàn với DBSCAN. \\
+scikit-learn OPTICS & \makecell[l]{\texttt{min\_samples=6},\\\texttt{eps=0.4},\\\texttt{max\_eps=0.400001},\\\texttt{cluster\_method=dbscan}} & Trích cụm theo kiểu DBSCAN tại cùng Eps; \texttt{max\_eps} đặt nhỉnh hơn Eps để xây dựng thứ tự lân cận. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Các estimator scikit-learn trong benchmark được đặt \texttt{n\_jobs=1} để chạy tuần tự khi đo thời gian. Các cấu hình minh họa 2D và ATM phục vụ mục đích khác nên không so trực tiếp giá trị Eps với benchmark luồng thẻ.
 
 \section{Thiết kế hướng đối tượng và sơ đồ lớp}
 
@@ -154,7 +174,9 @@ DBSCAN tính các điểm trong vùng Eps của mỗi điểm bằng khoảng c�
 
 Incremental DBSCAN kế thừa trạng thái do DBSCAN tạo và giữ cache lân cận theo mã điểm. Khi insert, chương trình cập nhật lân cận, tìm \(\mathrm{NewCore}\), rồi tạo \(\mathrm{UpdSeed}_{Ins}\) từ các lõi trong lân cận của những điểm vừa thành lõi. Phần cập nhật được giới hạn trong các lõi mới: chương trình duyệt chúng bằng stack LIFO và dùng nhãn của các lõi cũ trong tập seed để xác định tạo cụm, hấp thụ hay hợp nhất cụm. Nhờ đó, chương trình không chạy lại DBSCAN trên toàn bộ dữ liệu.
 
-Khi delete, chương trình tìm \(\mathrm{LostCore}\), gồm điểm bị xóa nếu nó là lõi và các điểm kề vừa mất điều kiện lõi. Từ lân cận của các điểm này, chương trình lập \(\mathrm{UpdSeed}_{Del}\). Nếu tập seed rỗng thì xử lý Removal; nếu các seed trực tiếp nối nhau thì xử lý Reduction. Với Potential Split, BFS dùng hàng đợi FIFO khởi tạo từ các seed để tìm đường qua các lõi còn lại \parencite{mitBFSConnectedComponents}. Nếu các seed được nối với nhau thì cụm không tách; nếu không, các thành phần lõi được gán lại thành cụm riêng \parencite{networkxConnectedComponents}.
+Khi delete, chương trình tìm \(\mathrm{LostCore}\), gồm điểm bị xóa nếu nó là lõi và các điểm kề vừa mất điều kiện lõi. Từ lân cận của các điểm này, chương trình lập \(\mathrm{UpdSeed}_{Del}\). Nếu tập seed rỗng thì xử lý Removal; nếu các seed trực tiếp nối nhau thì xử lý Reduction. Với Potential Split, BFS dùng hàng đợi FIFO khởi tạo từ các seed để tìm đường qua các lõi còn lại. Nếu các seed được nối với nhau thì cụm không tách; nếu không, các thành phần lõi được gán lại thành cụm riêng \parencite{mitBFSConnectedComponents}.
+
+Thuật ngữ "cập nhật cục bộ" ở đây nghĩa là chương trình không fit lại toàn bộ DBSCAN. Tuy vậy, \texttt{\_region\_query()} hiện vẫn quét danh sách điểm để tìm lân cận; thao tác gộp cụm hoặc gán lại nhãn cũng có thể phải duyệt nhiều điểm. Vì thế, cách cài đặt này chưa bảo đảm mỗi cập nhật nhanh hơn fit lại, phù hợp với kết quả benchmark ở Chương 5.
 
 Các vector đầu vào không bị giới hạn ở hai tọa độ. Khoảng cách và truy vấn lân cận dùng toàn bộ số chiều của vector; 2D được dùng cho ví dụ dễ nhìn, còn các lát 2D, 3D và 4D của luồng thẻ được phân cụm theo toàn bộ đặc trưng trong cấu hình tương ứng.
 
@@ -162,7 +184,7 @@ Các vector đầu vào không bị giới hạn ở hai tọa độ. Khoảng c
 
 Nhóm tự cài Silhouette trong \texttt{src/evaluation/metrics.py}. Với mỗi điểm không phải nhiễu, chương trình tính khoảng cách trung bình đến điểm cùng cụm và khoảng cách trung bình nhỏ nhất đến một cụm khác, sau đó lấy trung bình điểm Silhouette. Điểm nhiễu được bỏ khỏi phép tính; điểm ở cụm đơn lẻ nhận giá trị 0. Khi dữ liệu sau khi bỏ nhiễu còn ít hơn hai cụm, hàm báo không thể tính Silhouette thay vì trả một kết quả gây hiểu nhầm.
 
-Phần đối chiếu gọi DBSCAN của scikit-learn để fit lại toàn bộ dữ liệu sau mỗi thao tác, rồi kiểm tra cách chia cụm và trạng thái điểm \parencite{sklearnDBSCANDemo}. Đây là phần tham khảo độc lập, không tham gia vào mã thuật toán tự cài. Các hình được vẽ bằng Matplotlib; dữ liệu nhiều chiều có thể được chiếu xuống mặt phẳng bằng PCA viết bằng NumPy để hiển thị, nhưng phép phân cụm vẫn chạy trên số chiều gốc.
+Phần đối chiếu gọi DBSCAN của scikit-learn để fit lại toàn bộ dữ liệu sau mỗi thao tác, rồi kiểm tra cách chia cụm và trạng thái điểm theo API của thư viện \parencite{sklearnDBSCAN}. Đây là phần tham khảo độc lập, không tham gia vào mã thuật toán tự cài. Các hình được vẽ bằng Matplotlib; dữ liệu nhiều chiều có thể được chiếu xuống mặt phẳng bằng PCA viết bằng NumPy để hiển thị, nhưng phép phân cụm vẫn chạy trên số chiều gốc.
 
 Hai notebook được sắp theo mục đích: \texttt{Incremental\_DBSCAN\_Demo.ipynb} đi qua ví dụ INSERT/DELETE và demo ATM 2D; \texttt{So\_sanh\_thuat\_toan.ipynb} trình bày Silhouette và benchmark với DBSCAN, HDBSCAN, OPTICS. Cách chia này giúp người xem theo dõi thuật toán trước rồi mới xem phần so sánh.
 

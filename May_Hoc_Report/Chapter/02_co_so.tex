@@ -3,33 +3,9 @@
 \section{Tổng quan về gom cụm dữ liệu}
 \subsection{Khái niệm và mục tiêu của gom cụm dữ liệu}
 
-Gom cụm (Clustering) là cách chia các điểm dữ liệu thành những nhóm dựa trên đặc điểm của chúng. Đây là học không giám sát vì ban đầu không có nhãn cho biết mỗi điểm thuộc nhóm nào; thuật toán tự tìm các nhóm từ dữ liệu.
+Gom cụm là cách chia dữ liệu thành các nhóm có đặc điểm gần nhau. Đây là học không giám sát vì dữ liệu ban đầu chưa có nhãn; thuật toán tự tìm cấu trúc nhóm.
 
-Xét tập dữ liệu \(D\) gồm \(n\) đối tượng, trong đó mỗi đối tượng \(x_i\) được mô tả bằng \(d\) giá trị số thực:
-
-\begin{equation}
-    D = \{x_1, x_2, \ldots, x_n\}, \qquad x_i \in \mathbb{R}^{d}.
-\end{equation}
-
-Trong phạm vi đồ án, nhóm sử dụng cách gom cụm mà trong đó mỗi đối tượng được gán vào tối đa một cụm. Đối với các thuật toán cho phép nhận diện nhiễu, kết quả gom cụm có thể được biểu diễn như sau:
-
-\begin{equation}
-    D = \left(\bigcup_{j=1}^{k} C_j\right) \cup {N},
-    \qquad
-    C_i \cap C_j = \varnothing \quad (i \neq j),
-    \qquad
-    C_j \cap {N} = \varnothing.
-\end{equation}
-
-Trong đó, \(C_j\) là cụm thứ \(j\), \(k\) là số cụm được hình thành và \(N\) là tập các đối tượng không thuộc cụm nào, được gọi là nhiễu (Noise). Các điều kiện trên cho biết mỗi đối tượng chỉ thuộc tối đa một cụm, đồng thời không thể vừa thuộc một cụm vừa được xác định là nhiễu.
-
-DBSCAN cho phép đánh dấu những điểm không thuộc cụm nào là nhiễu. Nếu mọi điểm đều được đưa vào cụm thì tập nhiễu có thể rỗng.
-
-Việc xác định các đối tượng thuộc cùng một cụm phụ thuộc vào cách thuật toán định nghĩa sự tương đồng. Ví dụ, K-means sử dụng khoảng cách đến tâm cụm, trong khi các thuật toán gom cụm phân cấp có thể dựa trên khoảng cách hoặc quan hệ liên kết giữa các nhóm đối tượng. Đối với DBSCAN, các cụm được hình thành dựa trên mật độ và quan hệ khả đạt theo mật độ giữa các đối tượng.
-
-Sự khác biệt này có ý nghĩa trong việc đánh giá cấu trúc cụm. Hai đối tượng nằm ở hai đầu một cụm có thể cách nhau khá xa nhưng vẫn có thể thuộc cùng một cụm nếu tồn tại chuỗi kết nối theo mật độ giữa chúng. Vì vậy, tính tương đồng trong gom cụm không nhất thiết đòi hỏi mọi cặp đối tượng trong cùng một cụm phải có khoảng cách nhỏ. Tiêu chí hình thành cụm cần được xem xét theo nguyên lý của từng thuật toán.
-
-Trong đồ án này, nhóm tập trung vào phương pháp phân cụm dựa trên mật độ, đặc biệt là DBSCAN và phiên bản cập nhật tăng dần Incremental DBSCAN.
+Trong DBSCAN, mỗi điểm sau khi chạy thuộc một cụm hoặc được đánh dấu là nhiễu. Điểm nhiễu không được ép vào cụm gần nhất. Nhóm tập trung vào DBSCAN và Incremental DBSCAN, trong đó cụm được tìm qua mật độ và các kết nối giữa những điểm lõi.
 
 \subsection{Các phương pháp gom cụm phổ biến}
 
@@ -37,17 +13,15 @@ Các thuật toán gom cụm có thể được phân biệt dựa trên cách x
 
 \textbf{Gom cụm theo phân hoạch (Partitioning Clustering)}
 
-Phương pháp gom cụm theo phân hoạch chia tập dữ liệu thành một số cụm xác định. Ví dụ là K-means, trong đó mỗi đối tượng được cho vào cụm có tâm gần nhất và các tâm cụm được cập nhật qua nhiều lần lặp. Phương pháp này yêu cầu xác định trước số lượng cụm \(k\) và thường phù hợp với các nhóm dữ liệu phân bố tập trung quanh một tâm, nhưng có thể gặp hạn chế khi các cụm có hình dạng phức tạp \parencite{machinelearningcoban,andrewngnotebooks}.
+Phương pháp gom cụm theo phân hoạch chia dữ liệu thành số cụm đã chọn trước. K-means là ví dụ quen thuộc: mỗi điểm được gán cho tâm gần nhất, sau đó các tâm được cập nhật. Cách này cần khai báo số cụm và có thể không phù hợp với cụm cong hoặc có hình dạng phức tạp \parencite{machinelearningcoban}.
 
 \textbf{Gom cụm phân cấp (Hierarchical Clustering)}
 
-Phương pháp gom cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. Ví dụ như trong thuật toán gom cụm phân cấp kết tụ (Hierarchical Agglomerative Clustering - HAC), ban đầu mỗi đối tượng được xem là một cụm riêng, sau đó các cụm được hợp nhất dần dựa trên tiêu chí liên kết đã chọn. Quá trình này được biểu diễn bằng cấu trúc cây cho phép quan sát thứ tự và mức khoảng cách mà các cụm được hợp nhất \parencite{instructorclusteringnotebooks}.
+Gom cụm phân cấp kết tụ (HAC) bắt đầu bằng cách xem mỗi điểm là một cụm riêng, rồi gộp dần các cụm theo tiêu chí khoảng cách đã chọn. Kết quả thường được biểu diễn bằng cây để thấy thứ tự các cụm được gộp \parencite{instructorclusteringnotebooks}.
 
 \textbf{Gom cụm dựa trên mật độ (Density-Based Clustering)}
 
-Thay vì xác định cụm thông qua tâm đại diện hoặc trình tự hợp nhất các nhóm, phương pháp dựa trên mật độ xét sự phân bố của các đối tượng trong những vùng lân cận. Các vùng có đủ mật độ và có quan hệ kết nối với nhau được xác định thuộc cùng một cụm, trong khi những đối tượng không đáp ứng điều kiện tham gia cụm có thể được nhận diện là nhiễu.
-
-DBSCAN thuộc nhóm thuật toán dựa trên mật độ. Thuật toán dùng các điểm lõi để mở rộng cụm, nên có thể tìm được cụm không tròn và không cần biết trước số cụm. Kết quả phụ thuộc vào bán kính lân cận và ngưỡng mật độ.
+Phương pháp dựa trên mật độ tìm vùng có nhiều điểm gần nhau. Những vùng nối được qua các điểm lõi được xem là một cụm; điểm nằm ngoài vùng đó có thể thành nhiễu. DBSCAN thuộc nhóm này, không cần biết trước số cụm và có thể tìm cụm không tròn. Kết quả phụ thuộc vào bán kính lân cận và ngưỡng số điểm.
 
 \section{Thuật toán DBSCAN}
 
@@ -176,31 +150,11 @@ Ví dụ, xét ba đối tượng \(p\), \(r\) và \(q\), trong đó \(p\) và \
 
 \textbf{Kết nối theo mật độ (Density-Connected)}
 
-Hai điểm \(p\) và \(q\) kết nối theo mật độ nếu có một điểm lõi \(o\) mà từ đó có thể đi theo mật độ đến cả hai điểm.
+Hai điểm được xem là kết nối theo mật độ nếu có thể lần theo các điểm lõi để nối chúng vào cùng một vùng cụm. Hai điểm biên không tự nối đường đi, nhưng vẫn có thể thuộc cùng cụm nếu mỗi điểm nằm cạnh một điểm lõi trong vùng đó.
 
-Nếu ký hiệu \(R(o)\) là tập tất cả đối tượng khả đạt theo mật độ từ \(o\) thì điều kiện kết nối theo mật độ được biểu diễn như sau:
+Nói gọn lại, DBSCAN bắt đầu từ một điểm lõi, đi qua các điểm lõi kề nhau, rồi đưa các điểm biên gần những lõi này vào cụm. Khi không còn lõi nào mở rộng được, cụm đã tìm xong. Cách hiểu này cũng giải thích vì sao cụm có thể dài hoặc cong: hai đầu cụm không cần nằm cách nhau dưới Eps, miễn là còn một đường nối qua các điểm lõi.
 
-\begin{equation}
-    \exists o \in D:\quad p \in R(o) \ \land\ q \in R(o).
-\end{equation}
-
-Hai điểm biên có thể không mở rộng được đến nhau, nhưng vẫn cùng cụm nếu chúng được nối với một điểm lõi chung.
-
-\textbf{Điều kiện hình thành cụm}
-
-Từ các quan hệ trên, một cụm \(C\) trong DBSCAN được xác định dựa trên hai điều kiện chính:
-
-\begin{enumerate}[label=\arabic*., leftmargin=*, itemsep=3pt]
-    \item \textbf{Tính tối đại (Maximality):} Nếu \(p\) thuộc cụm \(C\) và \(q\) khả đạt theo mật độ từ \(p\) thì \(q\) cũng phải thuộc \(C\).
-
-    \item \textbf{Tính kết nối (Connectivity):} Mọi cặp đối tượng thuộc \(C\) phải có quan hệ kết nối theo mật độ.
-\end{enumerate}
-
-Tính tối đại bảo đảm cụm không bỏ sót những đối tượng có thể được bổ sung theo quan hệ khả đạt. Tính kết nối bảo đảm các đối tượng trong cùng một cụm không phải những nhóm độc lập, mà có thể được liên hệ thông qua cấu trúc mật độ chung.
-
-Hai điều kiện này cho phép xác định một cụm bắt đầu từ bất kỳ đối tượng lõi nào thuộc cụm đó. Thuật toán liên tục tìm những đối tượng khả đạt từ lõi ban đầu và mở rộng qua các lõi mới cho đến khi không còn đối tượng nào có thể được bổ sung.
-
-Đây cũng là nguyên lý quan trọng đối với Incremental DBSCAN: khi dữ liệu thay đổi, thuật toán có thể dựa vào những đối tượng lõi và quan hệ kết nối đã có để xác định phần cấu trúc cụm cần cập nhật, thay vì bắt đầu lại từ toàn bộ dữ liệu.
+Khi dữ liệu thay đổi, Incremental DBSCAN dựa vào các lõi và đường nối đã lưu để kiểm tra phần cụm bị ảnh hưởng, thay vì bắt đầu lại từ đầu.
 
 \subsection{Quy trình thực hiện}
 
@@ -553,100 +507,7 @@ Riêng một đối tượng biên nằm gần lõi của nhiều cụm không �
     \label{fig:insert_cases}
 \end{figure}
 
-\textbf{Trường hợp 1 - Noise (Nhiễu)}
-
-Trường hợp Noise xảy ra khi phép chèn không tạo ra lõi mới và đối tượng \(p\) không nằm trong lân cận của bất kỳ lõi nào đã tồn tại. Khi đó, \(p\) không đủ điều kiện để bắt đầu một cụm và cũng không thể gia nhập cụm cũ dưới dạng đối tượng biên.
-
-Xét sáu đối tượng \(A=(0;0)\), \(B=(1;0)\), \(C=(2;0)\), \(D=(0;1)\), \(E=(1;1)\) và \(F=(2;1)\), với \(\varepsilon=1{,}1\) và \(\mathrm{MinPts}=4\).
-
-Trước cập nhật, \(B\) và \(E\) là hai đối tượng lõi, các đối tượng còn lại là biên và toàn bộ sáu đối tượng thuộc cùng một cụm \(C_1\).
-
-Chèn thêm đối tượng \(p=(5;5)\). Do khoảng cách từ \(p\) đến mọi đối tượng cũ đều lớn hơn \(\varepsilon\), ta có:
-
-\begin{equation}
-N_{\varepsilon}(p)=\{p\},
-\qquad |N_{\varepsilon}(p)|=1<4.
-\end{equation}
-
-Không có đối tượng cũ nào tăng số lượng lân cận, nên \(\mathrm{NewCore}=\varnothing\). Đồng thời, \(p\) không nằm trong lân cận của lõi \(B\) hoặc \(E\).
-
-Kết quả, \(p\) được xác định là nhiễu và cụm \(C_1\) không thay đổi.
-
-Lưu ý: \(\mathrm{NewCore}=\varnothing\) chưa đủ để kết luận \(p\) là nhiễu. Nếu \(p\) nằm trong lân cận của một lõi cũ, nó vẫn có thể được bổ sung vào cụm dưới dạng đối tượng biên mà không làm xuất hiện lõi mới.
-
-\textbf{Trường hợp 2 - Creation (Tạo cụm mới)}
-
-Creation xảy ra khi phép chèn tạo ra một hoặc nhiều đối tượng lõi, nhưng những kết nối mới không dẫn đến bất kỳ cụm nào đã tồn tại trước cập nhật.
-
-Xét ba đối tượng \(A=(0;0)\), \(B=(1;0)\) và \(C=(2;0)\), với \(\varepsilon=1{,}1\) và \(\mathrm{MinPts}=4\).
-
-Trước khi chèn, số lượng đối tượng trong lân cận của \(A\), \(B\), \(C\) lần lượt là 2, 3 và 2. Vì không có đối tượng lõi, cả ba đều được xác định là nhiễu.
-
-Chèn đối tượng \(p=(1;0{,}5)\). Khoảng cách từ \(p\) đến \(B\) bằng \(0{,}5\), trong khi khoảng cách đến \(A\) và \(C\) đều lớn hơn \(1{,}1\). Do đó:
-
-\begin{equation}
-    N_{\varepsilon}(p)=\{B,p\}.
-\end{equation}
-
-Đối tượng \(B\) có số lượng lân cận tăng từ 3 lên 4:
-
-\begin{equation}
-    |N_{\varepsilon}(B)|:3\longrightarrow4.
-\end{equation}
-
-Vì đạt ngưỡng \(\mathrm{MinPts}\), \(B\) chuyển từ nhiễu thành lõi. Khi đó:
-
-\begin{equation}
-    \mathrm{NewCore}=\{B\},
-    \qquad
-    \mathrm{UpdSeed}_{Ins}=\{B\}.
-\end{equation}
-
-Từ lõi \(B\), các đối tượng \(A\), \(C\) và \(p\) đều khả đạt trực tiếp theo mật độ. Vì trước đó chưa có cụm nào, thuật toán tạo cụm mới:
-
-\begin{equation}
-    C_1=\{A,B,C,p\}.
-\end{equation}
-
-Trong kết quả này, \(B\) là lõi, còn \(A\), \(C\) và \(p\) là biên. Phép chèn chỉ tạo ra một lõi mới nhưng đủ để hình thành cụm gồm bốn đối tượng.
-
-\textbf{Trường hợp 3 - Absorption (Bổ sung vào cụm hiện có)}
-
-Absorption xảy ra khi các kết nối được tạo thêm chỉ liên hệ với một cụm đã tồn tại. Cụm này được mở rộng mà không cần hợp nhất với cụm khác. Trường hợp này cũng có thể xảy ra khi phép chèn không tạo ra lõi mới, nhưng đối tượng được chèn nằm trong lân cận của một lõi đã tồn tại và được bổ sung vào cụm dưới dạng đối tượng biên.
-
-Xét sáu đối tượng \(A=(0;0)\), \(B=(1;0)\), \(C=(0;1)\), \(D=(1;1)\), \(E=(2;0)\) và \(F=(2;1)\), với \(\varepsilon=1{,}1\) và \(\mathrm{MinPts}=4\).
-
-Trước cập nhật, \(B\) và \(D\) là lõi, bốn đối tượng còn lại là biên. Toàn bộ dữ liệu thuộc cùng một cụm \(C_1\).
-
-Chèn đối tượng \(p=(2{,}2;0{,}5)\). Đối tượng mới nằm trong lân cận của \(E\) và \(F\), làm số lượng lân cận của hai đối tượng này tăng từ 3 lên 4:
-
-\begin{equation}
-\begin{aligned}
-    |N_{\varepsilon}(E)| &:3\longrightarrow4,\\
-    |N_{\varepsilon}(F)| &:3\longrightarrow4.
-\end{aligned}
-\end{equation}
-
-Do đó, \(E\) và \(F\) chuyển từ biên thành lõi. Trong khi đó, \(p\) có ba đối tượng trong lân cận là \(E\), \(F\) và chính nó, nên vẫn là biên.
-
-Từ hai lõi mới, thuật toán xác định:
-
-\begin{equation}
-    \mathrm{NewCore}=\{E,F\},
-\end{equation}
-
-\begin{equation}
-    \mathrm{UpdSeed}_{Ins}=\{B,D,E,F\}.
-\end{equation}
-
-Vì \(B\) và \(D\) đều thuộc \(C_1\) trước cập nhật, các kết nối mới không liên hệ với cụm thứ hai. Thuật toán giữ nhãn cụm hiện có và bổ sung \(p\):
-
-\begin{equation}
-    C_1'=\{A,B,C,D,E,F,p\}.
-\end{equation}
-
-Kết quả là số thành viên của cụm tăng từ sáu lên bảy. Đồng thời, hai đối tượng \(E\) và \(F\) thay đổi từ biên thành lõi, nhưng số lượng cụm vẫn là một.
-
+Bảng và hình phía trên đã tóm tắt Noise, Creation và Absorption. Để tránh lặp lại cùng một quy trình ba lần, ví dụ chi tiết dưới đây tập trung vào Merge, trường hợp cần theo dõi rõ các điểm mới thành lõi và hai cụm cũ được nối với nhau.
 \textbf{Trường hợp 4 - Merge (Hợp nhất cụm)}
 
 Merge xảy ra khi các kết nối thông qua lõi mới liên hệ những đối tượng lõi thuộc ít nhất hai cụm khác nhau trước cập nhật. Khi đó, các cụm liên quan trở thành một cụm sau khi chèn.
@@ -777,88 +638,7 @@ Cách làm này cũng xử lý được trường hợp xóa một điểm biên
     \label{fig:delete_cases}
 \end{figure}
 
-\textbf{Trường hợp 1 - Removal (Loại bỏ)}
-
-Theo lý thuyết Incremental DBSCAN, Removal xảy ra khi tập UpdSeedDel rỗng, nghĩa là không còn đối tượng lõi nào trong lân cận của những đối tượng vừa mất tính chất lõi sau phép xóa. Khi đó, không cần tìm đường kết nối thay thế giữa các lõi. Nếu đối tượng bị xóa là lõi duy nhất duy trì một cụm, việc xóa có thể khiến cụm đó biến mất hoàn toàn.
-
-Xét năm đối tượng:
-
-\begin{equation}
-\begin{aligned}
-A&=(\text{-}1;0), & B&=(1;0),\\
-C&=(0;\text{-}1), & D&=(0;1),\\
-p&=(0;0).
-\end{aligned}
-\end{equation}
-
-Với \(\varepsilon=1{,}1\) và \(\mathrm{MinPts}=4\), đối tượng \(p\) có lân cận:
-
-\begin{equation}
-N_{\varepsilon}(p)=\{A,B,C,D,p\}.
-\end{equation}
-
-Do có năm phần tử trong lân cận, \(p\) là lõi. Bốn đối tượng còn lại đều nằm trong lân cận của \(p\) nhưng không đủ điều kiện lõi, nên được xác định là biên. Tập dữ liệu ban đầu hình thành một cụm gồm năm đối tượng.
-
-Sau khi xóa \(p\), các đối tượng \(A\), \(B\), \(C\), \(D\) không còn nằm trong lân cận của bất kỳ lõi nào. Mỗi đối tượng chỉ còn chính nó trong lân cận, vì khoảng cách giữa các đối tượng còn lại đều lớn hơn \(1{,}1\).
-
-Khi đó, không còn đối tượng nào thỏa mãn điều kiện lõi, và:
-
-\begin{equation}
-    \mathrm{UpdSeed}_{Del}=\varnothing.
-\end{equation}
-
-Trong kết quả sau cập nhật, cụm ban đầu không còn tồn tại, bốn đối tượng còn lại đều trở thành nhiễu:
-
-\begin{equation}
-    {N}=\{A,B,C,D\}.
-\end{equation}
-
-Ví dụ cho thấy xóa một đối tượng không chỉ làm giảm số lượng thành viên của cụm. Nếu đối tượng đó là lõi duy nhất, phép xóa có thể loại bỏ toàn bộ cấu trúc cụm.
-
-\textbf{Trường hợp 2 - Reduction (Thu hẹp cụm)}
-
-Reduction xảy ra khi các đối tượng thuộc UpdSeedDel vẫn khả đạt trực tiếp theo mật độ từ nhau sau phép xóa. Điều này cho thấy những kết nối trực tiếp cần thiết giữa các đối tượng lõi liên quan vẫn được duy trì, nên không cần tìm kiếm đường kết nối thay thế. Một số đối tượng có thể mất tính chất lõi hoặc trở thành nhiễu, khiến cụm giảm số thành viên nhưng không bị tách thành các cụm riêng biệt.
-
-Xét tập dữ liệu gồm:
-
-\begin{equation}
-\begin{aligned}
-A&=(0;0), & B&=(1;0),\\
-C&=(0;1), & D&=(1;1),\\
-E&=(2;0), & F&=(2;1),\\
-p&=(2{,}2;0{,}5).
-\end{aligned}
-\end{equation}
-
-Với \(\varepsilon=1{,}1\) và \(\mathrm{MinPts}=4\), trước cập nhật, các đối tượng \(B\), \(D\), \(E\) và \(F\) là lõi. Toàn bộ bảy đối tượng thuộc cùng một cụm.
-
-Khi xóa \(p\), số lượng lân cận của \(E\) và \(F\) giảm từ 4 xuống 3:
-
-\begin{equation}
-\begin{aligned}
-    |N_{\varepsilon}(E)| &:4\longrightarrow3,\\
-    |N_{\varepsilon}(F)| &:4\longrightarrow3.
-\end{aligned}
-\end{equation}
-
-Vì vậy, \(E\) và \(F\) mất tính chất lõi, trong khi \(B\) và \(D\) vẫn là lõi. Hai đối tượng này cách nhau một đơn vị, nhỏ hơn \(\varepsilon\), nên vẫn khả đạt trực tiếp theo mật độ từ nhau.
-
-Theo cách xác định trong paper:
-
-\begin{equation}
-    \mathrm{UpdSeed}_{Del}=\{B,D\}.
-\end{equation}
-
-Các đối tượng \(E\) và \(F\) vẫn nằm trong lân cận của lõi \(B\) hoặc \(D\), nên chuyển thành biên chứ không trở thành nhiễu.
-
-Kết quả sau cập nhật là:
-
-\begin{equation}
-    C_1'=\{A,B,C,D,E,F\}.
-\end{equation}
-
-Cụm giảm từ bảy xuống sáu thành viên nhưng vẫn duy trì cấu trúc liên thông. Đây là trường hợp có sự thay đổi tính chất lõi nhưng không làm mất kết nối giữa những phần còn lại của cụm.
-
+Bảng và hình phía trên đã tóm tắt Removal và Reduction. Với Removal, không còn seed lõi cần giữ cụm; với Reduction, các seed còn nối trực tiếp nên không cần tìm đường thay thế. Phần ví dụ chi tiết dưới đây tập trung vào Potential Split, vì cần dùng BFS để phân biệt cụm thật sự bị tách với trường hợp vẫn còn đường nối.
 \textbf{Trường hợp 3 - Potential Split (Khả năng tách cụm)}
 
 Potential Split xảy ra khi phép xóa làm mất những kết nối trực tiếp cần thiết giữa các đối tượng lõi. Tuy nhiên, việc mất kết nối trực tiếp chưa đủ để kết luận cụm bị tách, bởi vẫn có thể tồn tại đường kết nối thông qua những lõi khác.
@@ -982,7 +762,7 @@ Phụ thuộc phạm vi các cụm liên quan, chi phí duy trì trạng thái v
 \end{tabularx}
 \end{table}
 
-Nhờ lưu lại thông tin lân cận và trạng thái phân cụm, Incremental DBSCAN có thể hạn chế việc tính toán lại toàn bộ dữ liệu sau mỗi phép chèn hoặc xóa. Tuy nhiên, trong một số trường hợp như hợp nhất hoặc tách cụm, chương trình vẫn phải duyệt lại nhiều đối tượng để cập nhật nhãn và kiểm tra các kết nối còn lại.
+Nhờ lưu lại thông tin lân cận và trạng thái phân cụm, Incremental DBSCAN có thể tránh fit lại toàn bộ DBSCAN sau mỗi phép chèn hoặc xóa. Tuy nhiên, code hiện tại vẫn quét danh sách điểm khi tìm lân cận mới; khi hợp nhất hoặc tách cụm, chương trình cũng có thể phải duyệt nhiều điểm để cập nhật nhãn. Vì vậy, đây là cập nhật cục bộ về trạng thái, không bảo đảm mỗi thao tác chỉ cần xử lý một vùng nhỏ hoặc luôn chạy nhanh hơn.
 
 Việc duy trì trạng thái cũng làm tăng nhu cầu lưu trữ so với những cách cài đặt không giữ lại toàn bộ thông tin lân cận. Vì vậy, Incremental DBSCAN không nhất thiết xử lý nhanh hơn DBSCAN chạy lại trong mọi tình huống. Lợi ích của phương pháp phụ thuộc vào phạm vi dữ liệu bị ảnh hưởng và lượng thông tin có thể tái sử dụng sau mỗi cập nhật.
 
@@ -994,7 +774,7 @@ Nhóm cũng ghi nhận thời gian chạy, số cụm và tỷ lệ nhiễu đ�
 
 \subsection{Adjusted Rand Index (ARI)}
 
-Adjusted Rand Index (ARI) là chỉ số đo mức độ tương đồng giữa hai kết quả phân cụm trên cùng một tập dữ liệu. Chỉ số này dựa trên việc xem xét các cặp đối tượng có được xếp vào cùng nhóm hoặc khác nhóm trong cả hai kết quả hay không, đồng thời hiệu chỉnh mức độ tương đồng có thể xuất hiện do ngẫu nhiên \parencite{hubertArabie1985}.
+Adjusted Rand Index (ARI) so sánh cách hai kết quả phân chia các cặp đối tượng vào cùng hoặc khác cụm, đồng thời hiệu chỉnh mức độ giống nhau có thể xuất hiện ngẫu nhiên \parencite{hubertArabie1985}.
 
 Giá trị ARI được diễn giải như sau:
 
@@ -1004,9 +784,7 @@ Giá trị ARI được diễn giải như sau:
     \item ARI < 0: Mức độ tương đồng thấp hơn giá trị kỳ vọng nói trên.
 \end{itemize}
 
-Trong đồ án, ARI chỉ dùng để kiểm tra kết quả Incremental DBSCAN có gần với DBSCAN chạy lại trên cùng dữ liệu, khoảng cách và tham số hay không. Các điểm nhiễu vẫn được giữ lại; nhãn \(\text{-}1\) được xem là một nhãn riêng trong phép đối chiếu. ARI không phải chỉ số chính để đánh giá chất lượng cụm.
-
-Tuy nhiên, ARI không phân biệt trực tiếp đối tượng lõi và đối tượng biên. Ngoài ra, một đối tượng biên có thể được gán hợp lệ vào nhiều cụm khác nhau. Vì vậy, nhóm còn kiểm tra riêng tính chất lõi, trạng thái nhiễu và các trường hợp gán cụm của đối tượng biên, thay vì chỉ dựa vào ARI.
+Trong đồ án, ARI chỉ dùng để đối chiếu Incremental DBSCAN với DBSCAN chạy lại trên cùng dữ liệu; nhãn nhiễu \(\text{-}1\) được xem là một nhãn riêng. Vì ARI không kiểm tra trạng thái lõi và biên, chương trình còn đối chiếu riêng các trạng thái này. ARI không được dùng để xếp hạng chất lượng cụm.
 
 \subsection{Silhouette}
 
@@ -1017,8 +795,6 @@ Với mỗi điểm \(i\), gọi \(a(i)\) là khoảng cách trung bình đến 
 \begin{equation}
     s(i)=\frac{b(i)\;\text{-}\;a(i)}{\max\{a(i),b(i)\}}.
 \end{equation}
-
-Giá trị gần 1 thường có nghĩa điểm nằm gần cụm của mình và xa cụm khác; gần 0 là điểm nằm giữa các cụm; giá trị âm cho thấy điểm có thể gần cụm khác hơn cụm đang được gán.
 
 Giá trị Silhouette nằm trong khoảng từ -1 đến 1, cụ thể như sau:
 
