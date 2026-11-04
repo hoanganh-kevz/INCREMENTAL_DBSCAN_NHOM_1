@@ -20,7 +20,7 @@ So sánh trên luồng thẻ & D0 có 500 điểm; benchmark phát lại 20 cậ
 \end{tabularx}
 \end{table}
 
-DBSCAN và Incremental DBSCAN OOP là phần nhóm tự cài. DBSCAN, HDBSCAN và OPTICS của scikit-learn được dùng làm đối chứng \parencite{sklearnDBSCAN,sklearnHDBSCAN,sklearnOPTICS}. Ba thuật toán thư viện được chạy lại trên toàn bộ dữ liệu hiện có sau mỗi cập nhật; bản Incremental DBSCAN xử lý INSERT/DELETE trên trạng thái đã lưu. Tất cả dùng cùng tọa độ đã chuẩn hóa và khoảng cách Euclidean. Các tham số của từng phương pháp được trình bày ở Chương 2.
+DBSCAN và Incremental DBSCAN OOP là phần nhóm tự cài. DBSCAN, HDBSCAN và OPTICS của scikit-learn được dùng làm đối chứng \parencite{sklearnDBSCAN,sklearnHDBSCAN,sklearnOPTICS}. Trong benchmark luồng thẻ, bốn phương pháp nhận cùng dữ liệu đã chuẩn hóa, khoảng cách Euclidean và thứ tự cập nhật. Ba thuật toán thư viện được chạy lại trên toàn bộ dữ liệu hiện có sau mỗi cập nhật; bản Incremental DBSCAN xử lý INSERT/DELETE trên trạng thái đã lưu. Các tham số riêng của từng phương pháp được trình bày ở Chương 4, Bảng~\ref{tab:comparison_parameters}. Demo ATM 2D dùng tọa độ kilômét chưa chuẩn hóa và cấu hình riêng.
 
 Benchmark thời gian chạy 5 lượt, có một lượt khởi động không tính vào kết quả. Mỗi lượt dùng cùng dữ liệu và cùng thứ tự 20 cập nhật, gồm 10 INSERT và 10 DELETE. Bảng thời gian báo trung vị và độ lệch chuẩn. Silhouette được tính trên trạng thái cuối của 20 cập nhật trong một lần chạy xác định, không phải trung bình của 5 lượt thời gian.
 
@@ -90,7 +90,7 @@ Ví dụ Split bắt đầu với một cụm có điểm \(p\) nối hai phía.
 
 Các ví dụ Merge và Split ở trên dùng tọa độ 2D để có thể theo dõi trực tiếp điểm mới, điểm bị xóa, vòng Eps và các điểm trong \(\mathrm{UpdSeed}\). Notebook minh họa trình bày từng bước của hai ví dụ này, sau đó chạy DBSCAN trên 1.200 tọa độ ATM.
 
-Với ATM 2D, cấu hình Eps = 0,5 km và MinPts = 4 tạo ra 6 cụm, 142 điểm nhiễu; Silhouette tự cài trên các điểm không nhiễu là 0,3362. Vì Silhouette bỏ điểm nhiễu, nhóm đọc chỉ số này cùng số cụm và tỷ lệ nhiễu, không dùng riêng nó để kết luận mô hình nào tốt hơn.
+Với ATM 2D, cấu hình Eps = 0,5 km và MinPts = 4 tạo ra 6 cụm, 142 điểm nhiễu; Silhouette tự cài trên các điểm không nhiễu là 0,3362. Các phương pháp nhận cùng hai tọa độ và khoảng cách Euclidean. DBSCAN dùng \texttt{eps=0.5, min\_samples=4}; HDBSCAN dùng \texttt{min\_cluster\_size=4, min\_samples=4} vì thuật toán này không có Eps; OPTICS dùng \texttt{min\_samples=4, eps=0.5, max\_eps=0.500001} và trích cụm theo kiểu DBSCAN. Vì Silhouette bỏ điểm nhiễu, nhóm đọc chỉ số này cùng số cụm và tỷ lệ nhiễu, không dùng riêng nó để kết luận mô hình nào tốt hơn.
 
 \section{Đối chiếu với DBSCAN chạy lại}
 
@@ -98,7 +98,7 @@ Với ATM 2D, cấu hình Eps = 0,5 km và MinPts = 4 tạo ra 6 cụm, 142 đi�
 
 Trong kết quả lưu tại \texttt{results/equivalence\_results.csv}, có 317 lần đối chiếu: 9 lần fit ban đầu, 154 INSERT và 154 DELETE. Cả 317 lần đều đạt điều kiện tương đương; không có trường hợp sai khác được ghi nhận. Kết quả này gồm các ví dụ cập nhật và luồng thẻ, cho thấy các trạng thái đã kiểm tra của bản OOP khớp với DBSCAN chạy lại.
 
-Đây là kiểm tra trên các bộ dữ liệu và thao tác hiện có, không chứng minh thuật toán đúng với mọi dữ liệu có thể gặp. Bộ kiểm thử tự động đạt 33/33 trường hợp trong lần chạy gần nhất.
+Đây là kiểm tra trên các bộ dữ liệu và thao tác hiện có, không chứng minh thuật toán đúng với mọi dữ liệu có thể gặp.
 
 \section{So sánh chất lượng cụm bằng Silhouette}
 
