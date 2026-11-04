@@ -190,6 +190,23 @@ Hai notebook được sắp theo mục đích: \texttt{Incremental\_DBSCAN\_Demo
 
 \section{Kiểm thử tự động}
 
-Nhóm dùng \texttt{pytest} cho một số trường hợp đại diện. Các ca INSERT kiểm tra Noise, Creation, Absorption, Merge, điểm biên nằm giữa hai cụm và một chuỗi chèn liên tiếp. Các ca DELETE kiểm tra Reduction, Removal, Split và Non-split khi còn đường nối thay thế. Một số test kiểm tra thêm khoảng cách, tiện ích cập nhật nhãn cụm và Silhouette.
+Nhóm dùng \texttt{pytest} để kiểm tra 10 tình huống chính của Incremental DBSCAN. Bảng~\ref{tab:main_algorithm_tests} tóm tắt các tình huống INSERT và DELETE cần theo dõi khi trình bày thuật toán.
 
-Mỗi ca kiểm tra kết quả tương ứng như loại điểm, số cụm, nhóm điểm lõi, tập seed hoặc phân hoạch mong đợi. Đây là các kiểm tra chức năng có quy mô nhỏ; kết quả đối chiếu luồng dữ liệu và benchmark được trình bày ở Chương 5. Có thể chạy bộ kiểm thử bằng lệnh \texttt{python -m pytest tests/}.
+\begin{table}[H]
+\centering
+\caption{Các tình huống kiểm thử chính của Incremental DBSCAN}
+\label{tab:main_algorithm_tests}
+\normalsize
+\begin{tabularx}{\textwidth}{@{}P{2.0cm}P{1.3cm}Y@{}}
+\toprule
+\textbf{Thao tác} & \textbf{Số ca} & \textbf{Tình huống được kiểm tra} \\
+\midrule
+INSERT & 6 & Noise, Creation, Absorption, Merge, điểm biên nằm gần hai cụm nhưng không làm chúng nhập lại, và một chuỗi chèn liên tiếp. \\
+DELETE & 4 & Reduction, Removal, Split có cập nhật lại điểm biên, và Non-split khi vẫn còn đường nối thay thế. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Với INSERT, chương trình được kiểm tra qua loại điểm mới, số cụm, điểm lõi và tập seed cập nhật. Với DELETE, chương trình được kiểm tra qua số cụm còn lại, trạng thái điểm lõi/biên/nhiễu và phân hoạch sau khi xóa. Một test chèn liên tiếp nhiều điểm được giữ để xem các cập nhật có tiếp tục đúng trên trạng thái đã thay đổi hay không.
+
+Bộ kiểm thử tập trung vào 10 tình huống INSERT/DELETE trong bảng trên, không mở rộng sang các phép kiểm tra phụ. Đây là các kiểm tra chức năng ở quy mô nhỏ; kết quả đối chiếu luồng dữ liệu và benchmark được trình bày ở Chương 5. Có thể chạy bằng lệnh \texttt{python -m pytest tests/}.

@@ -84,10 +84,19 @@
 \pagestyle{fancy}\fancyhf{}
 \fancyhead[L]{\normalsize\color{muted}ĐỒ ÁN MÁY HỌC}
 \fancyhead[R]{\normalsize\color{muted}NHÓM 1}
-\fancyfoot[R]{\normalsize\color{muted}\thepage}
+\fancyfoot[R]{\raisebox{8pt}{\normalsize\color{muted}\thepage}}
 \renewcommand{\headrulewidth}{0.35pt}
 \renewcommand{\footrulewidth}{0pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyhead[L]{\normalsize\color{muted}ĐỒ ÁN MÁY HỌC}
+  \fancyhead[R]{\normalsize\color{muted}NHÓM 1}
+  \fancyfoot[R]{\raisebox{8pt}{\normalsize\color{muted}\thepage}}
+  \renewcommand{\headrulewidth}{0.35pt}
+  \renewcommand{\footrulewidth}{0pt}
+  \renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}
+}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcommand{\frontmatterchapter}[1]{\chapter*{#1}\addcontentsline{toc}{chapter}{#1}}
@@ -96,6 +105,7 @@
 \makeatother
 \begin{document}
 \pagenumbering{gobble}\thispagestyle{empty}
+\newgeometry{top=2cm,bottom=2cm,left=2.5cm,right=2.5cm}
 \begin{titlepage}
 \begin{tikzpicture}[remember picture,overlay]
 \node[inner sep=0pt] at (current page.center){\includegraphics[width=1.1\paperwidth,height=\paperheight]{Resources/khung_den.png}};
@@ -137,6 +147,7 @@ Nguyễn Phạm Gia Bảo - MSSV: 31221023273
 {\normalsize\bfseries TP. Hồ Chí Minh, tháng 11 năm 2026}
 \vspace*{1cm}
 \end{titlepage}
+\restoregeometry
 
 \clearpage\pagenumbering{roman}\pagestyle{plain}
 \frontmatterchapter{LỜI MỞ ĐẦU}
@@ -179,15 +190,6 @@ PCA & Principal Component Analysis \\
 
 \clearpage
 \pagenumbering{arabic}\pagestyle{fancy}\setcounter{page}{1}
-\fancypagestyle{plain}{%
-  \fancyhf{}
-  \fancyhead[L]{\normalsize\color{muted}ĐỒ ÁN MÁY HỌC}
-  \fancyhead[R]{\normalsize\color{muted}NHÓM 1}
-  \fancyfoot[R]{\normalsize\color{muted}\thepage}
-  \renewcommand{\headrulewidth}{0.35pt}
-  \renewcommand{\footrulewidth}{0pt}
-  \renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}
-}
 \input{Chapter/01_tong_quan}
 \input{Chapter/02_co_so}
 \input{Chapter/03_du_lieu}
