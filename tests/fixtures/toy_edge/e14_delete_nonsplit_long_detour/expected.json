@@ -1,0 +1,134 @@
+{
+  "title": "Delete a bridge core; the alternative path is long (BFS depth above 2)",
+  "eps": 1.0,
+  "minpts": 3,
+  "dims": 2,
+  "coordinate_columns": [
+    "x",
+    "y"
+  ],
+  "neighbourhood_includes_self": true,
+  "metric": "euclidean",
+  "label_convention": "int cluster id (1,2,..), -1 = noise; ids only identify the partition; points listed in ambiguous_border_ids may carry either adjacent cluster id",
+  "n_updates": 1,
+  "labels_before": {
+    "L1": 1,
+    "L2": 1,
+    "L3": 1,
+    "R1": 1,
+    "R2": 1,
+    "R3": 1,
+    "d1": 1,
+    "d2": 1,
+    "d3": 1,
+    "d4": 1,
+    "d5": 1,
+    "d6": 1,
+    "d7": 1,
+    "p": 1
+  },
+  "labels_after": {
+    "L1": 1,
+    "L2": 1,
+    "L3": 1,
+    "R1": 1,
+    "R2": 1,
+    "R3": 1,
+    "d1": 1,
+    "d2": 1,
+    "d3": 1,
+    "d4": 1,
+    "d5": 1,
+    "d6": 1,
+    "d7": 1
+  },
+  "core_before": [
+    "L1",
+    "L2",
+    "L3",
+    "R1",
+    "R2",
+    "R3",
+    "d1",
+    "d2",
+    "d3",
+    "d4",
+    "d5",
+    "d6",
+    "d7",
+    "p"
+  ],
+  "core_after": [
+    "L1",
+    "L2",
+    "L3",
+    "R1",
+    "R2",
+    "R3",
+    "d1",
+    "d2",
+    "d3",
+    "d4",
+    "d5",
+    "d6",
+    "d7"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "op": "delete",
+      "point_id": "p",
+      "case": "PotentialSplit_NonSplit",
+      "labels_after": {
+        "L1": 1,
+        "L2": 1,
+        "L3": 1,
+        "R1": 1,
+        "R2": 1,
+        "R3": 1,
+        "d1": 1,
+        "d2": 1,
+        "d3": 1,
+        "d4": 1,
+        "d5": 1,
+        "d6": 1,
+        "d7": 1
+      },
+      "core_after": [
+        "L1",
+        "L2",
+        "L3",
+        "R1",
+        "R2",
+        "R3",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7"
+      ],
+      "updseed": [
+        "L2",
+        "R1",
+        "R3"
+      ],
+      "ambiguous_border_ids": [],
+      "max_core_hops_between_seeds": 9
+    }
+  ],
+  "ambiguous_to_ignore": [],
+  "ties_at_exactly_eps": [],
+  "tests": {
+    "insert": false,
+    "delete": true,
+    "equivalence": true
+  },
+  "why_vi": "MinPts = 3. p nối trực tiếp L và R. Hai lõi hạt giống L2 và R1 không cách nhau trong Eps nên phải tìm đường; đường thay thế đi vòng qua 7 điểm d1..d7 nên độ sâu BFS lớn hơn 2 (file ghi max_core_hops_between_seeds). Không tách (NonSplit). Thuật toán chỉ BFS sâu 2 sẽ báo tách sai.",
+  "updseed": [
+    "L2",
+    "R1",
+    "R3"
+  ]
+}

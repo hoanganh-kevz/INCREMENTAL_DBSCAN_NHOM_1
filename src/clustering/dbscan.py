@@ -1,4 +1,3 @@
-from collections import deque
 from typing import Dict, List, Optional, Set
 
 import numpy as np
@@ -8,10 +7,10 @@ from src.core.distance import DistanceMetric
 
 
 class DBSCAN:
-    """DBSCAN tự cài đặt theo giả mã DBSCAN 1996.
+    """DBSCAN tự cài theo giả mã dùng stack trong paper IncrementalDBSCAN 1998.
 
-    Dùng hàng đợi FIFO cho danh sách seeds như giả mã nguồn gốc mô tả bằng
-    ``first``/``append``; cache lân cận được giữ để lớp IncrementalDBSCAN dùng.
+    Dùng stack LIFO để mở rộng cụm qua các điểm lõi; cache lân cận được giữ
+    để lớp IncrementalDBSCAN dùng.
 
     Attributes:
         points: Các điểm, được tra cứu theo ID ổn định.
@@ -108,10 +107,10 @@ class DBSCAN:
         seed = self.points[seed_id]
         seed.cluster_id = cluster_id
         seed.point_type = PointType.CORE
-        queue = deque(sorted(neighbor_ids))
+        stack = sorted(neighbor_ids, reverse=True)
 
-        while queue:
-            current_id = queue.popleft()
+        while stack:
+            current_id = stack.pop()
             current_point = self.points[current_id]
 
             if current_point.cluster_id == -1:
@@ -125,7 +124,7 @@ class DBSCAN:
 
             if current_point.neighbor_count >= self.min_pts:
                 current_point.point_type = PointType.CORE
-                queue.extend(sorted(current_point.neighbor_ids))
+                stack.extend(sorted(current_point.neighbor_ids, reverse=True))
             else:
                 current_point.point_type = PointType.BORDER
 

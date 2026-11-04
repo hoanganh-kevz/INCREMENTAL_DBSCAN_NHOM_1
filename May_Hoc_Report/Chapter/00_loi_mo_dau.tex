@@ -1,0 +1,5 @@
+Đề tài của nhóm là ứng dụng Incremental DBSCAN để cập nhật kết quả gom cụm khi dữ liệu có điểm mới hoặc điểm bị xóa. Nhóm chọn đề tài này vì dữ liệu có thể thay đổi theo thời gian, trong khi việc chạy lại toàn bộ DBSCAN sau mỗi thay đổi sẽ phải xử lý lại cả những điểm không bị ảnh hưởng.
+
+Trong báo cáo, nhóm giới thiệu DBSCAN và các bước cập nhật của Incremental DBSCAN, sau đó trình bày chương trình tự cài đặt theo hướng đối tượng. Các ví dụ 2D giúp theo dõi từng trường hợp thêm và xóa điểm; dữ liệu ATM và luồng giao dịch thẻ mô phỏng được dùng để minh họa, kiểm tra và so sánh kết quả.
+
+Nhóm dùng Silhouette tự cài để nhận xét chất lượng cụm, đồng thời xem số cụm và tỷ lệ điểm nhiễu. Độ tương đương được kiểm tra bằng cách đối chiếu với DBSCAN của scikit-learn chạy lại trên dữ liệu sau cập nhật. Kết quả chỉ phản ánh các dữ liệu mô phỏng, tham số và số bước được trình bày trong báo cáo.

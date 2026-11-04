@@ -101,8 +101,8 @@ DBSCAN và IncrementalDBSCAN dùng chung `fit()` và `get_labels()`; lớp incre
 
 ## Đối chiếu thuật toán với paper
 
-- DBSCAN nền dùng điều kiện `distance <= Eps`, tính cả điểm đang xét trong lân cận và mở rộng cụm bằng danh sách seeds FIFO, tương ứng giả mã DBSCAN 1996 dùng `first`/`append`. Paper Incremental DBSCAN 1998 có một hình phác thảo DBSCAN dùng stack; phần gán nguồn của nhóm lấy định nghĩa và DBSCAN nền từ paper 1996.
-- Insert tính các điểm vừa thành Core và `UpdSeedIns`. Đồ thị trong code là cách biểu diễn các Core mới và cụm cũ được `UpdSeedIns` nối tới; các thành phần liên thông tương ứng các trường hợp tạo cụm, hấp thụ hoặc gộp cụm trong paper 1998.
-- Delete tính `UpdSeedDel` từ điểm vừa mất tính Core. Nếu tập seed rỗng thì xử lý Removal; nếu các seed trực tiếp nối nhau thì Reduction; các trường hợp còn lại chạy BFS để tìm đường nối qua Core trung gian. Nếu BFS không nối được các seed thì xác định các thành phần sau tách và cập nhật Border/Noise.
+- DBSCAN nền dùng điều kiện `distance <= Eps`, tính cả điểm đang xét trong lân cận và mở rộng cụm bằng stack LIFO theo giả mã DBSCAN trong paper 1998.
+- Insert xác định `NewCore` và `UpdSeedIns`, sau đó dùng stack để mở rộng phần lõi mới. Nhãn của các lõi cũ trong tập seed cho biết cụm nào cần giữ, hấp thụ hoặc hợp nhất.
+- Delete xác định `LostCore` và `UpdSeedDel`. Tập seed rỗng tương ứng Removal; các seed trực tiếp kết nối tương ứng Reduction; nếu không, BFS từ các seed kiểm tra Potential Split và Non-split.
 
-Paper 1998 trình bày các định nghĩa và trường hợp cập nhật, không cung cấp mã nguồn Python/OOP hoàn chỉnh. Vì vậy các class, cache lân cận và đồ thị là cách hiện thực hóa trong dự án; phần cần đối chiếu là tiêu chí mật độ, tập seed và logic cập nhật cụm.
+Paper 1998 trình bày giả mã DBSCAN, định nghĩa seed và các bước/case của insert/delete, nhưng không cung cấp mã nguồn Python/OOP hoàn chỉnh. Cấu trúc lớp và cache lân cận là cách tổ chức bằng Python; phần cốt lõi được triển khai theo stack cho insert, các tập seed và quy tắc cập nhật cụm trong paper, cùng BFS cho Potential Split.
