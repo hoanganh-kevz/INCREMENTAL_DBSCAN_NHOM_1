@@ -9,14 +9,11 @@ Nhóm thực hiện ba loại kiểm tra: chạy các ví dụ nhỏ để quan 
 \caption{Các cấu hình chính trong thực nghiệm}
 \label{tab:experiment_setup}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}P{3.2cm}YP{3.5cm}@{}}
-\toprule
-\textbf{Thí nghiệm} & \textbf{Dữ liệu} & \textbf{Cấu hình} \\
-\midrule
-Ví dụ INSERT/DELETE & Các kịch bản 2D trong Chương 2 & Eps = 1,1; MinPts = 4 \\
-Minh họa ATM & 1.200 tọa độ mô phỏng & Eps = 0,5 km; MinPts = 4 \\
-So sánh trên luồng thẻ & D0 có 500 điểm; benchmark phát lại 20 cập nhật đầu & Eps = 0,4; MinPts = 6; 2D, 3D và 4D \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{3.2cm}|Y|P{3.5cm}|}\hline
+\textbf{Thí nghiệm} & \textbf{Dữ liệu} & \textbf{Cấu hình} \\\hline
+Ví dụ INSERT/DELETE & Các kịch bản 2D trong Chương 2 & Eps = 1,1; MinPts = 4 \\\hline
+Minh họa ATM & 1.200 tọa độ mô phỏng & Eps = 0,5 km; MinPts = 4 \\\hline
+So sánh trên luồng thẻ & D0 có 500 điểm; benchmark phát lại 20 cập nhật đầu & Eps = 0,4; MinPts = 6; 2D, 3D và 4D \\\hline
 \end{tabularx}
 \end{table}
 
@@ -26,22 +23,19 @@ Benchmark thời gian chạy 5 lượt, có một lượt khởi động không 
 
 \section{Kết quả khi thêm điểm}
 
-Các ví dụ INSERT dùng \(\mathrm{Eps}=1{,}1\), \(\mathrm{MinPts}=4\). Bốn trường hợp cho thấy một điểm mới có thể là nhiễu, tạo cụm mới, gia nhập cụm đang có hoặc làm các cụm nhập lại với nhau.
+Các ví dụ INSERT dùng \(\mathrm{Eps}=1{,}1\), \(\mathrm{MinPts}=4\). Bốn trường hợp cho thấy một điểm mới có thể là nhiễu, tạo cụm mới, gia nhập cụm đang có hoặc làm các cụm nhập lại với nhau \parencite{ester1998incrementaldbscan}.
 
 \begin{table}[H]
 \centering
 \caption{Kết quả các trường hợp INSERT}
 \label{tab:insert_results}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}P{2.4cm}YY@{}}
-\toprule
-\textbf{Trường hợp} & \textbf{Điều xảy ra} & \textbf{Kết quả sau cập nhật} \\
-\midrule
-Noise & Điểm mới không đủ lân cận và không nằm cạnh điểm lõi. & Điểm mới được đánh dấu nhiễu; cụm cũ giữ nguyên. \\
-Creation & Điểm mới làm một số điểm đạt điều kiện lõi, nhưng chưa nối tới cụm cũ. & Các điểm liên quan tạo thành cụm mới. \\
-Absorption & Điểm mới hoặc các điểm lân cận mới đạt điều kiện lõi trong vùng của một cụm cũ. & Cụm cũ được mở rộng; một số điểm nhiễu có thể thành điểm biên. \\
-Merge & Các điểm lõi mới tạo đường nối giữa hai cụm cũ. & Các cụm có liên quan được gộp thành một cụm. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{2.4cm}|Y|Y|}\hline
+\textbf{Trường hợp} & \textbf{Điều xảy ra} & \textbf{Kết quả sau cập nhật} \\\hline
+Noise & Điểm mới không đủ lân cận và không nằm cạnh điểm lõi. & Điểm mới được đánh dấu nhiễu; cụm cũ giữ nguyên. \\\hline
+Creation & Điểm mới làm một số điểm đạt điều kiện lõi, nhưng chưa nối tới cụm cũ. & Các điểm liên quan tạo thành cụm mới. \\\hline
+Absorption & Điểm mới hoặc các điểm lân cận mới đạt điều kiện lõi trong vùng của một cụm cũ. & Cụm cũ được mở rộng; một số điểm nhiễu có thể thành điểm biên. \\\hline
+Merge & Các điểm lõi mới tạo đường nối giữa hai cụm cũ. & Các cụm có liên quan được gộp thành một cụm. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -56,22 +50,19 @@ Trong ví dụ Merge, dữ liệu ban đầu có hai cụm. Điểm \(p\) đư�
 
 \section{Kết quả khi xóa điểm}
 
-Các ví dụ DELETE cũng dùng \(\mathrm{Eps}=1{,}1\), \(\mathrm{MinPts}=4\). Xóa một điểm không phải lúc nào cũng làm cụm bị tách. Kết quả phụ thuộc vào việc các điểm lõi còn giữ được đường nối hay không.
+Các ví dụ DELETE cũng dùng \(\mathrm{Eps}=1{,}1\), \(\mathrm{MinPts}=4\). Xóa một điểm không phải lúc nào cũng làm cụm bị tách. Kết quả phụ thuộc vào việc các điểm lõi còn giữ được đường nối hay không \parencite{ester1998incrementaldbscan}.
 
 \begin{table}[H]
 \centering
 \caption{Kết quả các trường hợp DELETE}
 \label{tab:delete_results}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}P{2.8cm}YY@{}}
-\toprule
-\textbf{Trường hợp} & \textbf{Điều xảy ra} & \textbf{Kết quả sau cập nhật} \\
-\midrule
-Removal & Không còn seed lõi cần kiểm tra; có thể điểm bị xóa là lõi duy nhất của cụm. & Cụm có thể biến mất; các điểm còn lại thành nhiễu nếu không còn lõi nào. \\
-Reduction & Các seed của cụm vẫn kề trực tiếp nhau. & Cụm không bị tách, dù một số điểm có thể mất trạng thái lõi và trở thành biên. \\
-Potential Split - Split & BFS từ các seed không tìm được đường qua điểm lõi để nối các phía. & Cụm cũ tách thành nhiều cụm; điểm không còn cạnh lõi có thể thành nhiễu. \\
-Potential Split - Non-split & Có đường nối thay thế qua các điểm lõi khác. & Cụm vẫn giữ nguyên, dù điểm cầu nối ban đầu đã bị xóa. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{2.8cm}|Y|Y|}\hline
+\textbf{Trường hợp} & \textbf{Điều xảy ra} & \textbf{Kết quả sau cập nhật} \\\hline
+Removal & Không còn seed lõi cần kiểm tra; có thể điểm bị xóa là lõi duy nhất của cụm. & Cụm có thể biến mất; các điểm còn lại thành nhiễu nếu không còn lõi nào. \\\hline
+Reduction & Các seed của cụm vẫn kề trực tiếp nhau. & Cụm không bị tách, dù một số điểm có thể mất trạng thái lõi và trở thành biên. \\\hline
+Potential Split - Split & BFS từ các seed không tìm được đường qua điểm lõi để nối các phía. & Cụm cũ tách thành nhiều cụm; điểm không còn cạnh lõi có thể thành nhiễu. \\\hline
+Potential Split - Non-split & Có đường nối thay thế qua các điểm lõi khác. & Cụm vẫn giữ nguyên, dù điểm cầu nối ban đầu đã bị xóa. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -102,7 +93,7 @@ Trong kết quả lưu tại \texttt{results/equivalence\_results.csv}, có 317 
 
 \section{So sánh chất lượng cụm bằng Silhouette}
 
-Nhóm tự cài Silhouette và dùng chỉ số này làm cách đánh giá chất lượng cụm chính. Điểm nhiễu bị bỏ khỏi phép tính, nên bảng luôn kèm số cụm và tỷ lệ nhiễu. ARI được dùng riêng để kiểm tra mức độ đồng thuận giữa hai cách cài DBSCAN, không dùng để xếp hạng HDBSCAN hay OPTICS.
+Nhóm tự cài Silhouette và dùng chỉ số này làm cách đánh giá chất lượng cụm chính. Điểm nhiễu bị bỏ khỏi phép tính, nên bảng luôn kèm số cụm và tỷ lệ nhiễu. ARI dùng trong kiểm tra tương đương giữa hai cách cài DBSCAN; ở benchmark, ARI ghi nhận mức đồng thuận giữa bản Incremental DBSCAN OOP với DBSCAN, HDBSCAN và OPTICS chạy lại. ARI chỉ dùng để đối chiếu phân hoạch, không dùng để xếp hạng chất lượng cụm.
 
 Trên ATM 2D, các phương pháp cho kết quả sau:
 
@@ -111,15 +102,12 @@ Trên ATM 2D, các phương pháp cho kết quả sau:
 \caption{So sánh Silhouette trên dữ liệu ATM 2D}
 \label{tab:atm_silhouette}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}Yccc@{}}
-\toprule
-\textbf{Phương pháp} & \textbf{Silhouette} & \textbf{Số cụm} & \textbf{Tỷ lệ nhiễu} \\
-\midrule
-Incremental DBSCAN OOP & 0,3362 & 6 & 11,83\% \\
-scikit-learn DBSCAN & 0,3362 & 6 & 11,83\% \\
-scikit-learn HDBSCAN & 0,3978 & 23 & 9,92\% \\
-scikit-learn OPTICS & 0,3362 & 6 & 11,83\% \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|Y|c|c|c|}\hline
+\textbf{Phương pháp} & \textbf{Silhouette} & \textbf{Số cụm} & \textbf{Tỷ lệ nhiễu} \\\hline
+Incremental DBSCAN OOP & 0,3362 & 6 & 11,83\% \\\hline
+scikit-learn DBSCAN & 0,3362 & 6 & 11,83\% \\\hline
+scikit-learn HDBSCAN & 0,3978 & 23 & 9,92\% \\\hline
+scikit-learn OPTICS & 0,3362 & 6 & 11,83\% \\\hline
 \end{tabularx}
 \end{table}
 
@@ -132,14 +120,11 @@ Trên luồng thẻ, bảng dưới tính tại trạng thái cuối sau 20 cậ
 \caption{Silhouette trên các lát 2D, 3D và 4D của luồng thẻ}
 \label{tab:card_silhouette}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}ccccY@{}}
-\toprule
-\textbf{Số chiều} & \textbf{Silhouette} & \textbf{Số cụm} & \textbf{Nhiễu} & \textbf{Ghi chú} \\
-\midrule
-2D & 0,7785 & 3 & 1\% & Bốn phương pháp cho cùng phân hoạch trong cấu hình này. \\
-3D & 0,7839 & 3 & 1\% & Bốn phương pháp cho cùng phân hoạch trong cấu hình này. \\
-4D & 0,7463 & 3 & 1\% & Bốn phương pháp cho cùng phân hoạch trong cấu hình này. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|c|c|c|c|Y|}\hline
+\textbf{Số chiều} & \textbf{Silhouette} & \textbf{Số cụm} & \textbf{Nhiễu} & \textbf{Ghi chú} \\\hline
+2D & 0,7785 & 3 & 1\% & Bốn phương pháp cho cùng phân hoạch trong cấu hình này. \\\hline
+3D & 0,7839 & 3 & 1\% & Bốn phương pháp cho cùng phân hoạch trong cấu hình này. \\\hline
+4D & 0,7463 & 3 & 1\% & Bốn phương pháp cho cùng phân hoạch trong cấu hình này. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -154,14 +139,11 @@ Bảng~\ref{tab:update_runtime} báo tổng thời gian của 20 cập nhật, l
 \caption{Thời gian cập nhật trên 20 thao tác}
 \label{tab:update_runtime}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}cYYYY@{}}
-\toprule
-\textbf{Dữ liệu} & \textbf{Incremental OOP} & \textbf{sklearn DBSCAN} & \textbf{sklearn HDBSCAN} & \textbf{sklearn OPTICS} \\
-\midrule
-Thẻ 2D & 321,08 \(\pm\) 25,53 & 136,72 \(\pm\) 14,81 & 198,41 \(\pm\) 18,84 & 14.571,56 \(\pm\) 238,01 \\
-Thẻ 3D & 288,78 \(\pm\) 20,95 & 148,09 \(\pm\) 6,57 & 194,18 \(\pm\) 19,08 & 13.824,08 \(\pm\) 373,53 \\
-Thẻ 4D & 194,56 \(\pm\) 9,98 & 152,03 \(\pm\) 8,23 & 208,37 \(\pm\) 22,12 & 13.485,85 \(\pm\) 232,03 \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|c|Y|Y|Y|Y|}\hline
+\textbf{Dữ liệu} & \textbf{Incremental OOP} & \textbf{sklearn DBSCAN} & \textbf{sklearn HDBSCAN} & \textbf{sklearn OPTICS} \\\hline
+Thẻ 2D & 321,08 \(\pm\) 25,53 & 136,72 \(\pm\) 14,81 & 198,41 \(\pm\) 18,84 & 14.571,56 \(\pm\) 238,01 \\\hline
+Thẻ 3D & 288,78 \(\pm\) 20,95 & 148,09 \(\pm\) 6,57 & 194,18 \(\pm\) 19,08 & 13.824,08 \(\pm\) 373,53 \\\hline
+Thẻ 4D & 194,56 \(\pm\) 9,98 & 152,03 \(\pm\) 8,23 & 208,37 \(\pm\) 22,12 & 13.485,85 \(\pm\) 232,03 \\\hline
 \end{tabularx}
 \end{table}
 
@@ -181,14 +163,11 @@ Tuy vậy, thời gian fit ban đầu D0 của bản OOP cao hơn DBSCAN scikit-
 \caption{Thời gian fit ban đầu D0, trung vị qua 5 lượt (ms)}
 \label{tab:initial_fit_runtime}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}cYYYY@{}}
-\toprule
-\textbf{Dữ liệu} & \textbf{Incremental OOP} & \textbf{sklearn DBSCAN} & \textbf{sklearn HDBSCAN} & \textbf{sklearn OPTICS} \\
-\midrule
-Thẻ 2D & 1.315,57 & 8,22 & 10,53 & 697,82 \\
-Thẻ 3D & 1.288,58 & 7,75 & 10,46 & 701,88 \\
-Thẻ 4D & 1.434,08 & 9,42 & 13,32 & 693,52 \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|c|Y|Y|Y|Y|}\hline
+\textbf{Dữ liệu} & \textbf{Incremental OOP} & \textbf{sklearn DBSCAN} & \textbf{sklearn HDBSCAN} & \textbf{sklearn OPTICS} \\\hline
+Thẻ 2D & 1.315,57 & 8,22 & 10,53 & 697,82 \\\hline
+Thẻ 3D & 1.288,58 & 7,75 & 10,46 & 701,88 \\\hline
+Thẻ 4D & 1.434,08 & 9,42 & 13,32 & 693,52 \\\hline
 \end{tabularx}
 \end{table}
 

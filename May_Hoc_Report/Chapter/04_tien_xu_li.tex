@@ -10,18 +10,15 @@ DBSCAN và Incremental DBSCAN trong \texttt{src/clustering/} do nhóm tự cài 
 \centering
 \caption{Thư viện và mục đích sử dụng}
 \label{tab:environment_libraries}
-\begin{tabularx}{\textwidth}{@{}P{3.2cm}Y@{}}
-\toprule
-\textbf{Thành phần} & \textbf{Mục đích trong đồ án} \\
-\midrule
-Python & Cài đặt DBSCAN, Incremental DBSCAN, tiền xử lý và các bước thực nghiệm. \\
-NumPy & Lưu và biến đổi vector số; hỗ trợ tính toán khoảng cách và trực quan hóa dữ liệu. \\
-Pandas & Đọc CSV và quản lý dữ liệu dạng bảng. \\
-Matplotlib & Trực quan hóa cụm, điểm lõi, điểm biên và điểm nhiễu. \\
-scikit-learn & Chạy DBSCAN, HDBSCAN và OPTICS làm đối chứng; không được gọi trong mã thuật toán tự cài. \\
-Jupyter & Trình bày demo từng bước và notebook so sánh thuật toán. \\
-pytest & Chạy kiểm thử tự động cho các thao tác INSERT/DELETE, bao gồm các trường hợp cập nhật cụm, trạng thái lõi/biên/nhiễu và tính nhất quán của kết quả phân cụm. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{3.2cm}|Y|}\hline
+\textbf{Thành phần} & \textbf{Mục đích trong đồ án} \\\hline
+Python & Cài đặt DBSCAN, Incremental DBSCAN, tiền xử lý và các bước thực nghiệm. \\\hline
+NumPy & Lưu và biến đổi vector số; hỗ trợ tính toán khoảng cách và trực quan hóa dữ liệu. \\\hline
+Pandas & Đọc CSV và quản lý dữ liệu dạng bảng. \\\hline
+Matplotlib & Trực quan hóa cụm, điểm lõi, điểm biên và điểm nhiễu. \\\hline
+scikit-learn & Chạy DBSCAN, HDBSCAN và OPTICS làm đối chứng; không được gọi trong mã thuật toán tự cài. \\\hline
+Jupyter & Trình bày demo từng bước và notebook so sánh thuật toán. \\\hline
+pytest & Chạy kiểm thử tự động cho các thao tác INSERT/DELETE, bao gồm các trường hợp cập nhật cụm, trạng thái lõi/biên/nhiễu và tính nhất quán của kết quả phân cụm. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -33,14 +30,11 @@ Trước khi chạy thuật toán, nhóm kiểm tra tên cột, số dòng, mã 
 \centering
 \caption{Kiểm tra ban đầu các file dữ liệu được dùng}
 \label{tab:input_data_checks}
-\begin{tabularx}{\textwidth}{@{}P{3.6cm}P{2.5cm}Y@{}}
-\toprule
-\textbf{File} & \textbf{Số dòng} & \textbf{Kết quả kiểm tra} \\
-\midrule
-\texttt{atm\_txn\_2d.csv} & 1.200 & Có hai cột tọa độ dùng để phân cụm; không thiếu giá trị ở các cột sử dụng và không lặp mã điểm. \\
-\makecell[l]{\texttt{card\_stream/}\\\texttt{d0.csv}} & 500 & Có năm thuộc tính số; không thiếu giá trị ở các cột sử dụng và không lặp mã điểm ban đầu. \\
-\makecell[l]{\texttt{card\_stream/}\\\texttt{updates.csv}} & 300 & Có 150 thao tác INSERT và 150 thao tác DELETE; số bước chạy liên tục từ 1 đến 300. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{3.6cm}|P{2.5cm}|Y|}\hline
+\textbf{File} & \textbf{Số dòng} & \textbf{Kết quả kiểm tra} \\\hline
+\texttt{atm\_txn\_2d.csv} & 1.200 & Có hai cột tọa độ dùng để phân cụm; không thiếu giá trị ở các cột sử dụng và không lặp mã điểm. \\\hline
+\makecell[l]{\texttt{card\_stream/}\\\texttt{d0.csv}} & 500 & Có năm thuộc tính số; không thiếu giá trị ở các cột sử dụng và không lặp mã điểm ban đầu. \\\hline
+\makecell[l]{\texttt{card\_stream/}\\\texttt{updates.csv}} & 300 & Có 150 thao tác INSERT và 150 thao tác DELETE; số bước chạy liên tục từ 1 đến 300. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -78,14 +72,11 @@ Eps là bán kính xác định lân cận; MinPts là số điểm tối thiể
 \centering
 \caption{Các cấu hình Eps và MinPts trong đồ án}
 \label{tab:parameter_configs}
-\begin{tabularx}{\textwidth}{@{}P{3.4cm}P{3.6cm}P{2.4cm}Y@{}}
-\toprule
-\textbf{Dữ liệu / mục đích} & \textbf{Eps} & \textbf{MinPts} & \textbf{Lý do sử dụng} \\
-\midrule
-Ví dụ cập nhật 2D & 1,1 & 4 & Được chọn để tạo rõ các trường hợp Noise, Creation, Absorption, Merge, Removal, Reduction, Split và Non-Split \\
-ATM 2D & 0,5 km & 4 & Dùng với tọa độ tính bằng kilômét để minh họa các cụm trên mặt phẳng. \\
-Luồng thẻ 2D/3D/4D & 0,4 sau chuẩn hóa & 6 & Lấy từ \texttt{params.json} và giữ nguyên giữa các thuật toán, số chiều và các lượt benchmark. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{3.4cm}|P{3.6cm}|P{2.4cm}|Y|}\hline
+\textbf{Dữ liệu / mục đích} & \textbf{Eps} & \textbf{MinPts} & \textbf{Lý do sử dụng} \\\hline
+Ví dụ cập nhật 2D & 1,1 & 4 & Được chọn để tạo rõ các trường hợp Noise, Creation, Absorption, Merge, Removal, Reduction, Split và Non-Split \\\hline
+ATM 2D & 0,5 km & 4 & Dùng với tọa độ tính bằng kilômét để minh họa các cụm trên mặt phẳng. \\\hline
+Luồng thẻ 2D/3D/4D & 0,4 sau chuẩn hóa & 6 & Lấy từ \texttt{params.json} và giữ nguyên giữa các thuật toán, số chiều và các lượt benchmark. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -95,21 +86,18 @@ Với MinPts = 6, Eps = 0,25 cho Silhouette cao hơn một chút so với Eps = 
 
 Khi cố định Eps = 0,40, ba giá trị MinPts = 4, 6, 8 cho kết quả gần nhau. Vì vậy, nhóm sử dụng Eps = 0,40 và MinPts = 6 làm cấu hình tham chiếu thống nhất cho các thực nghiệm. Đây là lựa chọn phù hợp với dữ liệu mô phỏng đang xét, không đồng nghĩa với bộ tham số tối ưu cho mọi tập dữ liệu.
 
-Khi so sánh, các thuật toán dùng chung dữ liệu, khoảng cách Euclidean và mốc MinPts = 6, nhưng tên và ý nghĩa tham số không hoàn toàn giống nhau. Bảng~\ref{tab:comparison_parameters} ghi cấu hình thực tế trong mã benchmark. HDBSCAN không dùng Eps; OPTICS tạo thứ tự theo mật độ rồi trích cụm theo kiểu DBSCAN tại Eps = 0,40. Do đó, đây là cách đặt tham số tham chiếu để so sánh trên cùng đầu vào, không có nghĩa các thuật toán được cấu hình tương đương hoàn toàn.
+Khi so sánh, các thuật toán dùng chung dữ liệu, khoảng cách Euclidean và mốc MinPts = 6, nhưng tên và ý nghĩa tham số không hoàn toàn giống nhau. Bảng~\ref{tab:comparison_parameters} ghi cấu hình thực tế trong mã benchmark. HDBSCAN không dùng Eps; OPTICS tạo thứ tự theo mật độ rồi trích cụm theo kiểu DBSCAN tại Eps = 0,40. Do đó, đây là cách đặt tham số tham chiếu để so sánh trên cùng đầu vào, không có nghĩa các thuật toán được cấu hình tương đương hoàn toàn \parencite{sklearnHDBSCAN,sklearnOPTICS}.
 
 \begin{table}[H]
 \centering
 \caption{Cấu hình thuật toán trong benchmark}
 \label{tab:comparison_parameters}
-\begin{tabularx}{\textwidth}{@{}P{3.2cm}P{6.2cm}Y@{}}
-\toprule
-\textbf{Thuật toán} & \textbf{Tham số được dùng} & \textbf{Lý do cấu hình} \\
-\midrule
-Incremental DBSCAN OOP & \texttt{eps=0.4}, \texttt{min\_pts=6}, Euclidean & Tham số tham chiếu trong \texttt{params.json}; cập nhật trên trạng thái đã lưu. \\
-scikit-learn DBSCAN & \texttt{eps=0.4}, \texttt{min\_samples=6}, Euclidean & Dùng cùng ngưỡng lân cận và mốc số điểm với bản OOP; fit lại toàn bộ sau mỗi cập nhật. \\
-scikit-learn HDBSCAN & \makecell[l]{\texttt{min\_cluster\_size=6},\\\texttt{min\_samples=6},\\\texttt{cluster\_selection\_}\\\texttt{method=eom}} & HDBSCAN không có Eps. Hai giá trị 6 làm mốc tham chiếu về kích thước cụm và mật độ; chúng không tương đương hoàn toàn với DBSCAN. \\
-scikit-learn OPTICS & \makecell[l]{\texttt{min\_samples=6},\\\texttt{eps=0.4},\\\texttt{max\_eps=0.400001},\\\texttt{cluster\_method=dbscan}} & Trích cụm theo kiểu DBSCAN tại cùng Eps; \texttt{max\_eps} đặt nhỉnh hơn Eps để xây dựng thứ tự lân cận. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{3.2cm}|P{6.2cm}|Y|}\hline
+\textbf{Thuật toán} & \textbf{Tham số được dùng} & \textbf{Lý do cấu hình} \\\hline
+Incremental DBSCAN OOP & \texttt{eps=0.4}, \texttt{min\_pts=6}, Euclidean & Tham số tham chiếu trong \texttt{params.json}; cập nhật trên trạng thái đã lưu. \\\hline
+scikit-learn DBSCAN & \texttt{eps=0.4}, \texttt{min\_samples=6}, Euclidean & Dùng cùng ngưỡng lân cận và mốc số điểm với bản OOP; fit lại toàn bộ sau mỗi cập nhật. \\\hline
+scikit-learn HDBSCAN & \makecell[l]{\texttt{min\_cluster\_size=6},\\\texttt{min\_samples=6},\\\texttt{cluster\_selection\_}\\\texttt{method=eom}} & HDBSCAN không có Eps. Hai giá trị 6 làm mốc tham chiếu về kích thước cụm và mật độ; chúng không tương đương hoàn toàn với DBSCAN. \\\hline
+scikit-learn OPTICS & \makecell[l]{\texttt{min\_samples=6},\\\texttt{eps=0.4},\\\texttt{max\_eps=0.400001},\\\texttt{cluster\_method=dbscan}} & Trích cụm theo kiểu DBSCAN tại cùng Eps; \texttt{max\_eps} đặt nhỉnh hơn Eps để xây dựng thứ tự lân cận. \\\hline
 \end{tabularx}
 \end{table}
 
@@ -154,19 +142,16 @@ Trong hình, hình thoi rỗng biểu thị DBSCAN quản lý các đối tượ
 \centering
 \caption{Trách nhiệm của các lớp và phần hỗ trợ}
 \label{tab:class_responsibilities}
-\begin{tabularx}{\textwidth}{@{}P{3.2cm}YP{4.2cm}@{}}
-\toprule
-\textbf{Thành phần} & \textbf{Trách nhiệm} & \textbf{Mã nguồn} \\
-\midrule
-DataPoint, PointType & Lưu thông tin và trạng thái của mỗi điểm. & \path{src/core/data_point.py} \\
-DistanceMetric & Tính khoảng cách Euclidean giữa hai vector cùng số chiều. & \path{src/core/distance.py} \\
-ManualScaler & Fit, lưu và áp dụng tham số chuẩn hóa. & \path{src/preprocessing/scaler.py} \\
-DBSCAN & Fit dữ liệu ban đầu, tìm lân cận và mở rộng cụm. & \path{src/clustering/dbscan.py} \\
-Incremental DBSCAN & Cập nhật lân cận và nhãn cụm khi insert/delete. & \path{src/clustering/incremental_dbscan.py} \\
-Incremental Engine & Trả snapshot và thống kê trạng thái để demo, đánh giá và vẽ. & \path{src/experiments/engine.py} \\
-ClusterVisualizer & Vẽ cụm, loại điểm và trạng thái trước/sau cập nhật. & \path{src/visualization/plotter.py} \\
-Hàm đánh giá & Tính Silhouette; được tổ chức thành module hàm, không phải một class riêng. & \path{src/evaluation/metrics.py} \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{3.2cm}|Y|P{4.2cm}|}\hline
+\textbf{Thành phần} & \textbf{Trách nhiệm} & \textbf{Mã nguồn} \\\hline
+DataPoint, PointType & Lưu thông tin và trạng thái của mỗi điểm. & \path{src/core/data_point.py} \\\hline
+DistanceMetric & Tính khoảng cách Euclidean giữa hai vector cùng số chiều. & \path{src/core/distance.py} \\\hline
+ManualScaler & Fit, lưu và áp dụng tham số chuẩn hóa. & \path{src/preprocessing/scaler.py} \\\hline
+DBSCAN & Fit dữ liệu ban đầu, tìm lân cận và mở rộng cụm. & \path{src/clustering/dbscan.py} \\\hline
+Incremental DBSCAN & Cập nhật lân cận và nhãn cụm khi insert/delete. & \path{src/clustering/incremental_dbscan.py} \\\hline
+Incremental Engine & Trả snapshot và thống kê trạng thái để demo, đánh giá và vẽ. & \path{src/experiments/engine.py} \\\hline
+ClusterVisualizer & Vẽ cụm, loại điểm và trạng thái trước/sau cập nhật. & \path{src/visualization/plotter.py} \\\hline
+Hàm đánh giá & Tính Silhouette; được tổ chức thành module hàm, không phải một class riêng. & \path{src/evaluation/metrics.py} \\\hline
 \end{tabularx}
 \end{table}
 
@@ -174,11 +159,11 @@ Sơ đồ thể hiện các lớp hiện có trong mã. Nhóm không tạo class
 
 \section{Cài đặt DBSCAN và Incremental DBSCAN}
 
-DBSCAN tính các điểm trong vùng Eps của mỗi điểm bằng khoảng cách Euclidean. Vùng lân cận có tính cả điểm trung tâm. Nếu số điểm trong vùng đạt MinPts, điểm trung tâm là điểm lõi; thuật toán dùng ngăn xếp LIFO để mở rộng cụm qua các điểm lõi lân cận. Điểm được nối vào cụm nhưng không đủ MinPts được ghi nhận là điểm biên; điểm không được nối vào cụm nào là nhiễu.
+DBSCAN tính các điểm trong vùng Eps của mỗi điểm bằng khoảng cách Euclidean. Vùng lân cận có tính cả điểm trung tâm. Nếu số điểm trong vùng đạt MinPts, điểm trung tâm là điểm lõi; thuật toán dùng ngăn xếp LIFO để mở rộng cụm qua các điểm lõi lân cận. Điểm được nối vào cụm nhưng không đủ MinPts được ghi nhận là điểm biên; điểm không được nối vào cụm nào là nhiễu \parencite{ester1996dbscan,ester1998incrementaldbscan}.
 
-Incremental DBSCAN kế thừa trạng thái do DBSCAN tạo và giữ cache lân cận theo mã điểm. Khi insert, chương trình cập nhật lân cận, tìm \(\mathrm{NewCore}\), rồi tạo \(\mathrm{UpdSeed}_{Ins}\) từ các lõi trong lân cận của những điểm vừa thành lõi. Phần cập nhật được giới hạn trong các lõi mới: chương trình duyệt chúng bằng stack LIFO và dùng nhãn của các lõi cũ trong tập seed để xác định tạo cụm, hấp thụ hay hợp nhất cụm. Nhờ đó, chương trình không chạy lại DBSCAN trên toàn bộ dữ liệu.
+Incremental DBSCAN kế thừa trạng thái do DBSCAN tạo và giữ cache lân cận theo mã điểm. Khi insert, chương trình cập nhật lân cận, tìm \(\mathrm{NewCore}\), rồi tạo \(\mathrm{UpdSeed}_{Ins}\) từ các lõi trong lân cận của những điểm vừa thành lõi. Phần cập nhật được giới hạn trong các lõi mới: chương trình duyệt chúng bằng stack LIFO và dùng nhãn của các lõi cũ trong tập seed để xác định tạo cụm, hấp thụ hay hợp nhất cụm. Nhờ đó, chương trình không chạy lại DBSCAN trên toàn bộ dữ liệu; cách xác định vùng và seed dựa trên bài báo Incremental DBSCAN \parencite{ester1998incrementaldbscan}.
 
-Khi delete, chương trình tìm \(\mathrm{LostCore}\), gồm điểm bị xóa nếu nó là lõi và các điểm kề vừa mất điều kiện lõi. Từ lân cận của các điểm này, chương trình lập \(\mathrm{UpdSeed}_{Del}\). Nếu tập seed rỗng thì xử lý Removal; nếu các seed trực tiếp nối nhau thì xử lý Reduction. Với Potential Split, BFS dùng hàng đợi FIFO khởi tạo từ các seed để tìm đường qua các lõi còn lại. Nếu các seed được nối với nhau thì cụm không tách; nếu không, các thành phần lõi được gán lại thành cụm riêng \parencite{mitBFSConnectedComponents}.
+Khi delete, chương trình tìm \(\mathrm{LostCore}\), gồm điểm bị xóa nếu nó là lõi và các điểm kề vừa mất điều kiện lõi. Từ lân cận của các điểm này, chương trình lập \(\mathrm{UpdSeed}_{Del}\). Nếu tập seed rỗng thì xử lý Removal; nếu các seed trực tiếp nối nhau thì xử lý Reduction. Với Potential Split, BFS dùng hàng đợi FIFO khởi tạo từ các seed để tìm đường qua các lõi còn lại. Nếu các seed được nối với nhau thì cụm không tách; nếu không, các thành phần lõi được gán lại thành cụm riêng \parencite{ester1998incrementaldbscan,mitBFSConnectedComponents}.
 
 Thuật ngữ "cập nhật cục bộ" ở đây nghĩa là chương trình không fit lại toàn bộ DBSCAN. Tuy vậy, \texttt{\_region\_query()} hiện vẫn quét danh sách điểm để tìm lân cận; thao tác gộp cụm hoặc gán lại nhãn cũng có thể phải duyệt nhiều điểm. Vì thế, cách cài đặt này chưa bảo đảm mỗi cập nhật nhanh hơn fit lại, phù hợp với kết quả benchmark ở Chương 5.
 
@@ -186,7 +171,7 @@ Các vector đầu vào không bị giới hạn ở hai tọa độ. Khoảng c
 
 \section{Cài đặt đánh giá và trực quan hóa}
 
-Nhóm tự cài Silhouette trong \texttt{src/evaluation/metrics.py}. Với mỗi điểm không phải nhiễu, chương trình tính khoảng cách trung bình đến điểm cùng cụm và khoảng cách trung bình nhỏ nhất đến một cụm khác, sau đó lấy trung bình điểm Silhouette. Điểm nhiễu được bỏ khỏi phép tính; điểm ở cụm đơn lẻ nhận giá trị 0. Khi dữ liệu sau khi bỏ nhiễu còn ít hơn hai cụm, hàm báo không thể tính Silhouette thay vì trả một kết quả gây hiểu nhầm.
+Nhóm tự cài Silhouette trong \texttt{src/evaluation/metrics.py}. Với mỗi điểm không phải nhiễu, chương trình tính khoảng cách trung bình đến điểm cùng cụm và khoảng cách trung bình nhỏ nhất đến một cụm khác, sau đó lấy trung bình điểm Silhouette. Điểm nhiễu được bỏ khỏi phép tính; điểm ở cụm đơn lẻ nhận giá trị 0. Khi dữ liệu sau khi bỏ nhiễu còn ít hơn hai cụm, hàm báo không thể tính Silhouette thay vì trả một kết quả gây hiểu nhầm. Công thức gốc của chỉ số được trình bày trong Chương 2 \parencite{rousseeuw1987silhouette}.
 
 Phần đối chiếu gọi DBSCAN của scikit-learn để fit lại toàn bộ dữ liệu sau mỗi thao tác, rồi kiểm tra cách chia cụm và trạng thái điểm theo API của thư viện \parencite{sklearnDBSCAN}. Đây là phần tham khảo độc lập, không tham gia vào mã thuật toán tự cài. Các hình được vẽ bằng Matplotlib trên dữ liệu hai chiều.
 
@@ -201,13 +186,10 @@ Nhóm dùng \texttt{pytest} để kiểm tra 10 tình huống chính của Incre
 \caption{Các tình huống kiểm thử chính của Incremental DBSCAN}
 \label{tab:main_algorithm_tests}
 \normalsize
-\begin{tabularx}{\textwidth}{@{}P{2.0cm}P{1.3cm}Y@{}}
-\toprule
-\textbf{Thao tác} & \textbf{Số ca} & \textbf{Tình huống được kiểm tra} \\
-\midrule
-INSERT & 6 & Noise, Creation, Absorption, Merge, điểm biên nằm gần hai cụm nhưng không làm chúng nhập lại, và một chuỗi chèn liên tiếp. \\
-DELETE & 4 & Reduction, Removal, Split có cập nhật lại điểm biên, và Non-split khi vẫn còn đường nối thay thế. \\
-\bottomrule
+\begin{tabularx}{\textwidth}{|P{2.0cm}|P{1.3cm}|Y|}\hline
+\textbf{Thao tác} & \textbf{Số ca} & \textbf{Tình huống được kiểm tra} \\\hline
+INSERT & 6 & Noise, Creation, Absorption, Merge, điểm biên nằm gần hai cụm nhưng không làm chúng nhập lại, và một chuỗi chèn liên tiếp. \\\hline
+DELETE & 4 & Reduction, Removal, Split có cập nhật lại điểm biên, và Non-split khi vẫn còn đường nối thay thế. \\\hline
 \end{tabularx}
 \end{table}
 

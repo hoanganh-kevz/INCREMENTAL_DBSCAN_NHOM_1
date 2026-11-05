@@ -3,6 +3,8 @@
 Only the standard library is used here so the custom metric remains independent
 from the scikit-learn reference implementation in
 :mod:`evaluation_library`.
+
+The Silhouette formula follows Rousseeuw (1987), DOI: 10.1016/0377-0427(87)90125-7.
 """
 
 from __future__ import annotations
