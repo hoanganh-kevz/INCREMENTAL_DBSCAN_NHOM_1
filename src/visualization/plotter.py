@@ -2,7 +2,7 @@
 
 Snapshot là dict gồm bốn khóa, cùng độ dài n:
     ids          id của điểm (số nguyên hoặc chuỗi; chỉ cần phân biệt được các điểm)
-    coords       ma trận (n, d) tọa độ, d tùy ý (d != 2 sẽ được chiếu PCA xuống 2 chiều để vẽ)
+    coords       ma trận (n, 2) tọa độ để vẽ trực tiếp
     labels       nhãn cụm, -1 là nhiễu
     point_types  loại điểm: 3 = lõi (core), 2 = biên (border), 1 = nhiễu (noise), 0 = chưa phân loại (có thể bỏ, để None)
 Đây đúng là dạng `RefitDBSCAN.snapshot()` của baseline/, nên lớp này chạy được ngay hôm nay và chạy được với IncrementalDBSCAN
@@ -117,38 +117,6 @@ def type_counts(snap):
             "other": int((~noise & ~core & ~border).sum()), "clusters": int(len(set(lab.tolist()) - {-1})), "n": int(len(lab))}
 
 
-# ------------------------------------------------------------------ toán thuần numpy
-def project_2d(coords, return_basis=False):
-    """PCA bằng SVD (numpy thuần): chiếu dữ liệu d chiều xuống 2 chiều.
-
-    Trả (proj, explained): proj có hình (n, 2); explained là tỉ lệ phương sai của hai thành phần đầu (tổng không quá 1).
-    return_basis=True trả thêm (mean, components) để chiếu dữ liệu khác trên cùng hệ trục: proj = (x - mean) @ components.T.
-    Dấu mỗi thành phần được cố định (phần tử lớn nhất theo trị tuyệt đối là dương) để kết quả lặp lại được.
-    Dữ liệu ít hơn 2 chiều được đệm cột 0. Báo lỗi rõ nếu có NaN hoặc vô cùng.
-    """
-    x = np.asarray(coords, dtype=float)
-    if x.ndim != 2:
-        raise ValueError("coords cần ma trận 2-D (n_điểm, n_chiều)")
-    if not np.isfinite(x).all():
-        raise ValueError("coords có NaN hoặc vô cùng, không chiếu được")
-    n, d = x.shape
-    mean = x.mean(axis=0) if n else np.zeros(d)
-    comps, explained = np.zeros((2, d)), np.zeros(2)
-    if n and d:
-        xc = x - mean
-        _, s, vt = np.linalg.svd(xc, full_matrices=False)
-        var = s ** 2
-        k = min(2, len(s))
-        comps[:k] = vt[:k]
-        if var.sum() > 0:
-            explained[:k] = var[:k] / var.sum()
-        for r in range(k):
-            if comps[r][np.argmax(np.abs(comps[r]))] < 0:
-                comps[r] = -comps[r]
-    proj = (x - mean) @ comps.T if n else np.zeros((0, 2))
-    return (proj, explained, mean, comps) if return_basis else (proj, explained)
-
-
 def align_labels(reference, snapshot, min_new_label=0):
     """Đổi nhãn của `snapshot` để cụm giữ MÀU của cụm trùng nhiều điểm nhất trong `reference` (khớp một-một, tham lam theo số điểm chung).
 
@@ -226,8 +194,6 @@ class ClusterVisualizer:
     def as_snapshot(obj):
         return snapshot_from_model(obj)
 
-    project_2d = staticmethod(project_2d)
-
     @staticmethod
     def _limits(arrays, extra=None, pad=0.12, min_aspect=0.6):
         pts = np.vstack([a for a in arrays if len(a)] or [np.zeros((1, 2))])
@@ -248,17 +214,10 @@ class ClusterVisualizer:
         return tuple(xl), tuple(yl)
 
     def _to_2d(self, snap, basis=None):
-        """(snapshot 2-D, thông tin chiếu hoặc None). d = 2 giữ nguyên; d khác 2 chiếu PCA (basis có thể dùng chung cho nhiều panel)."""
-        d = snap["coords"].shape[1]
-        if d == 2:
-            return snap, None
-        if basis is None:
-            _, explained, mean, comps = project_2d(snap["coords"], return_basis=True)
-        else:
-            mean, comps, explained = basis
-        out = dict(snap)
-        out["coords"] = (snap["coords"] - mean) @ comps.T
-        return out, {"dims": d, "explained": explained, "mean": mean, "components": comps}
+        """Báo lỗi nếu dữ liệu nhiều chiều."""
+        if snap["coords"].shape[1] != 2:
+            raise ValueError("Trực quan hóa chỉ hỗ trợ dữ liệu 2D.")
+        return snap, None
 
     # -- vẽ lõi
     def _draw(self, ax, snap, eps=None, highlight_ids=None, seed_ids=None, marks=None, fill="auto", annotate_ids=None,
@@ -266,7 +225,7 @@ class ClusterVisualizer:
         s = self.point_size * (0.42 if compact else 1.0)
         xy, lab, typ, ids = snap["coords"], snap["labels"], snap["point_types"], snap["ids"]
         idx = {i: k for k, i in enumerate(ids.tolist())}
-        eps_ok = eps is not None and proj is None            # sau khi chiếu PCA, khoảng cách bị biến dạng nên không vẽ Eps
+        eps_ok = eps is not None
         mode = ("eps" if eps_ok else "hull") if fill == "auto" else fill
         if mode == "eps" and not eps_ok:
             mode = "hull"
@@ -371,11 +330,7 @@ class ClusterVisualizer:
                 sp.set_linewidth(0.6)
                 sp.set_color("#999999")
         else:
-            if proj is not None:
-                ev = proj["explained"] * 100
-                labs = (f"Thành phần chính 1 ({ev[0]:.0f}% phương sai)", f"Thành phần chính 2 ({ev[1]:.0f}% phương sai)")
-            else:
-                labs = axis_labels or ("x", "y")
+            labs = axis_labels or ("x", "y")
             ax.set_xlabel(labs[0])
             ax.set_ylabel(labs[1])
         if title:
@@ -422,9 +377,9 @@ class ClusterVisualizer:
                 annotate_ids=None, legend=True, axis_labels=None, compact=False, limits=None):
         """Vẽ một snapshot lên `ax` (tạo mới nếu None) và trả về Axes.
 
-        snapshot: dict (ids, coords, labels, point_types) hoặc mô hình (xem snapshot_from_model); d chiều bất kỳ (d != 2 chiếu PCA).
+        snapshot: dict (ids, coords, labels, point_types) hoặc mô hình (xem snapshot_from_model); chỉ vẽ dữ liệu 2D.
         eps: bán kính Eps (đơn vị tọa độ); có Eps thì vùng tô cụm là hợp các hình tròn Eps quanh điểm lõi và điểm nhấn mạnh có vòng Eps
-        (không vẽ khi d != 2 vì chiếu PCA làm sai khoảng cách). highlight_ids: id cần nhấn mạnh (vòng tròn đậm). seed_ids: id vẽ vòng UpdSeed.
+        highlight_ids: id cần nhấn mạnh (vòng tròn đậm). seed_ids: id vẽ vòng UpdSeed.
         fill: 'auto' | 'eps' | 'hull' | None. legend=True hiện chú thích có số lượng core, border, noise và số cụm. Mỗi loại điểm là một
         PathCollection có gid 'core', 'border', 'noise', 'point' (số điểm = len(get_offsets()))."""
         snap = snapshot_from_model(snapshot)
@@ -465,7 +420,7 @@ class ClusterVisualizer:
         update: dict {op, point_id, coords (tùy chọn)} hoặc danh sách dict theo thứ tự (kịch bản nhiều dòng cho thấy trạng thái cuối).
         op='insert': ngôi sao tại vị trí điểm, đặc ở panel sau, rỗng ở panel trước. op='delete': dấu X đặc đè lên điểm ở panel trước,
         rỗng ở panel sau (vị trí cũ). Vòng Eps nét đứt quanh dấu đặc. seed_ids: id UpdSeed, vẽ vòng đen ở panel sau.
-        Dữ liệu d != 2 chiếu PCA chung một hệ trục cho cả hai panel (Eps không vẽ). axes: cặp Axes có sẵn (dùng cho bộ ảnh)."""
+        Cả hai trạng thái phải có tọa độ 2D. axes: cặp Axes có sẵn (dùng cho bộ ảnh)."""
         b, a = snapshot_from_model(before), snapshot_from_model(after)
         mb, ma = self._marks(update, b, a)
         with report_style():
@@ -473,17 +428,12 @@ class ClusterVisualizer:
                 fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.9 if legend else 3.4))
             else:
                 fig = axes[0].figure
-            d = b["coords"].shape[1] if len(b["coords"]) else a["coords"].shape[1]
+            if b["coords"].shape[1] != 2 or a["coords"].shape[1] != 2:
+                raise ValueError("Hai trạng thái phải có tọa độ 2D.")
+
             basis = None
-            if d != 2:
-                both = np.vstack([b["coords"], a["coords"]] + [m["xy"][None, :] for m in mb + ma])
-                _, ev, mean, comps = project_2d(both, return_basis=True)
-                basis = (mean, comps, ev)
-            b2, pb = self._to_2d(b, basis)
-            a2, pa = self._to_2d(a, basis)
-            for mk in mb + ma:
-                if basis is not None:
-                    mk["xy"] = (mk["xy"] - basis[0]) @ basis[1].T
+            b2, pb = self._to_2d(b)
+            a2, pa = self._to_2d(a)
             if match_colors:
                 a2 = dict(a2)
                 a2["labels"] = align_labels(b, a)

@@ -15,7 +15,7 @@ DBSCAN và Incremental DBSCAN trong \texttt{src/clustering/} do nhóm tự cài 
 \textbf{Thành phần} & \textbf{Mục đích trong đồ án} \\
 \midrule
 Python & Cài đặt DBSCAN, Incremental DBSCAN, tiền xử lý và các bước thực nghiệm. \\
-NumPy & Lưu và biến đổi vector số; hỗ trợ khoảng cách và phép chiếu dữ liệu khi vẽ. \\
+NumPy & Lưu và biến đổi vector số; hỗ trợ tính toán khoảng cách và trực quan hóa dữ liệu. \\
 Pandas & Đọc CSV và quản lý dữ liệu dạng bảng. \\
 Matplotlib & Trực quan hóa cụm, điểm lõi, điểm biên và điểm nhiễu. \\
 scikit-learn & Chạy DBSCAN, HDBSCAN và OPTICS làm đối chứng; không được gọi trong mã thuật toán tự cài. \\
@@ -162,7 +162,7 @@ Các vector đầu vào không bị giới hạn ở hai tọa độ. Khoảng c
 
 Nhóm tự cài Silhouette trong \texttt{src/evaluation/metrics.py}. Với mỗi điểm không phải nhiễu, chương trình tính khoảng cách trung bình đến điểm cùng cụm và khoảng cách trung bình nhỏ nhất đến một cụm khác, sau đó lấy trung bình điểm Silhouette. Điểm nhiễu được bỏ khỏi phép tính; điểm ở cụm đơn lẻ nhận giá trị 0. Khi dữ liệu sau khi bỏ nhiễu còn ít hơn hai cụm, hàm báo không thể tính Silhouette thay vì trả một kết quả gây hiểu nhầm.
 
-Phần đối chiếu gọi DBSCAN của scikit-learn để fit lại toàn bộ dữ liệu sau mỗi thao tác, rồi kiểm tra cách chia cụm và trạng thái điểm \parencite{sklearnDBSCANDemo}. Đây là phần tham khảo độc lập, không tham gia vào mã thuật toán tự cài. Các hình được vẽ bằng Matplotlib; dữ liệu nhiều chiều có thể được chiếu xuống mặt phẳng bằng PCA viết bằng NumPy để hiển thị, nhưng phép phân cụm vẫn chạy trên số chiều gốc.
+Phần đối chiếu gọi DBSCAN của scikit-learn để fit lại toàn bộ dữ liệu sau mỗi thao tác, rồi kiểm tra cách chia cụm và trạng thái điểm theo API của thư viện \parencite{sklearnDBSCAN}. Đây là phần tham khảo độc lập, không tham gia vào mã thuật toán tự cài. Các hình được vẽ bằng Matplotlib trên dữ liệu hai chiều.
 
 Hai notebook được sắp theo mục đích: \texttt{Incremental\_DBSCAN\_Demo.ipynb} đi qua ví dụ INSERT/DELETE và demo ATM 2D; \texttt{So\_sanh\_thuat\_toan.ipynb} trình bày Silhouette và benchmark với DBSCAN, HDBSCAN, OPTICS. Cách chia này giúp người xem theo dõi thuật toán trước rồi mới xem phần so sánh.
 

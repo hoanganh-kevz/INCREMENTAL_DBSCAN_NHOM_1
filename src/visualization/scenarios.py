@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 from src.preprocessing.stream_scaling import feature_columns, stream_coordinates
-from .plotter import align_labels, snapshot_from_model
+from .plotter import snapshot_from_model
 
 ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "data" / "raw"
@@ -104,42 +104,3 @@ def stream_snapshots(engine_factory, stream_dir, max_steps=None):
         frames.append({"step": int(r["step"]), "op": r["op"], "point_id": sid, "coords": coords[k], "snapshot": named(snapshot_from_model(eng)),
                        "case": r.get("verified_case"), "eps": eps, "min_pts": min_pts})
     return frames
-
-
-def equivalence_series(labels_a, labels_b, compare, ambiguous=None):
-    """ARI từng step giữa hai bảng nhãn dạng dài (cột step, point_id, label), bỏ các điểm biên mơ hồ.
-
-    compare: hàm so phân hoạch có chữ ký như baseline.sklearn_dbscan.compare_partitions(labels_a, labels_b, ids=None, ignore_ids=None)
-    và trả dict có khóa ari (truyền vào để src/ không phụ thuộc sklearn). ambiguous: dict {step: [point_id]} (tùy chọn).
-    Trả DataFrame cột step, ari, n_compared, n_ignored."""
-    ambiguous = ambiguous or {}
-    ga, gb = labels_a.groupby("step"), labels_b.groupby("step")
-    rows = []
-    for step in sorted(set(ga.groups) & set(gb.groups)):
-        a = dict(zip(ga.get_group(step)["point_id"], ga.get_group(step)["label"]))
-        b = dict(zip(gb.get_group(step)["point_id"], gb.get_group(step)["label"]))
-        r = compare(a, b, ignore_ids=ambiguous.get(step, []))
-        rows.append((int(step), r["ari"], r["n_compared"], r["n_ignored"]))
-    return pd.DataFrame(rows, columns=["step", "ari", "n_compared", "n_ignored"])
-
-
-def label_changes(labels_long, timing=None):
-    """Số điểm ĐỔI cụm ở mỗi step so với step trước (cụm của step sau được khớp về step trước bằng align_labels, nên đánh số lại nhãn không bị tính).
-
-    Không tính điểm vừa chèn hay vừa xóa. Điểm từ nhiễu sang cụm hoặc ngược lại tính là đổi. timing (tùy chọn, bảng baseline có cột step, op, n_points)
-    thêm cột op và n_points. Trả DataFrame cột step, n_affected (+ op, n_points)."""
-    groups = {s: g for s, g in labels_long.groupby("step")}
-    steps = sorted(groups)
-    rows = []
-    for prev, cur in zip(steps[:-1], steps[1:]):
-        gp, gc = groups[prev], groups[cur]
-        ref = {"ids": gp["point_id"].to_numpy(), "labels": gp["label"].to_numpy()}
-        snap = {"ids": gc["point_id"].to_numpy(), "labels": gc["label"].to_numpy()}
-        new = align_labels(ref, snap)
-        before = dict(zip(gp["point_id"].tolist(), gp["label"].tolist()))
-        changed = sum(1 for i, l in zip(snap["ids"].tolist(), new.tolist()) if i in before and before[i] != l)
-        rows.append((cur, changed))
-    out = pd.DataFrame(rows, columns=["step", "n_affected"])
-    if timing is not None:
-        out = out.merge(timing[["step", "op", "n_points"]], on="step", how="left")
-    return out
