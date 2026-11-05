@@ -89,7 +89,7 @@ Sơ đồ chỉ thể hiện các class Python đang có trong source. Đánh gi
 | DBSCAN | Fit DBSCAN theo lô, giữ điểm theo ID, truy vấn lân cận và mở rộng cụm. | src/clustering/dbscan.py: fit, get_labels, _region_query, _expand_cluster |
 | IncrementalDBSCAN | Cập nhật cụm cục bộ khi thêm hoặc xóa điểm. | src/clustering/incremental_dbscan.py: insert, delete và các bí danh tương thích |
 | IncrementalEngine | Bổ sung snapshot và thống kê số điểm/cụm để các phần thực nghiệm và vẽ dùng chung giao diện. | src/experiments/engine.py |
-| ClusterVisualizer | Vẽ snapshot 2D; dữ liệu nhiều chiều được chiếu xuống 2D khi cần. | src/visualization/plotter.py: plot_2d, plot_before_after, plot_case_gallery, save |
+| ClusterVisualizer | Vẽ snapshot 2D; hàm vẽ yêu cầu dữ liệu có đúng 2 chiều. | src/visualization/plotter.py: plot_2d, plot_before_after, plot_case_gallery, save |
 | Module đánh giá | Các hàm tính Silhouette tự cài; đây không phải class. | src/evaluation/metrics.py: silhouette_samples, silhouette_score |
 | Module phân tích cập nhật | Các hàm phân tích UpdSeed, điểm đổi trạng thái và phạm vi xử lý của delete; đây không phải class. | src/experiments/update_cases.py |
 
