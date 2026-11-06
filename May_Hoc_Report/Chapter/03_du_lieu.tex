@@ -41,7 +41,7 @@ Ca kiểm thử bổ sung & Một số ca nhỏ & 1D/2D \\\hline
 \end{tabularx}
 \end{table}
 
-Cột \texttt{point\_id} là mã định danh, không phải đặc trưng để gom cụm. Các giá trị được tạo để mô phỏng, nên không thể xem là mô tả hành vi của khách hàng ngoài đời.
+Cột \texttt{point\_id} là mã định danh, không phải đặc trưng để phân cụm. Các giá trị được tạo để mô phỏng, nên không thể xem là mô tả hành vi của khách hàng ngoài đời.
 
 \textbf{Các ví dụ cập nhật và ca kiểm thử bổ sung} 
 
@@ -49,7 +49,7 @@ Tám ví dụ nhỏ minh họa Noise, Creation, Absorption, Merge, Removal, Redu
 
 \section{Tập ban đầu và các thao tác cập nhật}
 
-Tập \(D_0\) được gom cụm trước bằng DBSCAN. Sau đó chương trình đọc lần lượt các dòng trong \texttt{updates.csv}: thao tác INSERT thêm một điểm, thao tác DELETE xóa một điểm đang có. File có tổng cộng 300 thao tác, gồm 150 INSERT và 150 DELETE xen kẽ; vì vậy số điểm trong luồng dao động từ 500 đến 501.
+Tập \(D_0\) được phân cụm trước bằng DBSCAN. Sau đó chương trình đọc lần lượt các dòng trong \texttt{updates.csv}: thao tác INSERT thêm một điểm, thao tác DELETE xóa một điểm đang có. File có tổng cộng 300 thao tác, gồm 150 INSERT và 150 DELETE xen kẽ; vì vậy số điểm trong luồng dao động từ 500 đến 501.
 
 Thư mục \path{data/raw/card_stream/} chứa tập ban đầu, luồng cập nhật và file tham số. Trong \texttt{updates.csv}, cột \texttt{ambiguous\_border\_ids} là metadata tùy chọn cho bước đối chiếu các điểm biên; thuật toán không dùng cột này để quyết định cụm.
 

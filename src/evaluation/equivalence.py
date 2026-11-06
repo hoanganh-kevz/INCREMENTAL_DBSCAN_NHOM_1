@@ -1,7 +1,7 @@
-"""Compare Incremental DBSCAN with a full scikit-learn DBSCAN refit (V04).
+"""Đối chiếu Incremental DBSCAN với DBSCAN chạy lại toàn bộ bằng scikit-learn .
 
-The library implementation is confined to evaluation/baseline code. The
-incremental engine remains the project's own implementation.
+Việc sử dụng thư viện chỉ giới hạn trong phần đánh giá và so sánh.
+Thuật toán Incremental DBSCAN vẫn do nhóm tự cài đặt.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def _compare_snapshots(
     eps: float,
     min_pts: int,
 ) -> dict[str, Any]:
-    """Compare two snapshots by point ID, ignoring only known ambiguous borders."""
+    """So sánh hai trạng thái phân cụm theo ID điểm"""
     custom_ids = [value.item() if hasattr(value, "item") else value for value in custom["ids"]]
     reference_ids = [value.item() if hasattr(value, "item") else value for value in reference["ids"]]
     custom_labels = dict(zip(custom_ids, map(int, custom["labels"])))
@@ -166,7 +166,7 @@ def run_equivalence_suite(
     include_streams: bool = True,
     max_stream_steps: int | None = None,
 ) -> pd.DataFrame:
-    """Compare fit and every selected update in incremental examples and data streams."""
+    """Đối chiếu kết quả phân cụm ban đầu và từng bước cập nhật được chọn."""
     rows: list[dict[str, Any]] = []
     if include_scenarios:
         for kind in ("incremental_examples",):
@@ -183,7 +183,7 @@ def write_equivalence_results(
     *,
     max_stream_steps: int | None = None,
 ) -> pd.DataFrame:
-    """Run the full suite and write the per-fit/per-update results CSV."""
+    """Thực hiện toàn bộ quá trình đối chiếu và lưu kết quả từng lần phân cụm, cập nhật vào file CSV."""
     results = run_equivalence_suite(max_stream_steps=max_stream_steps)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     results.to_csv(output_path, index=False, encoding="utf-8", lineterminator="\n")
@@ -193,11 +193,11 @@ def write_equivalence_results(
 def main() -> int:
     results = write_equivalence_results()
     failed = results.loc[~results["equivalent"]]
-    print(f"Wrote {len(results)} comparisons to results/equivalence_results.csv")
+    print(f"Đã ghi {len(results)} kết quả so sánh vào results/equivalence_results.csv")
     if failed.empty:
-        print("All Incremental DBSCAN states match a full sklearn DBSCAN refit.")
+        print("Tất cả trạng thái của Incremental DBSCAN đều khớp với kết quả chạy lại DBSCAN bằng scikit-learn trên toàn bộ dữ liệu.")
         return 0
-    print(f"{len(failed)} comparisons differ; inspect the CSV for case and step details.")
+    print(f"Phát hiện {len(failed)}  kết quả so sánh không trùng khớp, kiểm tra file CSV để xem chi tiết từng trường hợp và bước cập nhật.")
     return 1
 
 

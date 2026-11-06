@@ -2,7 +2,7 @@
 
 ## Sơ đồ lớp khớp với mã nguồn hiện tại
 
-```mermaid
+'''mermaid
 classDiagram
     direction TB
 
@@ -74,7 +74,7 @@ classDiagram
     DataPoint --> PointType : trạng thái
     DBSCAN ..> DistanceMetric : đo khoảng cách
     ClusterVisualizer ..> DataPoint : đọc snapshot
-```
+'''
 
 Sơ đồ chỉ thể hiện các class Python đang có trong source. Đánh giá và điều phối thí nghiệm nằm ở các module hàm riêng, không được biểu diễn thành class trong UML.
 
@@ -95,14 +95,14 @@ Sơ đồ chỉ thể hiện các class Python đang có trong source. Đánh gi
 
 ## Tổ chức đánh giá và thực nghiệm
 
-Phần đánh giá dùng các hàm trong `src/evaluation/metrics.py` và `src/evaluation/evaluation_library.py`. Việc chạy kịch bản được chia giữa `IncrementalEngine`, các hàm trong `src/visualization/scenarios.py` và notebook benchmark. Không thêm lớp bao bọc riêng vì hiện chưa cần một bộ đánh giá hay bộ điều phối có trạng thái dùng chung.
+Phần đánh giá dùng các hàm trong 'src/evaluation/metrics.py' và 'src/evaluation/evaluation_library.py'. Việc chạy kịch bản được chia giữa 'IncrementalEngine', các hàm trong 'src/visualization/scenarios.py' và notebook benchmark. Không thêm lớp bao bọc riêng vì hiện chưa cần một bộ đánh giá hay bộ điều phối có trạng thái dùng chung.
 
-DBSCAN và IncrementalDBSCAN dùng chung `fit()` và `get_labels()`; lớp incremental bổ sung thao tác insert/delete. Mỗi class chịu trách nhiệm cho một phần riêng, còn phần đánh giá và chạy kịch bản được tổ chức theo module hàm.
+DBSCAN và IncrementalDBSCAN dùng chung 'fit()' và 'get_labels()'; lớp incremental bổ sung thao tác insert/delete. Mỗi class chịu trách nhiệm cho một phần riêng, còn phần đánh giá và chạy kịch bản được tổ chức theo module hàm.
 
 ## Đối chiếu thuật toán với paper
 
-- DBSCAN nền dùng điều kiện `distance <= Eps`, tính cả điểm đang xét trong lân cận và mở rộng cụm bằng stack LIFO theo giả mã DBSCAN trong paper 1998.
-- Insert xác định `NewCore` và `UpdSeedIns`, sau đó dùng stack để mở rộng phần lõi mới. Nhãn của các lõi cũ trong tập seed cho biết cụm nào cần giữ, hấp thụ hoặc hợp nhất.
-- Delete xác định `LostCore` và `UpdSeedDel`. Tập seed rỗng tương ứng Removal; các seed trực tiếp kết nối tương ứng Reduction; nếu không, BFS từ các seed kiểm tra Potential Split và Non-split.
+- DBSCAN nền dùng điều kiện 'distance <= Eps', tính cả điểm đang xét trong lân cận và mở rộng cụm bằng stack LIFO theo giả mã DBSCAN trong paper 1998.
+- Insert xác định 'NewCore' và 'UpdSeedIns', sau đó dùng stack để mở rộng phần lõi mới. Nhãn của các lõi cũ trong tập seed cho biết cụm nào cần giữ, hấp thụ hoặc hợp nhất.
+- Delete xác định 'LostCore' và 'UpdSeedDel'. Tập seed rỗng tương ứng Removal; các seed trực tiếp kết nối tương ứng Reduction; nếu không, BFS từ các seed kiểm tra Potential Split và Non-split.
 
 Paper 1998 trình bày giả mã DBSCAN, định nghĩa seed và các bước/case của insert/delete, nhưng không cung cấp mã nguồn Python/OOP hoàn chỉnh. Cấu trúc lớp và cache lân cận là cách tổ chức bằng Python; phần cốt lõi được triển khai theo stack cho insert, các tập seed và quy tắc cập nhật cụm trong paper, cùng BFS cho Potential Split.

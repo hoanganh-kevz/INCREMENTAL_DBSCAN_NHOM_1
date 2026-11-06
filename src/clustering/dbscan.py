@@ -29,7 +29,7 @@ class DBSCAN:
         Args:
             eps: Bán kính dùng để xác định epsilon-lân cận.
             min_pts: Số điểm tối thiểu để xác định điểm core.
-            metric: Bộ tính khoảng cách; mặc định dùng ``DistanceMetric``.
+            metric: Bộ tính khoảng cách; mặc định dùng 'DistanceMetric'.
         """
         self.eps: float = eps
         self.min_pts: int = min_pts
@@ -45,7 +45,7 @@ class DBSCAN:
             point_id: ID điểm trung tâm của vùng truy vấn.
 
         Returns:
-            Tập ID của các điểm cách điểm trung tâm không quá ``eps``; bao gồm
+            Tập ID của các điểm cách điểm trung tâm không quá eps; bao gồm
             chính điểm trung tâm.
 
         Raises:
@@ -66,7 +66,7 @@ class DBSCAN:
         """Phân cụm dữ liệu ban đầu và khởi tạo trạng thái lân cận.
 
         Args:
-            data: Ma trận có dạng ``(số điểm, số chiều)``.
+            data: Ma trận có dạng '(số điểm, số chiều)'.
 
         Returns:
             Chính mô hình đã được huấn luyện.
@@ -132,7 +132,7 @@ class DBSCAN:
         """Trả nhãn cụm theo thứ tự điểm hiện lưu trong mô hình.
 
         Returns:
-            Danh sách nhãn; ``-1`` biểu thị noise hoặc điểm chưa được phân cụm.
+            Danh sách nhãn; -1 biểu thị noise hoặc điểm chưa được phân cụm.
         """
         return [
             point.cluster_id if point.cluster_id is not None else -1

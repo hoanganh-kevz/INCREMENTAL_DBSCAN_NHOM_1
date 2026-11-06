@@ -1,10 +1,9 @@
-"""Evaluation metrics implemented without clustering libraries.
+"""Các chỉ số đánh giá được cài đặt không dùng thư viện phân cụm.
 
-Only the standard library is used here so the custom metric remains independent
-from the scikit-learn reference implementation in
-:mod:`evaluation_library`.
+Mô-đun chỉ dùng thư viện chuẩn của Python để phần đánh giá độc lập với
+cài đặt tham chiếu scikit-learn trong :mod:`evaluation_library`.
 
-The Silhouette formula follows Rousseeuw (1987), DOI: 10.1016/0377-0427(87)90125-7.
+Công thức Silhouette theo Rousseeuw (1987), DOI: 10.1016/0377-0427(87)90125-7.
 """
 
 from __future__ import annotations
@@ -17,7 +16,7 @@ from typing import Any, Iterable
 def _prepare_inputs(
     data: Iterable[Iterable[float]], labels: Iterable[Any]
 ) -> tuple[list[tuple[float, ...]], list[Any]]:
-    """Validate and normalize feature rows and cluster labels."""
+    """Kiểm tra tính hợp lệ và chuẩn hóa dữ liệu đặc trưng cùng nhãn cụm."""
     try:
         rows = [tuple(float(value) for value in row) for row in data]
     except (TypeError, ValueError) as exc:
@@ -52,11 +51,10 @@ def silhouette_samples(
     *,
     noise_label: Any = -1,
 ) -> list[float | None]:
-    """Return one Euclidean silhouette value per point.
+    """Tính hệ số Silhouette theo khoảng cách Euclid cho từng điểm dữ liệu.
 
-    Noise points are excluded from the calculation and represented by ``None``
-    in the returned list, preserving the input order. A singleton cluster has
-    a silhouette value of zero, matching the common silhouette definition.
+    Các điểm nhiễu không tham gia tính toán và được biểu diễn bằng 'None'
+    trong danh sách kết quả, đồng thời giữ nguyên thứ tự đầu vào.
     """
     rows, label_list = _prepare_inputs(data, labels)
     included = [index for index, label in enumerate(label_list) if label != noise_label]

@@ -2,10 +2,10 @@
 
 ## Dữ liệu và cách chạy
 
-- `data/raw/incremental_examples/` minh họa từng bước insert/Merge và delete/Split.
-- `data/raw/atm_txn_2d.csv` minh họa DBSCAN trên mặt phẳng 2D.
-- `data/raw/card_stream/` là luồng cập nhật dùng cho benchmark 2D/3D/4D. Các chiều là lát đặc trưng từ cùng một D0 và cùng thứ tự cập nhật.
-- Trong từng cấu hình, giữ nguyên dữ liệu, `Eps`, `MinPts`, metric Euclidean và thứ tự cập nhật.
+- 'data/raw/incremental_examples/' minh họa từng bước insert/Merge và delete/Split.
+- 'data/raw/atm_txn_2d.csv' minh họa DBSCAN trên mặt phẳng 2D.
+- 'data/raw/card_stream/' là luồng cập nhật dùng cho benchmark 2D/3D/4D. Các chiều là lát đặc trưng từ cùng một D0 và cùng thứ tự cập nhật.
+- Trong từng cấu hình, giữ nguyên dữ liệu, 'Eps', 'MinPts', metric Euclidean và thứ tự cập nhật.
 
 ## Chỉ số
 
@@ -20,10 +20,10 @@ ARI chỉ dùng để kiểm tra mức tương đương giữa hai cài đặt D
 
 ## Chạy đối chiếu DBSCAN
 
-`src/evaluation/equivalence.py` phát lại 8 ví dụ cập nhật và luồng thẻ, rồi so Incremental DBSCAN với sklearn DBSCAN sau từng bước. Điểm biên mơ hồ được bỏ qua theo danh sách trong dữ liệu. Chạy từ thư mục gốc:
+'src/evaluation/equivalence.py' phát lại 8 ví dụ cập nhật và luồng thẻ, rồi so Incremental DBSCAN với sklearn DBSCAN sau từng bước. Điểm biên mơ hồ được bỏ qua theo danh sách trong dữ liệu. Chạy từ thư mục gốc:
 
-```bash
+'''bash
 python -m src.evaluation.equivalence
-```
+'''
 
-Kết quả được ghi vào `results/equivalence_results.csv`.
+Kết quả được ghi vào 'results/equivalence_results.csv'.

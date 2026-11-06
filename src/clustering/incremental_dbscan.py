@@ -21,7 +21,7 @@ class IncrementalDBSCAN(DBSCAN):
         """Chèn một điểm và cập nhật các điểm nằm trong vùng ảnh hưởng.
 
         Args:
-            point: ``DataPoint`` hoặc vector tọa độ của điểm mới.
+            point: 'DataPoint hoặc vector tọa độ của điểm mới.
 
         Returns:
             ID ổn định được cấp cho điểm mới.
@@ -72,10 +72,10 @@ class IncrementalDBSCAN(DBSCAN):
         return coords
 
     def insert_point(self, point: Union[DataPoint, Iterable[float]]) -> int:
-        """Tên tương thích cũ; chuyển tiếp tới :meth:`insert`.
+        """Tên tương thích cũ; chuyển tiếp tới :meth:'insert'.
 
         Args:
-            point: ``DataPoint`` hoặc vector tọa độ của điểm mới.
+            point: 'DataPoint' hoặc vector tọa độ của điểm mới.
 
         Returns:
             ID ổn định được cấp cho điểm mới.
@@ -86,7 +86,7 @@ class IncrementalDBSCAN(DBSCAN):
         """Cập nhật cache lân cận hai chiều sau khi thêm điểm.
 
         Args:
-            new_point_id: ID của điểm vừa được thêm vào ``points``.
+            new_point_id: ID của điểm vừa được thêm vào 'points'.
 
         """
         neighbor_ids = self._region_query(new_point_id)
@@ -96,7 +96,7 @@ class IncrementalDBSCAN(DBSCAN):
             self.points[neighbor_id].neighbor_ids.add(new_point_id)
 
     def _find_new_core_points(self, new_point_id: int) -> Set[int]:
-        """Tìm điểm mới và điểm cũ vừa đạt ngưỡng ``min_pts``.
+        """Tìm điểm mới và điểm cũ vừa đạt ngưỡng 'min_pts'.
 
         Args:
             new_point_id: ID của điểm vừa được chèn.
@@ -116,7 +116,7 @@ class IncrementalDBSCAN(DBSCAN):
         return new_core_ids
 
     def _get_update_seeds(self, new_core_ids: Set[int]) -> Set[int]:
-        """Tạo tập ``UpdSeedIns`` từ các core vừa phát sinh.
+        """Tạo tập 'UpdSeedIns' từ các core vừa phát sinh.
 
         Args:
             new_core_ids: ID các điểm vừa trở thành core.
@@ -292,7 +292,7 @@ class IncrementalDBSCAN(DBSCAN):
             border.point_type = PointType.BORDER
 
     def delete(self, point_id: int) -> None:
-        """Xóa một điểm và cập nhật cụm theo tập ``UpdSeedDel``.
+        """Xóa một điểm và cập nhật cụm theo tập 'UpdSeedDel'.
 
         Args:
             point_id: ID ổn định của điểm cần xóa.
@@ -487,7 +487,7 @@ class IncrementalDBSCAN(DBSCAN):
         ClusterUtils.clean_stale_cluster_ids(self.points, active_cluster_ids)
 
     def delete_point(self, point_id: int) -> None:
-        """Tên tương thích cũ; chuyển tiếp tới :meth:`delete`.
+        """Tên tương thích cũ; chuyển tiếp tới :meth:'delete'.
 
         Args:
             point_id: ID ổn định của điểm cần xóa.

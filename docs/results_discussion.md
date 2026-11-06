@@ -20,4 +20,4 @@ Silhouette tự cài là chỉ số chất lượng chính; cần đọc cùng s
 
 Kết quả chỉ áp dụng cho dữ liệu mô phỏng và 20 cập nhật đầu của luồng này. 2D/3D/4D không phải ba bộ dữ liệu độc lập, nên không thể xem chúng như ba phép thử độc lập.
 
-CSV theo lượt, từng bước và bảng tổng hợp nằm trong `results/density_algorithm_benchmark_*.csv`; hình tổng hợp nằm tại `report/figures/density_algorithm_benchmark.png`.
+CSV theo lượt, từng bước và bảng tổng hợp nằm trong 'results/density_algorithm_benchmark_*.csv'; hình tổng hợp nằm tại 'report/figures/density_algorithm_benchmark.png'.
