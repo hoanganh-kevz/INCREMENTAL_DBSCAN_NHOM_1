@@ -46,5 +46,5 @@ Thumbs.db
 *.fls
 *.fdb_latexmk
 
-# Chỉ bỏ qua PDF được build từ báo cáo
-May_Hoc_Report/main.pdf
+# Báo cáo được giữ local, không đưa lên repository
+May_Hoc_Report/
