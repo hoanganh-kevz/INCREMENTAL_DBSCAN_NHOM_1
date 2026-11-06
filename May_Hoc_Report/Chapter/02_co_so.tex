@@ -11,15 +11,15 @@ Nhóm tập trung vào DBSCAN và Incremental DBSCAN, trong đó cụm được 
 
 Các thuật toán phân cụm có thể được phân biệt dựa trên cách xác định sự tương đồng và tổ chức các đối tượng thành cụm. Trong đó, ba loại phổ biến là phân cụm theo phân hoạch, phân cụm phân cấp và phân cụm dựa trên mật độ. Mỗi loại sử dụng một nguyên tắc hình thành cụm khác nhau, do đó có thể tạo ra những kết quả khác nhau khi áp dụng trên cùng một tập dữ liệu \parencite{sklearnClusteringGuide}.
 
-\textbf{phân cụm theo phân hoạch (Partitioning Clustering)}
+\textbf{Phân cụm theo phân hoạch (Partitioning Clustering)}
 
 Phương pháp phân cụm theo phân hoạch chia dữ liệu thành số cụm đã chọn trước. K-means là ví dụ quen thuộc: mỗi điểm được gán cho tâm gần nhất, sau đó các tâm được cập nhật. Cách này cần khai báo số cụm và có thể không phù hợp với cụm cong hoặc có hình dạng phức tạp \parencite{machinelearningcoban}.
 
-\textbf{phân cụm phân cấp (Hierarchical Clustering)}
+\textbf{Phân cụm phân cấp (Hierarchical Clustering)}
 
 Phương pháp phân cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. Phân cụm phân cấp kết tụ (HAC) bắt đầu bằng cách xem mỗi điểm là một cụm riêng, rồi gộp dần các cụm theo tiêu chí khoảng cách đã chọn. Kết quả thường được biểu diễn bằng cây để thấy thứ tự các cụm được gộp \parencite{sklearnClusteringGuide}.
 
-\textbf{phân cụm dựa trên mật độ (Density-Based Clustering)}
+\textbf{Phân cụm dựa trên mật độ (Density-Based Clustering)}
 
 Phương pháp dựa trên mật độ xét sự phân bố của các đối tượng trong những vùng lân cận. Các vùng có đủ mật độ và có quan hệ kết nối với nhau được xác định thuộc cùng một cụm, còn các đối tượng không đáp ứng điều kiện tham gia cụm có thể được nhận diện là nhiễu. DBSCAN thuộc nhóm này, thuật toán có thể phát hiện các cụm có hình dạng không nhất thiết tập trung quanh một tâm và không yêu cầu khai báo trước số lượng cụm; kết quả phụ thuộc vào các tham số xác định vùng lân cận và ngưỡng mật độ \parencite{ester1996dbscan}.
 

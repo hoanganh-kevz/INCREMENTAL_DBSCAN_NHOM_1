@@ -1,4 +1,4 @@
-"""Trực quan hóa cụm (D07): ClusterVisualizer vẽ MỘT ảnh chụp (snapshot) của mô hình gom cụm.
+"""Trực quan hóa cụm (D07): ClusterVisualizer vẽ MỘT ảnh chụp (snapshot) của mô hình phân cụm.
 
 Snapshot là dict gồm bốn khóa, cùng độ dài n:
     ids          id của điểm (số nguyên hoặc chuỗi; chỉ cần phân biệt được các điểm)
@@ -82,7 +82,7 @@ def make_snapshot(ids, coords, labels, point_types=None):
 
 
 def snapshot_from_model(model):
-    """ADAPTER DUY NHẤT từ một mô hình gom cụm sang snapshot. Nhóm chưa chốt tên phương thức, nên mọi thay đổi chỉ sửa ở đây.
+    """ADAPTER DUY NHẤT từ một mô hình phân cụm sang snapshot. Nhóm chưa chốt tên phương thức, nên mọi thay đổi chỉ sửa ở đây.
 
     Thử lần lượt:
       1. model.snapshot() trả dict có ids, coords, labels, point_types (RefitDBSCAN hiện nay; nên cài cùng giao diện này cho lớp thật);
@@ -184,7 +184,7 @@ def _normalize_updates(update):
 
 # ------------------------------------------------------------------ lớp vẽ
 class ClusterVisualizer:
-    """Vẽ snapshot gom cụm. Mọi phương thức nhận snapshot (dict) hoặc một mô hình có snapshot_from_model chấp nhận."""
+    """Vẽ snapshot kết quả phân cụm. Mọi phương thức nhận snapshot (dict) hoặc một mô hình có snapshot_from_model chấp nhận."""
 
     def __init__(self, point_size=38):
         self.point_size = float(point_size)
