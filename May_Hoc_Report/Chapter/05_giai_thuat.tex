@@ -111,6 +111,15 @@ scikit-learn OPTICS & 0,3362 & 6 & 11,83\% \\\hline
 \end{tabularx}
 \end{table}
 
+Hình~\ref{fig:atm_2d_algorithm_comparison} minh họa hình dạng cụm do bốn phương pháp tạo ra trên cùng bộ dữ liệu ATM 2D.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Images/atm_2d_algorithm_comparison.png}
+    \caption{Kết quả của bốn thuật toán trên cùng dữ liệu ATM 2D}
+    \label{fig:atm_2d_algorithm_comparison}
+\end{figure}
+
 HDBSCAN có Silhouette cao hơn trong cấu hình này nhưng đồng thời tạo ra 23 cụm, nhiều hơn đáng kể so với sáu cụm của các phương pháp còn lại. Vì vậy, không thể chỉ nhìn điểm Silhouette rồi kết luận HDBSCAN tốt hơn; cần xem số cụm, tỷ lệ nhiễu và mục tiêu của bài toán.
 
 Trên luồng thẻ, bảng dưới tính tại trạng thái cuối sau 20 cập nhật. Cả bốn phương pháp cho cùng 3 cụm và 1\% điểm nhiễu trong ba lát đặc trưng đang thử.
