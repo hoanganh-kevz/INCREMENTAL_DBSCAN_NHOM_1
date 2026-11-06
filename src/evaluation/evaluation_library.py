@@ -1,5 +1,3 @@
-"""Reference metrics from scikit-learn, isolated from the custom algorithm."""
-
 from __future__ import annotations
 
 from typing import Any, Iterable
@@ -13,10 +11,10 @@ def silhouette_samples(
     *,
     noise_label: Any = -1,
 ) -> list[float | None]:
-    """Return scikit-learn silhouette values aligned with the input points.
+    """Tính hệ số Silhouette theo khoảng cách Euclid cho từng điểm dữ liệu.
 
-    Noise points are omitted from the score and represented by ``None`` so the
-    output follows the same policy as :func:`metrics.silhouette_samples`.
+    Các điểm nhiễu không tham gia tính toán và được biểu diễn bằng 'None'
+    trong danh sách kết quả, đồng thời giữ nguyên thứ tự đầu vào.
     """
     from sklearn.metrics import silhouette_samples as sklearn_silhouette_samples
 
@@ -39,7 +37,7 @@ def silhouette_score(
     *,
     noise_label: Any = -1,
 ) -> float:
-    """Return scikit-learn's mean silhouette after excluding noise points."""
+    """Tính hệ số Silhouette trung bình sau khi loại các điểm nhiễu."""
     from sklearn.metrics import silhouette_score as sklearn_silhouette_score
 
     rows, label_list = _prepare_inputs(data, labels)
@@ -60,11 +58,12 @@ def evaluate_library_metrics(
     true_labels: Iterable[Any] | None = None,
     noise_label: Any = -1,
 ) -> dict[str, float | int]:
-    """Compute library quality metrics and optional external-label scores.
+    """Tính các chỉ số đánh giá chất lượng phân cụm bằng thư viện.
 
-    Silhouette excludes noise. ARI and AMI include every observation, with
-    ``noise_label`` treated as an ordinary predicted label. This keeps noise
-    detection errors visible when comparing predictions with ground truth.
+    Silhouette loại trừ điểm nhiễu. ARI sử dụng toàn bộ quan sát,
+    trong đó 'noise_label' được xem như một nhãn dự đoán thông thường.
+    Quy ước này giúp nhận diện sai lệch khi phát hiện nhiễu trong quá trình
+    so sánh kết quả dự đoán với nhãn thực tế.
     """
     from sklearn.metrics import adjusted_mutual_info_score, adjusted_rand_score
 
