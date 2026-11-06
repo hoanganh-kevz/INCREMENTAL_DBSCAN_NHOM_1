@@ -1,33 +1,33 @@
 \chapter{CƠ SỞ LÝ THUYẾT}
 
-\section{Tổng quan về gom cụm dữ liệu}
-\subsection{Khái niệm và mục tiêu của gom cụm dữ liệu}
+\section{Tổng quan về phân cụm dữ liệu}
+\subsection{Khái niệm và mục tiêu của phân cụm dữ liệu}
 
-Gom cụm (Clustering) là một phương pháp học không giám sát (Unsupervised Learning). Gom cụm không sử dụng nhãn lớp có sẵn để xác định các nhóm mà tìm kiếm cấu trúc nhóm dựa trên đặc trưng của các đối tượng và tiêu chí gom cụm được lựa chọn
+phân cụm (Clustering) là một phương pháp học không giám sát (Unsupervised Learning). phân cụm không sử dụng nhãn lớp có sẵn để xác định các nhóm mà tìm kiếm cấu trúc nhóm dựa trên đặc trưng của các đối tượng và tiêu chí phân cụm được lựa chọn
 
 Nhóm tập trung vào DBSCAN và Incremental DBSCAN, trong đó cụm được tìm qua mật độ và các kết nối giữa những điểm lõi. Thuật toán này cho phép những đối tượng không đáp ứng điều kiện thuộc cụm được xác định là nhiễu. Tuy nhiên, tập nhiễu không nhất thiết phải có phần tử nếu tất cả đối tượng đều được đưa vào các cụm.
 
-\subsection{Các phương pháp gom cụm phổ biến}
+\subsection{Các phương pháp phân cụm phổ biến}
 
-Các thuật toán gom cụm có thể được phân biệt dựa trên cách xác định sự tương đồng và tổ chức các đối tượng thành cụm. Trong đó, ba loại phổ biến là gom cụm theo phân hoạch, gom cụm phân cấp và gom cụm dựa trên mật độ. Mỗi loại sử dụng một nguyên tắc hình thành cụm khác nhau, do đó có thể tạo ra những kết quả khác nhau khi áp dụng trên cùng một tập dữ liệu.
+Các thuật toán phân cụm có thể được phân biệt dựa trên cách xác định sự tương đồng và tổ chức các đối tượng thành cụm. Trong đó, ba loại phổ biến là phân cụm theo phân hoạch, phân cụm phân cấp và phân cụm dựa trên mật độ. Mỗi loại sử dụng một nguyên tắc hình thành cụm khác nhau, do đó có thể tạo ra những kết quả khác nhau khi áp dụng trên cùng một tập dữ liệu.
 
-\textbf{Gom cụm theo phân hoạch (Partitioning Clustering)}
+\textbf{phân cụm theo phân hoạch (Partitioning Clustering)}
 
-Phương pháp gom cụm theo phân hoạch chia dữ liệu thành số cụm đã chọn trước. K-means là ví dụ quen thuộc: mỗi điểm được gán cho tâm gần nhất, sau đó các tâm được cập nhật. Cách này cần khai báo số cụm và có thể không phù hợp với cụm cong hoặc có hình dạng phức tạp \parencite{machinelearningcoban}.
+Phương pháp phân cụm theo phân hoạch chia dữ liệu thành số cụm đã chọn trước. K-means là ví dụ quen thuộc: mỗi điểm được gán cho tâm gần nhất, sau đó các tâm được cập nhật. Cách này cần khai báo số cụm và có thể không phù hợp với cụm cong hoặc có hình dạng phức tạp \parencite{machinelearningcoban}.
 
-\textbf{Gom cụm phân cấp (Hierarchical Clustering)}
+\textbf{phân cụm phân cấp (Hierarchical Clustering)}
 
-Phương pháp gom cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. Gom cụm phân cấp kết tụ (HAC) bắt đầu bằng cách xem mỗi điểm là một cụm riêng, rồi gộp dần các cụm theo tiêu chí khoảng cách đã chọn. Kết quả thường được biểu diễn bằng cây để thấy thứ tự các cụm được gộp \parencite{instructorclusteringnotebooks}.
+Phương pháp phân cụm phân cấp xây dựng cấu trúc thể hiện quan hệ giữa các cụm nhỏ và những cụm lớn được hình thành từ chúng. phân cụm phân cấp kết tụ (HAC) bắt đầu bằng cách xem mỗi điểm là một cụm riêng, rồi gộp dần các cụm theo tiêu chí khoảng cách đã chọn. Kết quả thường được biểu diễn bằng cây để thấy thứ tự các cụm được gộp \parencite{instructorclusteringnotebooks}.
 
-\textbf{Gom cụm dựa trên mật độ (Density-Based Clustering)}
+\textbf{phân cụm dựa trên mật độ (Density-Based Clustering)}
 
 Phương pháp dựa trên mật độ xét sự phân bố của các đối tượng trong những vùng lân cận. Các vùng có đủ mật độ và có quan hệ kết nối với nhau được xác định thuộc cùng một cụm, còn các đối tượng không đáp ứng điều kiện tham gia cụm có thể được nhận diện là nhiễu. DBSCAN thuộc nhóm này, thuật toán có thể phát hiện các cụm có hình dạng không nhất thiết tập trung quanh một tâm và không yêu cầu khai báo trước số lượng cụm và kết quả của thuật toán sẽ phụ thuộc vào các tham số xác định vùng lân cận và ngưỡng mật độ.
 
 \section{Thuật toán DBSCAN}
 
-DBSCAN (Density-Based Spatial Clustering of Applications with Noise) là thuật toán gom cụm dựa trên mật độ do Ester và cộng sự đề xuất. Thuật toán xét số lượng đối tượng trong vùng lân cận, mở rộng cụm từ các điểm lõi và đánh dấu các điểm không thuộc cụm là nhiễu \parencite{ester1996dbscan}.
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) là thuật toán phân cụm dựa trên mật độ do Ester và cộng sự đề xuất. Thuật toán xét số lượng đối tượng trong vùng lân cận, mở rộng cụm từ các điểm lõi và đánh dấu các điểm không thuộc cụm là nhiễu \parencite{ester1996dbscan}.
 
-Để thực hiện quá trình gom cụm, DBSCAN sử dụng hai tham số chính là \(\varepsilon\) (Eps) và \(\mathrm{MinPts}\). Hai tham số này quyết định điều kiện để một đối tượng có thể làm điểm bắt đầu mở rộng cụm, cũng như phạm vi các đối tượng được liên kết với nhau.
+Để thực hiện quá trình phân cụm, DBSCAN sử dụng hai tham số chính là \(\varepsilon\) (Eps) và \(\mathrm{MinPts}\). Hai tham số này quyết định điều kiện để một đối tượng có thể làm điểm bắt đầu mở rộng cụm, cũng như phạm vi các đối tượng được liên kết với nhau.
 
 \subsection{Các tham số Eps và MinPts}
 
@@ -172,7 +172,7 @@ Khi dữ liệu thay đổi, Incremental DBSCAN dựa vào các lõi và đườ
 
 \subsection{Quy trình thực hiện}
 
-Trong chương trình của nhóm, lớp \texttt{DBSCAN} dùng phương thức \texttt{fit()} để gom cụm ban đầu. Các bước chính là:
+Trong chương trình của nhóm, lớp \texttt{DBSCAN} dùng phương thức \texttt{fit()} để phân cụm ban đầu. Các bước chính là:
 
 \begin{enumerate}[label=\textbf{Bước \arabic*.}, leftmargin=*, itemsep=5pt]
 
@@ -192,14 +192,14 @@ Trong chương trình của nhóm, lớp \texttt{DBSCAN} dùng phương thức \
 
     Khi ngăn xếp không còn đối tượng cần xử lý, thuật toán kết thúc cụm hiện tại. Sau đó, thuật toán tiếp tục xét những đối tượng chưa được phân loại để tìm các cụm khác.
 
-    \item \textbf{Trả về kết quả gom cụm.}
+    \item \textbf{Trả về kết quả phân cụm.}
 
     Quá trình kết thúc khi tất cả đối tượng đã được xử lý. Mỗi đối tượng có một nhãn cụm tương ứng, những đối tượng không thuộc cụm nào được gán nhãn nhiễu.
 \end{enumerate}
 
 Trong cách cài đặt hiện tại, các đối tượng lân cận được lưu trong thuộc tính \texttt{neighbor\_ids} của lớp \texttt{DataPoint}. Phương thức \texttt{\_region\_query()} xác định những đối tượng có khoảng cách không vượt quá \(\varepsilon\), còn \texttt{\_expand\_cluster()} sử dụng stack LIFO để mở rộng cụm qua các đối tượng lõi. Mã sắp xếp mã định danh lân cận trước khi đưa vào stack để thứ tự duyệt ổn định.
 
-Việc lưu thông tin lân cận không chỉ phục vụ lần gom cụm ban đầu mà còn hỗ trợ các thao tác cập nhật tăng dần được trình bày ở phần Incremental DBSCAN.
+Việc lưu thông tin lân cận không chỉ phục vụ lần phân cụm ban đầu mà còn hỗ trợ các thao tác cập nhật tăng dần được trình bày ở phần Incremental DBSCAN.
 
 \subsection{Ví dụ minh họa DBSCAN từng bước}
 
@@ -298,7 +298,7 @@ Kết quả cụm thứ hai là:
 
 Hai đối tượng \(P_{12}\) và \(P_{13}\) chỉ có chính chúng trong lân cận \(\varepsilon\), đồng thời không nằm trong lân cận của bất kỳ đối tượng lõi nào. Vì vậy, cả hai được xác định là nhiễu.
 
-Kết quả gom cụm cuối cùng gồm hai cụm \(C_1\), \(C_2\) và tập nhiễu:
+Kết quả phân cụm cuối cùng gồm hai cụm \(C_1\), \(C_2\) và tập nhiễu:
 
 \begin{equation}
     {N}=\{P_{12},P_{13}\}.
@@ -322,15 +322,15 @@ Việc sử dụng một bộ tham số chung cho toàn bộ tập dữ liệu c
 
 Ngoài ra, một đối tượng biên có thể nằm trong lân cận của các đối tượng lõi thuộc hai cụm khác nhau. Khi đó, đối tượng biên có thể được gán vào một trong các cụm liên quan tùy theo thứ tự xử lý, nhưng bản thân đối tượng biên không tạo ra kết nối để hợp nhất hai cụm. Vì vậy, các cách xử lý khác nhau có thể dẫn đến sự khác biệt trong việc gán cụm cho một số đối tượng biên, dù cấu trúc kết nối giữa các đối tượng lõi không thay đổi.
 
-Trong trường hợp dữ liệu thay đổi thường xuyên, DBSCAN thông thường không cập nhật kết quả sau mỗi phép chèn hoặc xóa. Nếu thực hiện lại toàn bộ quá trình gom cụm sau mỗi thay đổi, những quan hệ lân cận và kết nối cụm không bị tác động vẫn phải được xử lý lại.
+Trong trường hợp dữ liệu thay đổi thường xuyên, DBSCAN thông thường không cập nhật kết quả sau mỗi phép chèn hoặc xóa. Nếu thực hiện lại toàn bộ quá trình phân cụm sau mỗi thay đổi, những quan hệ lân cận và kết nối cụm không bị tác động vẫn phải được xử lý lại.
 
 \section{Thuật toán Incremental DBSCAN}
 
-Incremental DBSCAN mở rộng DBSCAN để cập nhật kết quả khi thêm hoặc xóa điểm. Thay vì gom cụm lại từ đầu sau mỗi thay đổi, thuật toán dùng thông tin đã lưu để tìm những điểm và kết nối cần cập nhật. Phần này dựa trên bài báo gốc về Incremental DBSCAN năm 1998, \textit{Incremental Clustering for Mining in a Data Warehousing Environment} \parencite{ester1998incrementaldbscan}.
+Incremental DBSCAN mở rộng DBSCAN để cập nhật kết quả khi thêm hoặc xóa điểm. Thay vì phân cụm lại từ đầu sau mỗi thay đổi, thuật toán dùng thông tin đã lưu để tìm những điểm và kết nối cần cập nhật. Phần này dựa trên bài báo gốc về Incremental DBSCAN năm 1998, \textit{Incremental Clustering for Mining in a Data Warehousing Environment} \parencite{ester1998incrementaldbscan}.
 
 \subsection{Nhu cầu cập nhật cụm khi dữ liệu thay đổi}
 
-Kết quả của DBSCAN phụ thuộc vào số đối tượng trong từng lân cận \(\varepsilon\) và quan hệ kết nối giữa các đối tượng lõi. Do đó, việc thêm hoặc xóa một đối tượng có thể làm thay đổi kết quả gom cụm ngay cả khi hai tham số \(\varepsilon\) và \(\mathrm{MinPts}\) được giữ nguyên.
+Kết quả của DBSCAN phụ thuộc vào số đối tượng trong từng lân cận \(\varepsilon\) và quan hệ kết nối giữa các đối tượng lõi. Do đó, việc thêm hoặc xóa một đối tượng có thể làm thay đổi kết quả phân cụm ngay cả khi hai tham số \(\varepsilon\) và \(\mathrm{MinPts}\) được giữ nguyên.
 
 Khi chèn một đối tượng, số phần tử trong lân cận của các đối tượng gần nó có thể tăng lên. Một đối tượng trước đó là biên hoặc nhiễu có thể trở thành lõi, từ đó tạo thêm kết nối, hình thành cụm mới hoặc hợp nhất các cụm cũ. Ngược lại, việc xóa một đối tượng có thể khiến một số lõi không còn đạt ngưỡng \(\mathrm{MinPts}\). Tùy thuộc vào cấu trúc cụm và những kết nối mật độ còn lại, phép xóa có thể làm thu hẹp cụm, khiến cụm biến mất hoặc dẫn đến tách cụm nếu các phần còn lại không còn kết nối theo mật độ.
 
@@ -457,11 +457,11 @@ Tập này gồm những đối tượng vẫn là lõi sau phép xóa và nằm
 
 \textbf{Nguyên tắc cập nhật khi chèn}
 
-Giả sử tập \(D^{\text{-}}\) đã được gom cụm và một đối tượng mới \(p\) được chèn vào, tạo thành tập \(D^{+}=D^{\text{-}}\cup\{p\}\).
+Giả sử tập \(D^{\text{-}}\) đã được phân cụm và một đối tượng mới \(p\) được chèn vào, tạo thành tập \(D^{+}=D^{\text{-}}\cup\{p\}\).
 
 Phép chèn chỉ làm tăng hoặc giữ nguyên số lượng đối tượng trong các lân cận. Vì vậy, những đối tượng cũ đã là lõi vẫn tiếp tục là lõi, trong khi một số đối tượng không lõi có thể trở thành lõi. Các kết nối theo mật độ có thể được tạo thêm nhưng không bị mất đi.
 
-Về kết quả gom cụm, có thể xảy ra bốn trường hợp: Noise, Creation, Absorption và Merge.
+Về kết quả phân cụm, có thể xảy ra bốn trường hợp: Noise, Creation, Absorption và Merge.
 
 \begin{table}[H]
 \centering
@@ -752,15 +752,15 @@ Cách làm này cũng xử lý được trường hợp xóa một điểm biên
 
 \subsection{Khác biệt giữa Incremental DBSCAN và chạy lại DBSCAN}
 
-Incremental DBSCAN (cập nhật tăng dần)  và chạy lại DBSCAN đều nhằm xác định cấu trúc gom cụm phù hợp với tập dữ liệu sau thay đổi. Điểm khác nhau nằm ở lượng thông tin được sử dụng lại và phạm vi cần xử lý.
+Incremental DBSCAN (cập nhật tăng dần)  và chạy lại DBSCAN đều nhằm xác định cấu trúc phân cụm phù hợp với tập dữ liệu sau thay đổi. Điểm khác nhau nằm ở lượng thông tin được sử dụng lại và phạm vi cần xử lý.
 
-Đối với cách chạy lại DBSCAN, mỗi lần cập nhật được xem như một bài toán gom cụm mới. Thuật toán thực hiện lại việc xác định lân cận, tính chất lõi và mở rộng cụm trên tập dữ liệu hiện tại.
+Đối với cách chạy lại DBSCAN, mỗi lần cập nhật được xem như một bài toán phân cụm mới. Thuật toán thực hiện lại việc xác định lân cận, tính chất lõi và mở rộng cụm trên tập dữ liệu hiện tại.
 
 Trong khi đó, Incremental DBSCAN giữ lại thông tin về đối tượng, lân cận, loại đối tượng và nhãn cụm sau mỗi lần xử lý. Khi phát sinh phép chèn hoặc xóa, thuật toán cập nhật những thông tin có thay đổi và điều chỉnh các cụm liên quan.
 
 \begin{table}[H]
 \centering
-\caption{So sánh cách cập nhật kết quả gom cụm}
+\caption{So sánh cách cập nhật kết quả phân cụm}
 \label{tab:incremental_vs_refit}
 \normalsize
 \begin{tabularx}{\textwidth}{@{}P{3.1cm}YY@{}}
@@ -768,13 +768,13 @@ Trong khi đó, Incremental DBSCAN giữ lại thông tin về đối tượng, 
 \textbf{Tiêu chí} & \textbf{Chạy lại DBSCAN} & \textbf{Incremental DBSCAN của nhóm} \\
 \midrule
 Thông tin ban đầu &
-Gom cụm lại tập dữ liệu hiện tại. &
-Sử dụng kết quả gom cụm và lân cận đã lưu. \\
+phân cụm lại tập dữ liệu hiện tại. &
+Sử dụng kết quả phân cụm và lân cận đã lưu. \\
 Phép chèn &
 Tính lại lân cận và mở rộng cụm trên toàn bộ dữ liệu. &
 Cập nhật lân cận của điểm mới và những đối tượng liên quan, sau đó xử lý các kết nối mới. \\
 Phép xóa &
-Gom cụm lại toàn bộ dữ liệu còn lại. &
+phân cụm lại toàn bộ dữ liệu còn lại. &
 Xác định các cụm liên quan, kiểm tra lại các thành phần lõi và gán lại nhãn. \\
 Bộ nhớ &
 Phụ thuộc cách cài đặt và lưu trữ lân cận. &
@@ -828,7 +828,7 @@ Giá trị Silhouette nằm trong khoảng từ -1 đến 1, cụ thể như sau
     \item Gần -1: Đối tượng có xu hướng nằm gần một cụm khác hơn so với cụm hiện tại, có thể cho thấy việc gán cụm chưa phù hợp.
 \end{itemize}
 
-Silhouette của toàn bộ kết quả gom cụm được xác định bằng cách lấy trung bình giá trị Silhouette của các đối tượng được đưa vào đánh giá. Giá trị trung bình càng cao thường cho thấy các cụm càng tập trung và tách biệt rõ theo khoảng cách sử dụng.
+Silhouette của toàn bộ kết quả phân cụm được xác định bằng cách lấy trung bình giá trị Silhouette của các đối tượng được đưa vào đánh giá. Giá trị trung bình càng cao thường cho thấy các cụm càng tập trung và tách biệt rõ theo khoảng cách sử dụng.
 
 \textbf{Cách nhóm tính Silhouette}
 
@@ -840,25 +840,25 @@ Chỉ tính điểm tổng hợp khi sau khi bỏ nhiễu còn ít nhất hai c�
 
 Silhouette phản ánh sự gần nhau và tách biệt giữa các cụm dựa trên khoảng cách trung bình, nên thường thuận lợi cho những cụm có các đối tượng phân bố tập trung và cách xa nhau. Trong khi đó, DBSCAN có thể xác định những cụm có hình dạng không lồi. Với những dạng phân bố này, các đối tượng trong cùng cụm có thể cách nhau xa về mặt hình học nhưng vẫn được kết nối theo mật độ.
 
-Vì vậy, Silhouette thấp không nhất thiết cho thấy DBSCAN gom cụm sai. Một kết quả phản ánh đúng các vùng kết nối theo mật độ vẫn có thể nhận Silhouette thấp hơn cách phân chia thành các cụm nhỏ, gọn hơn \parencite{sklearnClusteringGuide}.
+Vì vậy, Silhouette thấp không nhất thiết cho thấy DBSCAN phân cụm sai. Một kết quả phản ánh đúng các vùng kết nối theo mật độ vẫn có thể nhận Silhouette thấp hơn cách phân chia thành các cụm nhỏ, gọn hơn \parencite{sklearnClusteringGuide}.
 
 Ngoài ra, khi loại nhiều đối tượng nhiễu khỏi phép tính, Silhouette trung bình có thể tăng do chỉ còn các đối tượng được gom vào những cụm rõ ràng hơn. Do đó, nhóm cần báo cáo Silhouette cùng số lượng hoặc tỷ lệ nhiễu để tránh đánh giá kết quả chỉ dựa trên những đối tượng được giữ lại.
 
 \subsection{Thời gian chạy và bộ nhớ}
 
-Thời gian thực hiện là một tiêu chí để đánh giá hiệu quả xử lý của Incremental DBSCAN. Khi so sánh với DBSCAN chạy lại, cần phân biệt thời gian gom cụm ban đầu và thời gian xử lý từng phép cập nhật. Chi phí cập nhật có thể thay đổi tùy theo loại thao tác và phạm vi cụm bị ảnh hưởng, do đó Incremental DBSCAN không nhất thiết nhanh hơn trong mọi trường hợp.
+Thời gian thực hiện là một tiêu chí để đánh giá hiệu quả xử lý của Incremental DBSCAN. Khi so sánh với DBSCAN chạy lại, cần phân biệt thời gian phân cụm ban đầu và thời gian xử lý từng phép cập nhật. Chi phí cập nhật có thể thay đổi tùy theo loại thao tác và phạm vi cụm bị ảnh hưởng, do đó Incremental DBSCAN không nhất thiết nhanh hơn trong mọi trường hợp.
 
 Bên cạnh thời gian xử lý, việc duy trì thông tin lân cận và trạng thái phân cụm cũng làm tăng nhu cầu bộ nhớ. Đây là sự đánh đổi giữa việc lưu trữ thông tin để tái sử dụng và việc phải tính toán lại từ đầu. Trong phạm vi đồ án, nhóm tập trung đo thời gian thực nghiệm, còn chi phí bộ nhớ được xem xét thông qua đặc điểm lưu trữ của thuật toán.
 
 \subsection{Số cụm và số điểm nhiễu}
 
-Số lượng cụm và số đối tượng nhiễu là những chỉ số mô tả trực tiếp kết quả gom cụm. Đối với Incremental DBSCAN, hai đại lượng này còn giúp theo dõi sự thay đổi cấu trúc dữ liệu sau mỗi phép chèn hoặc xóa.
+Số lượng cụm và số đối tượng nhiễu là những chỉ số mô tả trực tiếp kết quả phân cụm. Đối với Incremental DBSCAN, hai đại lượng này còn giúp theo dõi sự thay đổi cấu trúc dữ liệu sau mỗi phép chèn hoặc xóa.
 
 Số cụm được xác định bằng cách đếm số nhãn cụm phân biệt trong kết quả, không tính nhãn -1 biểu thị nhiễu. Chẳng hạn, nếu tập dữ liệu có các nhãn {2, 2, 5, 5, -1}, kết quả gồm hai cụm và một đối tượng nhiễu. Số cụm được xác định dựa trên số nhãn phân biệt, không phụ thuộc vào giá trị cụ thể của các nhãn.
 
 Số đối tượng nhiễu là số đối tượng mang nhãn -1 trong tập dữ liệu hiện tại. Tỷ lệ nhiễu cho biết tỷ lệ đối tượng không được gán vào cụm nào.
 
-Đối với các phép cập nhật, nhóm theo dõi số cụm và số đối tượng nhiễu trước và sau thao tác để xác định những thay đổi trong kết quả gom cụm. Tuy nhiên, sự tăng hoặc giảm số cụm chưa đủ để xác định cụ thể trường hợp cập nhật đã xảy ra. Chẳng hạn, số cụm giảm có thể do hợp nhất hai cụm sau phép chèn hoặc do một cụm biến mất hoàn toàn sau phép xóa.
+Đối với các phép cập nhật, nhóm theo dõi số cụm và số đối tượng nhiễu trước và sau thao tác để xác định những thay đổi trong kết quả phân cụm. Tuy nhiên, sự tăng hoặc giảm số cụm chưa đủ để xác định cụ thể trường hợp cập nhật đã xảy ra. Chẳng hạn, số cụm giảm có thể do hợp nhất hai cụm sau phép chèn hoặc do một cụm biến mất hoàn toàn sau phép xóa.
 
 Tương tự, số đối tượng nhiễu tăng hoặc giảm có thể phản ánh sự thay đổi giữa trạng thái nhiễu và biên khi mật độ lân cận thay đổi. Vì vậy, nhóm kết hợp các đại lượng này với thông tin về loại đối tượng và quan hệ thành viên cụm để phân tích từng kịch bản.
 
@@ -878,13 +878,13 @@ Bảng~\ref{tab:clustering_algorithm_comparison} tổng hợp những đặc đi
 
 \begin{table}[H]
 \centering
-\caption{So sánh đặc điểm của các thuật toán gom cụm}
+\caption{So sánh đặc điểm của các thuật toán phân cụm}
 \label{tab:clustering_algorithm_comparison}
 \normalsize
 \begin{tabularx}{\textwidth}{@{}P{2.6cm}YY@{}}
 \toprule
 \textbf{Thuật toán} &
-\textbf{Nguyên tắc gom cụm} &
+\textbf{Nguyên tắc phân cụm} &
 \textbf{Đặc điểm chính} \\
 \midrule
 DBSCAN &

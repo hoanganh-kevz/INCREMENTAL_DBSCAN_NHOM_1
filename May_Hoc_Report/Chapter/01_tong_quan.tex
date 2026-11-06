@@ -2,13 +2,13 @@
 
 \section{Bối cảnh và lý do chọn đề tài}
 
-Trong thực tế, dữ liệu có thể thay đổi theo thời gian: có đối tượng mới được ghi nhận hoặc một số đối tượng cũ bị xóa. Nếu mỗi lần thay đổi đều chạy lại toàn bộ thuật toán gom cụm, chương trình sẽ phải xử lý lại cả những phần dữ liệu không bị ảnh hưởng.
+Trong thực tế, dữ liệu có thể thay đổi theo thời gian: có đối tượng mới được ghi nhận hoặc một số đối tượng cũ bị xóa. Nếu mỗi lần thay đổi đều chạy lại toàn bộ thuật toán phân cụm, chương trình sẽ phải xử lý lại cả những phần dữ liệu không bị ảnh hưởng.
 
 Vì vậy, nhóm chọn tìm hiểu Incremental DBSCAN. Thuật toán này dựa trên kết quả DBSCAN đã có để cập nhật các cụm sau khi dữ liệu thay đổi. Qua đề tài, nhóm muốn hiểu cách DBSCAN tạo cụm và cách cập nhật đó hoạt động trong các trường hợp thêm, xóa điểm.
 
 \section{Bài toán cần giải quyết}
 
-Đầu vào gồm một tập dữ liệu đã được gom cụm bằng DBSCAN. Sau đó, chương trình lần lượt thêm hoặc xóa một điểm. Với \(\varepsilon\), \(\mathrm{MinPts}\) và cách tính khoảng cách giữa các đối tượng bằng khoảng cách Euclidean được giữ cố định, chương trình cần cập nhật nhãn cụm, trạng thái lõi, biên và nhiễu cho dữ liệu mới.
+Đầu vào gồm một tập dữ liệu đã được phân cụm bằng DBSCAN. Sau đó, chương trình lần lượt thêm hoặc xóa một điểm. Với \(\varepsilon\), \(\mathrm{MinPts}\) và cách tính khoảng cách giữa các đối tượng bằng khoảng cách Euclidean được giữ cố định, chương trình cần cập nhật nhãn cụm, trạng thái lõi, biên và nhiễu cho dữ liệu mới.
 
 Kết quả cập nhật được đối chiếu với DBSCAN chạy lại từ đầu trên cùng tập dữ liệu. Nhờ vậy, nhóm kiểm tra được thuật toán cập nhật có cho kết quả tương ứng hay không.
 

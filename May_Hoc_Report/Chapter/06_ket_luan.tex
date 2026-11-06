@@ -2,7 +2,7 @@
 
 \section{Kết luận}
 
-Qua đề tài, nhóm đã tự cài DBSCAN và Incremental DBSCAN bằng Python theo hướng đối tượng. DBSCAN dùng để gom cụm ban đầu; phần Incremental DBSCAN hỗ trợ thêm và xóa điểm, sử dụng lại thông tin lân cận và trạng thái cụm. Các bước cập nhật được xây dựng theo những ý chính trong tài liệu Incremental DBSCAN, gồm \(\mathrm{UpdSeed}_{Ins}\), \(\mathrm{UpdSeed}_{Del}\), kiểm tra kết nối và xử lý trường hợp cụm bị tách.
+Qua đề tài, nhóm đã tự cài DBSCAN và Incremental DBSCAN bằng Python theo hướng đối tượng. DBSCAN dùng để phân cụm ban đầu; phần Incremental DBSCAN hỗ trợ thêm và xóa điểm, sử dụng lại thông tin lân cận và trạng thái cụm. Các bước cập nhật được xây dựng theo những ý chính trong tài liệu Incremental DBSCAN, gồm \(\mathrm{UpdSeed}_{Ins}\), \(\mathrm{UpdSeed}_{Del}\), kiểm tra kết nối và xử lý trường hợp cụm bị tách.
 
 Nhóm đã minh họa các trường hợp INSERT và DELETE bằng ví dụ 2D, đồng thời chạy DBSCAN trên tọa độ ATM và khảo sát luồng thẻ theo các lát 2D, 3D, 4D. Silhouette do nhóm tự cài được dùng làm chỉ số chính để nhận xét chất lượng cụm; số cụm và tỷ lệ nhiễu được xem kèm để tránh kết luận chỉ từ một con số.
 
